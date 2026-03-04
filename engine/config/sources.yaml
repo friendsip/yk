@@ -1,0 +1,116 @@
+# RSS feeds and web sources to monitor
+# PHASE 1: Parenting sources only.
+
+sources:
+  # --- TIER 1: Government & Institutional ---
+  - name: "NHS - Pregnancy and Baby"
+    url: "https://www.nhs.uk/rss/conditions/pregnancy-and-baby.xml"
+    type: rss
+    category: parenting
+    tier: 1
+    check_interval: 60
+    active: true
+
+  - name: "NHS - Children's Health"
+    url: "https://www.nhs.uk/rss/conditions/childrens-health.xml"
+    type: rss
+    category: parenting
+    tier: 1
+    check_interval: 60
+    active: true
+
+  - name: "GOV.UK - Childcare and Parenting"
+    url: "https://www.gov.uk/browse/childcare-parenting.atom"
+    type: rss
+    category: parenting
+    tier: 1
+    check_interval: 120
+    active: true
+
+  # --- TIER 2: Charities & Professional Bodies ---
+  - name: "NSPCC News"
+    url: "https://www.nspcc.org.uk/globalassets/feeds/nspcc-news.xml"
+    type: rss
+    category: parenting
+    tier: 2
+    check_interval: 120
+    active: true
+
+  - name: "Barnardo's News"
+    url: "https://www.barnardos.org.uk/rss.xml"
+    type: rss
+    category: parenting
+    tier: 2
+    check_interval: 240
+    active: true
+
+  - name: "AAP Parenting"
+    url: "https://publications.aap.org/aapnews/pages/rss"
+    type: rss
+    category: parenting
+    tier: 2
+    check_interval: 120
+    filter_keywords: ["parenting", "child development", "family", "behavior", "attachment", "foster"]
+    active: true
+
+  # --- TIER 3: Quality Journalism ---
+  - name: "Guardian - Family"
+    url: "https://www.theguardian.com/lifeandstyle/family/rss"
+    type: rss
+    category: parenting
+    tier: 3
+    check_interval: 60
+    active: true
+
+  - name: "BBC - Family & Education"
+    url: "https://feeds.bbci.co.uk/news/education/rss.xml"
+    type: rss
+    category: parenting
+    tier: 3
+    check_interval: 60
+    active: true
+
+  # --- PHASE 2+ SOURCES (inactive) ---
+  - name: "WHO - Maternal and Child Health"
+    url: "https://www.who.int/rss-feeds/news-english.xml"
+    type: rss
+    category: health
+    tier: 1
+    check_interval: 120
+    filter_keywords: ["child", "infant", "maternal", "paediatric", "pediatric", "vaccination", "nutrition"]
+    active: false
+
+  - name: "GOV.UK - Education"
+    url: "https://www.gov.uk/search/news-and-communications.atom?topics%5B%5D=education"
+    type: rss
+    category: education
+    tier: 1
+    check_interval: 120
+    active: false
+
+  - name: "Ofsted News"
+    url: "https://www.gov.uk/government/organisations/ofsted.atom"
+    type: rss
+    category: education
+    tier: 1
+    check_interval: 240
+    active: false
+
+  - name: "UNICEF UK"
+    url: "https://www.unicef.org.uk/feed/"
+    type: rss
+    category: policy
+    tier: 2
+    check_interval: 240
+    active: false
+
+discovery_searches:
+  - query: "therapeutic parenting research 2026"
+    frequency: weekly
+    category: parenting
+    active: true
+
+  - query: "fostering adoption UK guidance"
+    frequency: weekly
+    category: parenting
+    active: true

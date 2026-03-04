@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/
+
+# Engine data and secrets
+engine/data/
+engine/.env
+engine/staging/
+
+# Node
+node_modules/
+
+# Astro build output
+site/dist/
+site/.astro/
+
+# OS
+.DS_Store

@@ -1,0 +1,79 @@
+# Engine scheduling and behaviour settings
+
+scheduling:
+  scanner:
+    enabled: true
+    default_interval_minutes: 60
+  triage:
+    enabled: true
+    interval_minutes: 30
+    batch_size: 15
+  planner:
+    enabled: true
+    run_day: "sun"
+    run_time: "05:00"
+    timezone: "Europe/London"
+  writer:
+    enabled: true
+    run_after: "planner"
+  publish:
+    enabled: true
+    run_day: "sun"
+    run_time: "06:00"
+    timezone: "Europe/London"
+  trend_snapshot:
+    enabled: true
+    run_day: "sunday"
+    run_time: "02:00"
+  decay_checker:
+    enabled: true
+    run_day: "monday"
+    run_time: "03:00"
+    max_age_days: 90
+  bible_reflection:
+    enabled: true
+    run_after: "publish"
+
+triage:
+  min_relevance: 6
+  min_importance: 5
+  min_reliability: 6
+  min_overall_score: 5.5
+
+models:
+  scanner: null
+  triage: "claude-sonnet-4-6"
+  planner: "claude-sonnet-4-6"
+  writer: "claude-sonnet-4-6"
+  editorial_synthesis: "claude-sonnet-4-6"
+  trend_snapshot: "claude-sonnet-4-6"
+  decay_checker: "claude-sonnet-4-6"
+  bible_reflection: "claude-sonnet-4-6"
+
+publishing:
+  mode: "auto"
+  max_publishes_per_day: 5
+  staging_dir: "engine/staging/"
+  git_remote: "origin"
+  git_branch: "main"
+  pr_branch_prefix: "content/daily-"
+
+trends:
+  signal_window_days: 30
+  trending_threshold_multiplier: 2.0
+  snapshot_frequency: "weekly"
+  report_frequency: "monthly"
+
+synthesis:
+  min_opposing_sources: 2
+  auto_detect: true
+
+site_bible:
+  path: "engine/config/site_bible.md"
+  max_amendment_proposals_per_day: 3
+
+content:
+  min_sources_per_article: 2
+  max_word_count: 1500
+  min_word_count: 300
+  require_source_links: true

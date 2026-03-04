@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const articles = await getCollection('articles');
+const sortedArticles = articles.sort(
+  (a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf()
+);
+---
+
+<BaseLayout title="Home">
+  <h1>Therapeutic Parenting</h1>
+  <p>Curated resources for parents supporting children with trauma and attachment needs.</p>
+
+  <h2>Articles</h2>
+  {sortedArticles.length === 0 ? (
+    <p>No articles yet.</p>
+  ) : (
+    <ul class="article-list">
+      {sortedArticles.map((article) => (
+        <li>
+          <div class="article-meta">
+            {article.data.publishedDate.toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </div>
+          <h3>
+            <a href={`/articles/${article.slug}`}>{article.data.title}</a>
+          </h3>
+          <p>{article.data.summary}</p>
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>

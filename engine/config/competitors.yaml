@@ -1,0 +1,50 @@
+# Sites to monitor for competitive intelligence (Phase 3)
+
+competitors:
+  - name: "MadeForMums"
+    url: "https://www.madeformums.com"
+    type: parenting_portal
+    notes: "Large UK parenting site."
+
+  - name: "NCT"
+    url: "https://www.nct.org.uk"
+    type: charity
+    notes: "UK's largest parenting charity. Potential partnership."
+
+  - name: "Mumsnet"
+    url: "https://www.mumsnet.com"
+    type: community
+    notes: "Forum-based. Useful for understanding what parents ask about."
+
+  - name: "What to Expect"
+    url: "https://www.whattoexpect.com"
+    type: parenting_portal
+    notes: "Major US parenting site."
+
+  - name: "BabyCentre UK"
+    url: "https://www.babycentre.co.uk"
+    type: parenting_portal
+    notes: "Large, established. UK version."
+
+  - name: "Fostering Network"
+    url: "https://www.thefosteringnetwork.org.uk"
+    type: charity
+    notes: "UK fostering charity. Potential content partner."
+
+  - name: "Adoption UK"
+    url: "https://www.adoptionuk.org"
+    type: charity
+    notes: "Adoption support. Potential content partner."
+
+  - name: "Place2Be"
+    url: "https://www.place2be.org.uk"
+    type: charity
+    notes: "Children's mental health charity."
+
+  - name: "Anna Freud Centre"
+    url: "https://www.annafreud.org"
+    type: research
+    notes: "Children's mental health research."
+
+scan_frequency: weekly
+report_frequency: monthly
