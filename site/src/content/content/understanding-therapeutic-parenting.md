@@ -1,9 +1,14 @@
 ---
 title: "Understanding Therapeutic Parenting: A Foundation"
 summary: "An introduction to therapeutic parenting approaches for children who have experienced trauma, attachment difficulties, or early adversity."
-publishedDate: 2026-02-08
+type: evergreen
+section: parenting
+tags:
+  - health
+  - family-life
 sources:
   - https://www.adoptionuk.org/therapeutic-parenting
+first_published: 2026-02-08
 ---
 
 Therapeutic parenting is an approach designed to help children who have experienced trauma, neglect, or disrupted attachment in their early years. Unlike traditional parenting strategies, which often rely on behavioural consequences, therapeutic parenting prioritises connection, understanding, and emotional regulation.

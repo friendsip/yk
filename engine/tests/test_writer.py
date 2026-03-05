@@ -48,7 +48,8 @@ def test_validate_missing_title():
     """Article missing title field fails."""
     md = """---
 summary: "A summary"
-publishedDate: 2026-03-04
+type: evergreen
+first_published: 2026-03-04
 ---
 
 Some content here about parenting topics that should be at least a few words long."""
@@ -61,7 +62,8 @@ def test_validate_too_short():
     md = """---
 title: "Short"
 summary: "Too short"
-publishedDate: 2026-03-04
+type: evergreen
+first_published: 2026-03-04
 sources:
   - https://example.com
 ---
@@ -77,7 +79,8 @@ def test_validate_acceptable_length():
     md = f"""---
 title: "Test Article"
 summary: "A test"
-publishedDate: 2026-03-04
+type: evergreen
+first_published: 2026-03-04
 sources:
   - https://example.com
 ---
@@ -120,7 +123,7 @@ def test_write_article_multi_source(test_db, mock_llm_client, sample_article_mar
         "id": 1,
         "item_ids": json.dumps([1, 2]),
         "action_type": "create",
-        "target_path": "articles/combined.md",
+        "target_path": "content/combined.md",
         "instructions": "Combine sources",
     }
 

@@ -56,7 +56,7 @@ def run_writer_for_plan(plan_id: int, llm_client: LLMClient):
                 continue
 
             if markdown:
-                target_path = action.get("target_path") or f"articles/item-{action['id']}.md"
+                target_path = action.get("target_path") or f"content/item-{action['id']}.md"
                 stage_content(markdown, target_path, action["id"])
                 db.update_action_status(action["id"], "staged")
             else:

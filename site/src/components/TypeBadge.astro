@@ -1,0 +1,15 @@
+---
+interface Props {
+  type: 'evergreen' | 'curated' | 'editorial';
+}
+
+const { type } = Astro.props;
+
+const labels: Record<string, string> = {
+  evergreen: 'Article',
+  curated: 'Curated Link',
+  editorial: 'Editorial',
+};
+---
+
+<span class={`type-badge type-badge--${type}`}>{labels[type]}</span>

@@ -178,11 +178,13 @@ class Database:
         target_path: str | None,
         instructions: str,
         priority: int,
+        topic_tags: list[str] | None = None,
     ) -> int:
         cur = self._execute(
-            """INSERT INTO plan_actions (plan_id, item_ids, action_type, target_path, instructions, priority, updated_at)
-               VALUES (?, ?, ?, ?, ?, ?, datetime('now'))""",
-            (plan_id, json.dumps(item_ids), action_type, target_path, instructions, priority),
+            """INSERT INTO plan_actions (plan_id, item_ids, action_type, target_path, instructions, priority, topic_tags, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))""",
+            (plan_id, json.dumps(item_ids), action_type, target_path, instructions, priority,
+             json.dumps(topic_tags) if topic_tags else None),
         )
         return cur.lastrowid
 

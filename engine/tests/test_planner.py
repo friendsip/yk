@@ -113,7 +113,7 @@ def test_planner_multi_source_action(test_db, mock_llm_client, monkeypatch):
             {
                 "action_type": "create",
                 "item_ids": [1, 2],
-                "target_path": "articles/combined.md",
+                "target_path": "content/combined.md",
                 "priority": 8,
                 "instructions": "Combine both sources.",
             }
@@ -133,6 +133,47 @@ def test_planner_multi_source_action(test_db, mock_llm_client, monkeypatch):
     assert len(actions) == 1
     item_ids = json.loads(actions[0]["item_ids"])
     assert item_ids == [1, 2]
+
+
+def test_planner_stores_topic_tags(test_db, mock_llm_client, sample_plan_response, monkeypatch):
+    """Planner stores topic_tags from the LLM plan response."""
+    monkeypatch.setattr("src.planner.planner.get_db", lambda: test_db)
+
+    source_id = test_db.upsert_source(
+        name="Test", url="https://example.com/feed",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+    test_db.insert_discovered_item(
+        source_id=source_id, url="https://example.com/article",
+        title="Test Article", content="Content",
+        content_hash="tags_test",
+    )
+    test_db.update_item_status(1, "triaged")
+    test_db.insert_triage_result(
+        item_id=1,
+        scores={
+            "relevance_score": 8, "novelty_score": 7,
+            "importance_score": 8, "overall_score": 7.8,
+            "suggested_action": "new_article",
+            "suggested_section": "parenting",
+            "triage_reasoning": "Good",
+            "model_used": "test",
+        },
+    )
+
+    mock_llm_client.call.return_value = (
+        sample_plan_response,
+        {"model": "test", "input_tokens": 200, "output_tokens": 100, "cost_usd": 0.002},
+    )
+
+    plan_id = run_planner(llm_client=mock_llm_client)
+    actions = test_db.get_pending_actions(plan_id)
+    assert len(actions) == 1
+
+    import json
+    topic_tags = json.loads(actions[0]["topic_tags"])
+    assert "health" in topic_tags
 
 
 def test_planner_no_items(test_db, mock_llm_client, monkeypatch):

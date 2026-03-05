@@ -1,0 +1,45 @@
+---
+const pathname = Astro.url.pathname;
+
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/topics', label: 'Topics' },
+  { href: '/articles', label: 'Articles' },
+  { href: '/curated', label: 'Curated Links' },
+  { href: '/editorial', label: 'Editorials' },
+];
+
+function isCurrent(href: string): boolean {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
+}
+---
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="site-logo">YourKids</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    </button>
+    <nav class="site-nav" id="site-nav">
+      {links.map(({ href, label }) => (
+        <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>{label}</a>
+      ))}
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector('.nav-toggle');
+  const nav = document.getElementById('site-nav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', () => {
+      const open = nav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+  }
+</script>

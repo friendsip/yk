@@ -1,10 +1,16 @@
 ---
 title: "Nearly a Million Young People Are NEET in the UK — What Parents Should Know"
 summary: "Official figures show 957,000 young people aged 16–24 are not in education, employment or training. Here's what the data says, why mental health and neurodivergence feature prominently, and what to watch for if you're worried about a teenager."
-publishedDate: 2026-03-04
+type: curated
+section: parenting
+tags:
+  - education
+  - health
+external_url: "https://www.bbc.com/news/articles/cly9rq35de8o"
 sources:
   - https://www.bbc.com/news/articles/cly9rq35de8o
   - https://www.ons.gov.uk/
+first_published: 2026-03-04
 ---
 
 > **Curated Links** — This entry points to BBC coverage of the latest ONS NEET statistics. Our value-add is the editorial framing and signposting for parents; the BBC pieces cover the data thoroughly and are worth reading in full.
@@ -51,7 +57,3 @@ If you're concerned, a good first step is a conversation with your young person'
 - [What does NEET stand for and how many are there in the UK? — BBC News](https://www.bbc.com/news/articles/cly9rq35de8o)
 
 *Primary data source: Office for National Statistics (ONS), Labour Force Survey, October–December 2025.*
-
----
-
-> **Internal note — editorial team:** This topic warrants a fuller evergreen page on supporting teenagers through education and employment transitions, covering: how to have productive conversations with a disengaged young person; navigating EHCP and SEND support in post-16 settings; signposting to local and national support services; and the evidence on what actually helps young people re-engage. Flag for development once we have sufficient Tier 1 and Tier 2 source material to do it properly.

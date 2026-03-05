@@ -82,7 +82,8 @@ def sample_plan_response():
                 "action_type": "create",
                 "item_ids": [1],
                 "target_section": "parenting",
-                "target_path": "articles/child-sleep-patterns.md",
+                "target_path": "content/child-sleep-patterns.md",
+                "topic_tags": ["health"],
                 "priority": 8,
                 "instructions": "Write an article summarising the new sleep research.",
             }
@@ -98,10 +99,14 @@ def sample_article_markdown():
     return """---
 title: "Understanding Child Sleep Patterns"
 summary: "New research highlights the importance of consistent bedtime routines."
-publishedDate: 2026-03-04
+type: evergreen
+section: parenting
+tags:
+  - health
 sources:
   - https://example.com/sleep-patterns
   - https://example.com/sleep-study
+first_published: 2026-03-04
 ---
 
 ## Why Sleep Matters

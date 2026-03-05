@@ -11,7 +11,7 @@ def test_insert_plan_action_with_item_ids(test_db):
         plan_id=plan_id,
         item_ids=[10, 20, 30],
         action_type="create",
-        target_path="articles/test.md",
+        target_path="content/test.md",
         instructions="Write article",
         priority=8,
     )
@@ -49,7 +49,7 @@ def test_action_status_staged(test_db):
         plan_id=plan_id,
         item_ids=[1],
         action_type="create",
-        target_path="articles/test.md",
+        target_path="content/test.md",
         instructions="Write",
         priority=5,
     )
@@ -69,7 +69,7 @@ def test_stale_in_progress_actions_retried(test_db):
         plan_id=plan_id,
         item_ids=[1],
         action_type="create",
-        target_path="articles/test.md",
+        target_path="content/test.md",
         instructions="Write",
         priority=5,
     )

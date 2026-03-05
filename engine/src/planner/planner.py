@@ -46,14 +46,17 @@ Output ONLY a JSON object with this structure:
       "action_type": "create|update|curated_link",
       "item_ids": [list of discovered_item IDs to use as source material],
       "target_section": "parenting",
-      "target_path": "articles/suggested-slug.md",
+      "target_path": "content/suggested-slug.md",
+      "topic_tags": ["health", "education"],
       "priority": 1-10,
       "instructions": "Specific editorial instructions for the writer"
     }}
   ],
   "deferred": "Brief note on items held for later and why",
   "bible_observations": null
-}}"""
+}}
+
+For topic_tags, choose from: health, education, fun-toys, cool-science, fun-things-to-do, safety, family-life, special-needs. You may create new tags if no existing tag fits, using kebab-case."""
 
 
 def run_planner(llm_client: LLMClient = None, max_daily: int = 5) -> int | None:
@@ -137,6 +140,7 @@ def run_planner(llm_client: LLMClient = None, max_daily: int = 5) -> int | None:
             target_path=action.get("target_path"),
             instructions=action.get("instructions", ""),
             priority=action.get("priority", 5),
+            topic_tags=action.get("topic_tags"),
         )
         for item_id in item_ids:
             db.update_item_status(item_id, "planned")

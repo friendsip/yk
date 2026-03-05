@@ -11,7 +11,7 @@ from src.llm.client import LLMClient
 logger = logging.getLogger(__name__)
 
 SITE_CONTENT_DIR = (
-    Path(__file__).parent.parent.parent.parent / "site" / "src" / "content" / "articles"
+    Path(__file__).parent.parent.parent.parent / "site" / "src" / "content" / "content"
 )
 
 WRITER_INSTRUCTIONS = """You are a content writer for yourkids.com. Write a new article based on the
@@ -36,11 +36,16 @@ Requirements:
   ---
   title: "Article Title"
   summary: "One or two sentence summary for cards and meta descriptions"
-  publishedDate: {today_date}
+  type: {content_type}
+  section: parenting
+  tags:
+{tags_yaml}
   sources:
     - https://source-url-1.com/article
     - https://source-url-2.com/article
+  first_published: {today_date}
   ---
+  For curated links, also include: external_url: "https://primary-source-url.com/article"
 - Keep between {min_words} and {max_words} words
 - Use at least {min_sources} independent sources
 - End with inline links to sources throughout the text
@@ -90,6 +95,22 @@ def write_article(plan_action: dict, llm_client: LLMClient = None) -> str | None
     settings = llm_client.settings or {}
     content_settings = settings.get("content", {})
 
+    # Map action_type to frontmatter type
+    action_type = plan_action.get("action_type", "create")
+    type_map = {"create": "evergreen", "curated_link": "curated", "editorial": "editorial"}
+    content_type = type_map.get(action_type, "evergreen")
+
+    # Build topic_tags YAML
+    topic_tags_raw = plan_action.get("topic_tags")
+    if topic_tags_raw:
+        if isinstance(topic_tags_raw, str):
+            topic_tags = json.loads(topic_tags_raw)
+        else:
+            topic_tags = topic_tags_raw
+    else:
+        topic_tags = []
+    tags_yaml = "\n".join(f"    - {tag}" for tag in topic_tags) if topic_tags else "    - parenting"
+
     prompt = WRITER_INSTRUCTIONS.format(
         instructions=plan_action.get(
             "instructions", "Write a comprehensive, well-sourced article."
@@ -97,6 +118,8 @@ def write_article(plan_action: dict, llm_client: LLMClient = None) -> str | None
         source_texts=source_text,
         style_examples=style_examples,
         today_date=datetime.now().strftime("%Y-%m-%d"),
+        content_type=content_type,
+        tags_yaml=tags_yaml,
         min_words=content_settings.get("min_word_count", 300),
         max_words=content_settings.get("max_word_count", 1500),
         min_sources=content_settings.get("min_sources_per_article", 2),
@@ -164,7 +187,7 @@ def _validate_article(markdown: str, settings: dict) -> bool:
         return False
 
     frontmatter = parts[1]
-    required_fields = ["title:", "summary:", "publishedDate:"]
+    required_fields = ["title:", "summary:", "first_published:", "type:"]
     for field in required_fields:
         if field not in frontmatter:
             logger.error(f"Missing frontmatter field: {field}")

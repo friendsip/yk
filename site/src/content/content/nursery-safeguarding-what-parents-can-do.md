@@ -1,11 +1,16 @@
 ---
 title: "Nursery Safeguarding: What Parents Need to Know After the Vincent Chan Case"
 summary: "A former nursery worker has been jailed for serious abuse of children in his care. Here's what the case means for parents, what safeguarding rules currently apply to nurseries, and what you can do if you have concerns."
-publishedDate: 2026-03-04
+type: evergreen
+section: parenting
+tags:
+  - safety
+  - education
 sources:
   - https://www.bbc.com/news/articles/cvg35lxp32no
   - https://www.ofsted.gov.uk/education-and-skills/find-inspection-report
   - https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/report/
+first_published: 2026-03-04
 ---
 
 This article deals with child abuse. It may be distressing to read. If you have concerns about a child's safety, you can contact the NSPCC helpline at any time on **0808 800 5000** (free, 24/7).

@@ -1,0 +1,19 @@
+---
+interface Props {
+  tags: string[];
+}
+
+const { tags } = Astro.props;
+
+function toDisplayName(tag: string): string {
+  return tag.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+---
+
+{tags.length > 0 && (
+  <div class="tag-list">
+    {tags.map((tag) => (
+      <a href={`/topics/${tag}`} class="tag-chip">{toDisplayName(tag)}</a>
+    ))}
+  </div>
+)}

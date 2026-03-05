@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import ContentLayout from '../../layouts/ContentLayout.astro';
+
+export async function getStaticPaths() {
+  const content = await getCollection('content');
+  return content
+    .filter(c => c.data.type === 'curated')
+    .map((item) => ({
+      params: { slug: item.slug },
+      props: { item },
+    }));
+}
+
+const { item } = Astro.props;
+const { Content } = await item.render();
+---
+
+<ContentLayout
+  title={item.data.title}
+  summary={item.data.summary}
+  type={item.data.type}
+  tags={item.data.tags}
+  sources={item.data.sources}
+  first_published={item.data.first_published}
+  last_updated={item.data.last_updated}
+  external_url={item.data.external_url}
+>
+  <Content />
+</ContentLayout>

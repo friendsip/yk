@@ -1,37 +1,102 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ContentCard from '../components/ContentCard.astro';
 
-const articles = await getCollection('articles');
-const sortedArticles = articles.sort(
-  (a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf()
+const allContent = await getCollection('content');
+const sorted = allContent.sort(
+  (a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf()
 );
+
+const latest = sorted.slice(0, 6);
+const curatedLinks = sorted.filter(c => c.data.type === 'curated').slice(0, 3);
+
+// Build tag counts from all content
+const tagCounts = new Map<string, number>();
+for (const item of allContent) {
+  for (const tag of item.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  }
+}
+const topics = [...tagCounts.entries()]
+  .sort((a, b) => b[1] - a[1])
+  .map(([tag, count]) => ({ tag, count }));
+
+function toDisplayName(tag: string): string {
+  return tag.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function hrefForItem(item: { slug: string; data: { type: string } }): string {
+  const typeRoutes: Record<string, string> = {
+    evergreen: '/articles/',
+    curated: '/curated/',
+    editorial: '/editorial/',
+  };
+  return (typeRoutes[item.data.type] || '/articles/') + item.slug;
+}
 ---
 
-<BaseLayout title="Home">
-  <h1>Therapeutic Parenting</h1>
-  <p>Curated resources for parents supporting children with trauma and attachment needs.</p>
+<BaseLayout title="Home" description="Curated parenting resources — articles, guides, and links for families." wide>
+  <div class="home-intro">
+    <h1>YourKids</h1>
+    <p>Carefully curated articles, guides, and links for parents — updated weekly.</p>
+  </div>
 
-  <h2>Articles</h2>
-  {sortedArticles.length === 0 ? (
-    <p>No articles yet.</p>
-  ) : (
-    <ul class="article-list">
-      {sortedArticles.map((article) => (
-        <li>
-          <div class="article-meta">
-            {article.data.publishedDate.toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </div>
-          <h3>
-            <a href={`/articles/${article.slug}`}>{article.data.title}</a>
-          </h3>
-          <p>{article.data.summary}</p>
-        </li>
-      ))}
-    </ul>
+  {latest.length > 0 && (
+    <section class="home-section">
+      <div class="section-heading">
+        <h2>Latest</h2>
+      </div>
+      <div class="content-grid">
+        {latest.map((item) => (
+          <ContentCard
+            title={item.data.title}
+            summary={item.data.summary}
+            type={item.data.type}
+            tags={item.data.tags}
+            date={item.data.first_published}
+            href={hrefForItem(item)}
+          />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {topics.length > 0 && (
+    <section class="home-section">
+      <div class="section-heading">
+        <h2>Browse by Topic</h2>
+        <a href="/topics">All topics &rarr;</a>
+      </div>
+      <div class="topic-grid">
+        {topics.map(({ tag, count }) => (
+          <a href={`/topics/${tag}`} class="topic-card">
+            <span class="topic-card__name">{toDisplayName(tag)}</span>
+            <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {curatedLinks.length > 0 && (
+    <section class="home-section">
+      <div class="section-heading">
+        <h2>Curated Links</h2>
+        <a href="/curated">All curated links &rarr;</a>
+      </div>
+      <div class="content-grid">
+        {curatedLinks.map((item) => (
+          <ContentCard
+            title={item.data.title}
+            summary={item.data.summary}
+            type={item.data.type}
+            tags={item.data.tags}
+            date={item.data.first_published}
+            href={hrefForItem(item)}
+          />
+        ))}
+      </div>
+    </section>
   )}
 </BaseLayout>

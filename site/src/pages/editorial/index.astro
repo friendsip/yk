@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+
+const editorials = (await getCollection('content'))
+  .filter(c => c.data.type === 'editorial')
+  .sort((a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf());
+---
+
+<BaseLayout title="Editorials" description="Editor's perspectives on parenting topics." wide>
+  <div class="page-hero">
+    <h1>Editorials</h1>
+    <p>Our editor's perspective on parenting topics that matter.</p>
+  </div>
+
+  {editorials.length === 0 ? (
+    <p class="empty-state">No editorials yet. Check back soon.</p>
+  ) : (
+    <div class="content-grid">
+      {editorials.map((item) => (
+        <ContentCard
+          title={item.data.title}
+          summary={item.data.summary}
+          type={item.data.type}
+          tags={item.data.tags}
+          date={item.data.first_published}
+          href={`/editorial/${item.slug}`}
+        />
+      ))}
+    </div>
+  )}
+</BaseLayout>

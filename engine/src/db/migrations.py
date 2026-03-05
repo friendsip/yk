@@ -220,6 +220,11 @@ def migrate(db_path: str = None):
         _run_migration_v2(conn)
         conn.execute("INSERT INTO schema_version (version) VALUES (2)")
 
+    # Migration v3: topic_tags on plan_actions
+    if current < 3:
+        _run_migration_v3(conn)
+        conn.execute("INSERT INTO schema_version (version) VALUES (3)")
+
     conn.commit()
     conn.close()
 
@@ -251,6 +256,15 @@ def _run_migration_v2(conn):
         conn.execute(
             "UPDATE plan_actions SET updated_at = datetime('now') WHERE updated_at IS NULL"
         )
+
+
+def _run_migration_v3(conn):
+    """Add topic_tags column to plan_actions."""
+    existing_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(plan_actions)").fetchall()
+    }
+    if "topic_tags" not in existing_cols:
+        conn.execute("ALTER TABLE plan_actions ADD COLUMN topic_tags TEXT")
 
 
 if __name__ == "__main__":

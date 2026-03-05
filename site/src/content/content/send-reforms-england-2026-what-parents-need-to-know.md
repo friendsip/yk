@@ -1,10 +1,15 @@
 ---
 title: "SEND Reforms 2029–2035: What the Schools White Paper Means for Your Child"
 summary: "The government has announced major changes to how children with special educational needs and disabilities are supported in England. Here's what we know, what's still unclear, and what parents can do now."
-publishedDate: 2026-03-04
+type: evergreen
+section: parenting
+tags:
+  - education
+  - special-needs
+  - safety
 sources:
   - https://www.bbc.com/news/articles/cwy18y5jpw1o
-  - https://www.bbc.com/news/articles/cwy18y5jpw1o
+first_published: 2026-03-04
 ---
 
 > **This is a fast-moving story.** The Schools White Paper was published recently and many of the details are still emerging. This article will be updated as further guidance becomes available. Last updated: 4 March 2026.

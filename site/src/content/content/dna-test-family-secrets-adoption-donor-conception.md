@@ -1,11 +1,17 @@
 ---
 title: "'I clicked on a button – and everything changed': a DNA test, a family secret, and the question of what we tell our children"
 summary: "A powerful personal essay from The Guardian explores what happens when a DNA test unravels decades of family silence — essential reading for adoptive, donor-conceived, and blended families thinking about how and when to share origin stories."
-publishedDate: 2026-03-04
+type: curated
+section: parenting
+tags:
+  - family-life
+  - health
+external_url: "https://www.theguardian.com/lifeandstyle/2026/feb/28/how-dna-test-changed-my-life-ivf-family"
 sources:
   - https://www.theguardian.com/lifeandstyle/2026/feb/28/how-dna-test-changed-my-life-ivf-family
   - https://www.donorconceptionnetwork.org
   - https://www.adoptionuk.org
+first_published: 2026-03-04
 ---
 
 **Curated Link — Personal Essay / Narrative Journalism**

@@ -5,6 +5,7 @@ import json
 from src.publisher.publisher import (
     stage_content,
     _extract_title,
+    _extract_frontmatter_field,
     _count_sources,
     STAGING_DIR,
 )
@@ -18,21 +19,25 @@ def test_stage_content(tmp_path, monkeypatch):
     markdown = """---
 title: "Test Article"
 summary: "A test"
-publishedDate: 2026-03-04
+type: evergreen
+section: parenting
+tags:
+  - health
 sources:
   - https://example.com
+first_published: 2026-03-04
 ---
 
 Content here."""
 
-    stage_content(markdown, "articles/test-article.md", action_id=42)
+    stage_content(markdown, "content/test-article.md", action_id=42)
 
-    staged_file = staging / "articles" / "test-article.md"
+    staged_file = staging / "content" / "test-article.md"
     assert staged_file.exists()
     assert staged_file.read_text() == markdown
 
     # Check metadata sidecar
-    meta_file = staging / "articles" / "test-article.md.meta.json"
+    meta_file = staging / "content" / "test-article.md.meta.json"
     assert meta_file.exists()
     meta = json.loads(meta_file.read_text())
     assert meta["action_id"] == 42
@@ -67,3 +72,13 @@ Content"""
 def test_count_sources_none():
     md = "---\ntitle: Test\n---\nNo sources"
     assert _count_sources(md) == 0
+
+
+def test_extract_frontmatter_field_type():
+    md = '---\ntitle: "Test"\ntype: curated\nfirst_published: 2026-03-04\n---\nContent'
+    assert _extract_frontmatter_field(md, "type") == "curated"
+
+
+def test_extract_frontmatter_field_missing():
+    md = '---\ntitle: "Test"\n---\nContent'
+    assert _extract_frontmatter_field(md, "type") is None

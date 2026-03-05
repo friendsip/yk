@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+
+const articles = (await getCollection('content'))
+  .filter(c => c.data.type === 'evergreen')
+  .sort((a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf());
+---
+
+<BaseLayout title="Articles" description="In-depth articles and guides for parents." wide>
+  <div class="page-hero">
+    <h1>Articles</h1>
+    <p>In-depth guides and evergreen resources for parents.</p>
+  </div>
+
+  {articles.length === 0 ? (
+    <p class="empty-state">No articles yet. Check back soon.</p>
+  ) : (
+    <div class="content-grid">
+      {articles.map((item) => (
+        <ContentCard
+          title={item.data.title}
+          summary={item.data.summary}
+          type={item.data.type}
+          tags={item.data.tags}
+          date={item.data.first_published}
+          href={`/articles/${item.slug}`}
+        />
+      ))}
+    </div>
+  )}
+</BaseLayout>

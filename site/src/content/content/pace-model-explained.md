@@ -1,9 +1,14 @@
 ---
 title: "The PACE Model: Playfulness, Acceptance, Curiosity, Empathy"
 summary: "How the PACE approach developed by Dan Hughes can transform your relationship with a child who has experienced trauma."
-publishedDate: 2026-02-07
+type: evergreen
+section: parenting
+tags:
+  - health
+  - family-life
 sources:
   - https://ddpnetwork.org/about-ddp/what-is-pace/
+first_published: 2026-02-07
 ---
 
 PACE is an approach to communication and relationship-building developed by clinical psychologist Dan Hughes. It stands for Playfulness, Acceptance, Curiosity, and Empathy — four attitudes that help create safety and connection with children who have experienced developmental trauma.

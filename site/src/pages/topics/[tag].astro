@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+
+export async function getStaticPaths() {
+  const allContent = await getCollection('content');
+
+  const tagSet = new Set<string>();
+  for (const item of allContent) {
+    for (const tag of item.data.tags) {
+      tagSet.add(tag);
+    }
+  }
+
+  return [...tagSet].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      items: allContent
+        .filter(c => c.data.tags.includes(tag))
+        .sort((a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf()),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  items: Awaited<ReturnType<typeof getCollection>>;
+}
+
+const { tag, items } = Astro.props;
+
+function toDisplayName(t: string): string {
+  return t.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function hrefForItem(item: { slug: string; data: { type: string } }): string {
+  const routes: Record<string, string> = {
+    evergreen: '/articles/',
+    curated: '/curated/',
+    editorial: '/editorial/',
+  };
+  return (routes[item.data.type] || '/articles/') + item.slug;
+}
+
+const displayName = toDisplayName(tag);
+---
+
+<BaseLayout title={displayName} description={`All content tagged "${displayName}".`} wide>
+  <div class="page-hero">
+    <h1>{displayName}</h1>
+    <p>{items.length} {items.length === 1 ? 'article' : 'articles'} in this topic</p>
+  </div>
+
+  <div class="content-grid">
+    {items.map((item) => (
+      <ContentCard
+        title={item.data.title}
+        summary={item.data.summary}
+        type={item.data.type}
+        tags={item.data.tags}
+        date={item.data.first_published}
+        href={hrefForItem(item)}
+      />
+    ))}
+  </div>
+
+  <a href="/topics" class="back-link">&larr; All topics</a>
+</BaseLayout>

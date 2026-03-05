@@ -1,0 +1,70 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TypeBadge from '../components/TypeBadge.astro';
+import TagList from '../components/TagList.astro';
+import SourcesList from '../components/SourcesList.astro';
+
+interface Props {
+  title: string;
+  summary: string;
+  type: 'evergreen' | 'curated' | 'editorial';
+  tags: string[];
+  sources?: string[];
+  first_published: Date;
+  last_updated?: Date;
+  external_url?: string;
+}
+
+const { title, summary, type, tags, sources = [], first_published, last_updated, external_url } = Astro.props;
+
+const formattedDate = first_published.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const updatedDate = last_updated?.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const backLinks: Record<string, { href: string; label: string }> = {
+  evergreen: { href: '/articles', label: 'All articles' },
+  curated: { href: '/curated', label: 'All curated links' },
+  editorial: { href: '/editorial', label: 'All editorials' },
+};
+---
+
+<BaseLayout title={title} description={summary}>
+  <article>
+    <header class="content-header">
+      {type === 'editorial' && (
+        <div class="editorial-banner">Editor's Perspective</div>
+      )}
+      <div class="content-header__meta">
+        <TypeBadge type={type} />
+        <time datetime={first_published.toISOString()}>{formattedDate}</time>
+        {updatedDate && <span>&middot; Updated {updatedDate}</span>}
+      </div>
+      <h1>{title}</h1>
+      <p class="content-header__summary">{summary}</p>
+      {type === 'curated' && external_url && (
+        <a href={external_url} class="curated-cta" target="_blank" rel="noopener noreferrer">
+          Read at source &rarr;
+        </a>
+      )}
+      <div class="content-header__tags">
+        <TagList tags={tags} />
+      </div>
+    </header>
+
+    <div class="content-body">
+      <slot />
+    </div>
+
+    {sources.length > 0 && <SourcesList sources={sources} />}
+  </article>
+
+  <a href={backLinks[type].href} class="back-link">&larr; {backLinks[type].label}</a>
+</BaseLayout>

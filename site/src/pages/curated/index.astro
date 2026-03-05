@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+
+const curated = (await getCollection('content'))
+  .filter(c => c.data.type === 'curated')
+  .sort((a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf());
+---
+
+<BaseLayout title="Curated Links" description="Hand-picked links to quality parenting content from around the web." wide>
+  <div class="page-hero">
+    <h1>Curated Links</h1>
+    <p>Hand-picked links to quality parenting content from around the web.</p>
+  </div>
+
+  {curated.length === 0 ? (
+    <p class="empty-state">No curated links yet. Check back soon.</p>
+  ) : (
+    <div class="content-grid">
+      {curated.map((item) => (
+        <ContentCard
+          title={item.data.title}
+          summary={item.data.summary}
+          type={item.data.type}
+          tags={item.data.tags}
+          date={item.data.first_published}
+          href={`/curated/${item.slug}`}
+        />
+      ))}
+    </div>
+  )}
+</BaseLayout>

@@ -12,7 +12,7 @@ from src.utils.config import load_settings
 logger = logging.getLogger(__name__)
 
 SITE_CONTENT_DIR = (
-    Path(__file__).parent.parent.parent.parent / "site" / "src" / "content" / "articles"
+    Path(__file__).parent.parent.parent.parent / "site" / "src" / "content" / "content"
 )
 STAGING_DIR = Path(__file__).parent.parent.parent / "staging"
 
@@ -58,11 +58,8 @@ def publish_daily_batch():
 
     for staged_file in staged_files:
         relative_path = staged_file.relative_to(STAGING_DIR)
-        # Articles go to the articles directory
+        # All content goes flat into the content collection directory
         target = SITE_CONTENT_DIR / relative_path.name
-        if "articles/" in str(relative_path):
-            # Strip the articles/ prefix since SITE_CONTENT_DIR already points there
-            target = SITE_CONTENT_DIR / relative_path.name
 
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(staged_file, target)
@@ -82,11 +79,13 @@ def publish_daily_batch():
         word_count = len(markdown.split("---", 2)[-1].split()) if "---" in markdown else 0
         source_count = _count_sources(markdown)
 
+        content_type = _extract_frontmatter_field(markdown, "type") or "evergreen"
+
         db.insert_published_content(
             file_path=str(relative_path),
             title=title,
             section="parenting",
-            content_type="article",
+            content_type=content_type,
             source_item_ids="[]",
             word_count=word_count,
             source_count=source_count,
@@ -184,6 +183,18 @@ def _extract_title(markdown: str) -> str:
             if stripped.startswith("title:"):
                 return stripped.split(":", 1)[1].strip().strip("\"'")
     return "Untitled"
+
+
+def _extract_frontmatter_field(markdown: str, field: str) -> str | None:
+    """Extract a single field value from YAML frontmatter."""
+    if "---" not in markdown:
+        return None
+    frontmatter = markdown.split("---", 2)[1]
+    for line in frontmatter.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith(f"{field}:"):
+            return stripped.split(":", 1)[1].strip().strip("\"'")
+    return None
 
 
 def _count_sources(markdown: str) -> int:

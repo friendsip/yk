@@ -20,7 +20,8 @@ based on new source material. Make minimal, targeted edits to:
 - Update any outdated information
 - Preserve the existing voice, structure, and tone
 - Add new sources to the frontmatter sources list
-- Update the publishedDate to {today_date}
+- Preserve the existing type, section, tags, and first_published fields
+- Set last_updated to {today_date}
 
 <existing_article>
 {existing_content}
