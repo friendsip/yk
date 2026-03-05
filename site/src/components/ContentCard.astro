@@ -20,16 +20,16 @@ const formattedDate = date.toLocaleDateString('en-GB', {
 });
 ---
 
-<a href={href} class="content-card">
-  <div>
-    <div class="content-card__meta">
-      <TypeBadge type={type} />
-      <time datetime={date.toISOString()}>{formattedDate}</time>
-    </div>
-    <h3 class="content-card__title">{title}</h3>
-    <p class="content-card__summary">{summary}</p>
-    <div class="content-card__tags">
-      <TagList tags={tags} />
-    </div>
+<div class="content-card">
+  <div class="content-card__meta">
+    <TypeBadge type={type} />
+    <time datetime={date.toISOString()}>{formattedDate}</time>
   </div>
-</a>
+  <h3 class="content-card__title">
+    <a href={href} class="content-card__link">{title}</a>
+  </h3>
+  <p class="content-card__summary">{summary}</p>
+  <div class="content-card__tags">
+    <TagList tags={tags} />
+  </div>
+</div>
