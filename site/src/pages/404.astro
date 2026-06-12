@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found" description="The page you were looking for has drifted off.">
+  <div class="not-found">
+    <div class="not-found__art" aria-hidden="true">
+      <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <!-- upside-down paper boat, drifting -->
+        <g transform="rotate(8 140 110)">
+          <path d="M76 80 L212 80 L186 110 L102 110 Z" fill="#5b7a5e"/>
+          <path d="M140 156 L140 112 L192 112 Z" fill="#e07856" transform="rotate(180 153 134)"/>
+        </g>
+        <path d="M28 152 Q48 142 68 152 T108 152 T148 152 T188 152 T228 152 T262 152" stroke="#7da8c3" stroke-width="7" stroke-linecap="round"/>
+        <path d="M48 172 Q68 164 88 172 T128 172 T168 172 T208 172 T244 172" stroke="#a7c4d6" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="226" cy="36" r="22" fill="#e8b84b"/>
+      </svg>
+    </div>
+    <h1>This page has drifted off</h1>
+    <p>
+      The page you were looking for doesn't exist — it may have moved, or the
+      link may be out of date.
+    </p>
+    <div class="home-hero__actions">
+      <a href="/" class="button button--primary">Back to the homepage</a>
+      <a href="/topics" class="button button--ghost">Browse topics</a>
+    </div>
+  </div>
+</BaseLayout>

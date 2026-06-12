@@ -1,6 +1,7 @@
 ---
 import TypeBadge from './TypeBadge.astro';
 import TagList from './TagList.astro';
+import { artForTags } from '../lib/topicArt';
 
 interface Props {
   title: string;
@@ -9,9 +10,13 @@ interface Props {
   tags: string[];
   date: Date;
   href: string;
+  /** Large layout for the homepage featured slot */
+  featured?: boolean;
 }
 
-const { title, summary, type, tags, date, href } = Astro.props;
+const { title, summary, type, tags, date, href, featured = false } = Astro.props;
+
+const art = artForTags(tags);
 
 const formattedDate = date.toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -20,16 +25,22 @@ const formattedDate = date.toLocaleDateString('en-GB', {
 });
 ---
 
-<div class="content-card">
-  <div class="content-card__meta">
-    <TypeBadge type={type} />
-    <time datetime={date.toISOString()}>{formattedDate}</time>
-  </div>
-  <h3 class="content-card__title">
-    <a href={href} class="content-card__link">{title}</a>
-  </h3>
-  <p class="content-card__summary">{summary}</p>
-  <div class="content-card__tags">
-    <TagList tags={tags} />
+<div
+  class={`content-card${featured ? ' content-card--featured' : ''}`}
+  style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}
+>
+  <div class="content-card__art" aria-hidden="true" set:html={art.svg} />
+  <div class="content-card__body">
+    <div class="content-card__meta">
+      <TypeBadge type={type} />
+      <time datetime={date.toISOString()}>{formattedDate}</time>
+    </div>
+    <h3 class="content-card__title">
+      <a href={href} class="content-card__link">{title}</a>
+    </h3>
+    <p class="content-card__summary">{summary}</p>
+    <div class="content-card__tags">
+      <TagList tags={tags} />
+    </div>
   </div>
 </div>

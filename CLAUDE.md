@@ -4,24 +4,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-yourkids.com is a self-refreshing, AI-curated parenting content site. It has two components:
+yourkids.com is a self-refreshing, AI-curated parenting content site. Two components:
 
-1. **Editorial Engine** (`engine/`) — Python application that scans sources, triages content via LLM, plans editorial actions, writes/edits content, and publishes in a daily batch
-2. **Static Website** (`site/`) — Astro-based site deployed to Vercel, rebuilt once daily from the content store
+1. **Editorial Engine** (`engine/`) — Python application that scans RSS sources, triages content via LLM, plans editorial actions, writes/edits content, and publishes in a weekly batch
+2. **Static Website** (`site/`) — Astro site deployed to Vercel, rebuilt from the content store on git push
 
-The engine aggregates content continuously throughout the day but publishes in a single daily batch at 06:00 UK time. This is deliberate — it builds a curated knowledge base rather than chasing news.
+The engine aggregates content continuously throughout the week but publishes in a single weekly batch (Sunday morning, Europe/London). This is deliberate — it builds a curated knowledge base rather than chasing news.
+
+`docs/` holds the project overview, build log, and prioritised next-tasks list (`docs/next-tasks.md`).
 
 ## Architecture
 
 ```
-Scanner (continuous) → Triage (batched, LLM) → Planner (daily, LLM) → Writer/Editor (per item, LLM) → Staging Queue → Daily Batch Publish → Git push → Vercel rebuild
+Scanner (hourly) → Triage (every 30 min, LLM, batches of 15) → Planner (Sun 05:00, LLM)
+  → Writer/Editor (per action, LLM) → Staging (engine/staging/) → Batch Publish (Sun 06:00)
+  → Git commit/push → Vercel rebuild
 ```
 
 Key architectural elements:
-- **Site Bible** (`engine/config/site_bible.md`): Living document sent as context to every LLM call. Defines vision, editorial values, content guardrails, and learned context. The engine can propose amendments (stored in DB) but never modifies Sections 3 (guardrails), 12 (monetisation), or 14 (GDPR) without explicit human instruction.
-- **SQLite database** (`engine/data/yourkids.db`): Tracks pipeline state, triage results, plans, published content, trends, and token usage. Content itself lives as markdown in Git.
-- **Trend tracking**: Signals accumulated during triage, weekly snapshots, monthly trend reports.
-- **Editorial synthesis**: Auto-generated when opposing viewpoints detected. Must present all sides fairly.
+- **Site Bible** (`engine/config/site_bible.md`): Living document sent as system context to every LLM call. Defines vision, editorial values, content guardrails, and learned context. The engine can propose amendments (stored in DB) but never modifies Sections 3 (guardrails), 12 (monetisation), or 14 (GDPR) without explicit human instruction.
+- **SQLite database** (`engine/data/yourkids.db`): All pipeline state — sources, discovered items, triage results, plans, plan actions, published content, trend signals, Bible amendments, token usage. Accessed only via the `Database` class in `engine/src/db/models.py` (`get_db()`); no raw SQL elsewhere. Content itself lives as markdown in Git.
+- **Plan actions** drive the writer: `action_type` is `create`, `curated_link`, or `update`; status flows pending → in_progress → staged → completed/failed.
+- **Publishing**: Writer output is staged to `engine/staging/` with `.meta.json` sidecars, then `publish_daily_batch()` copies files flat into `site/src/content/content/`, records them in the DB, and does git operations. Two modes (`publishing.mode` in settings.yaml): `auto` commits directly to main and pushes; `pr` creates a `content/daily-YYYY-MM-DD` branch and a PR. Currently `auto`, capped at 5 items per batch.
+- **Phase 3/4 modules are stubs** raising `NotImplementedError`: editorial synthesis, trend snapshots, decay checker, competitive intel (`engine/src/scanner/competitive.py`), web search discovery (`engine/src/scanner/web.py`).
 
 ## Build and Run Commands
 
@@ -30,24 +35,19 @@ Key architectural elements:
 ```bash
 cd engine
 
-# Install dependencies
-pip install -e .
+pip install -e ".[dev]"          # install with test deps (pytest, respx)
 
-# Run full pipeline continuously
-python -m src.main
+python -m src.main --init        # initialize DB and seed sources from sources.yaml
+python -m src.main               # run continuously (APScheduler)
+python -m src.main --run-once    # full pipeline once: scan → triage → plan → write → publish
+python -m src.main --run-once --stage scanner    # single stage: scanner|triage|planner|writer|publisher
+python -m src.main -v            # verbose logging
 
-# Run specific stage once (for testing)
-python -m src.main --run-once --stage scanner
-python -m src.main --run-once --stage triage
-python -m src.main --run-once --stage planner
+python -m src.db.migrations      # run DB migrations (also runs automatically on every invocation)
 
-# Initialize/migrate database
-python -m src.db.migrations
-
-# Run tests
-pytest tests/
-pytest tests/test_scanner.py           # Single test file
-pytest tests/test_triage.py -k "test_guardrails"  # Specific test
+pytest tests/                                      # all tests
+pytest tests/test_scanner.py                       # single file
+pytest tests/test_triage.py -k "test_guardrails"   # single test
 ```
 
 ### Site (Astro)
@@ -56,36 +56,37 @@ pytest tests/test_triage.py -k "test_guardrails"  # Specific test
 cd site
 
 npm install
-npm run dev      # Development server
-npm run build    # Production build
-npm run preview  # Preview production build
+npm run dev      # development server
+npm run build    # production build
+npm run preview  # preview production build
 ```
 
 ## Key Configuration Files
 
-- `engine/config/site_bible.md` — Editorial context for all LLM calls
-- `engine/config/sources.yaml` — RSS feeds and web sources to monitor
-- `engine/config/competitors.yaml` — Sites for competitive intelligence
-- `engine/config/settings.yaml` — Scheduling, model choices, thresholds
-- `engine/.env` — API keys (ANTHROPIC_API_KEY, GITHUB_TOKEN)
+- `engine/config/site_bible.md` — editorial context prepended to all LLM calls
+- `engine/config/settings.yaml` — scheduling, model per stage, triage thresholds, publishing mode, content rules (word counts, min sources)
+- `engine/config/sources.yaml` — RSS feeds and discovery searches (seeded into DB via `--init`)
+- `engine/config/competitors.yaml` — sites for competitive intelligence (Phase 3)
+- `engine/.env` — API keys (ANTHROPIC_API_KEY, GITHUB_TOKEN); loaded by `src/main.py`
 
 ## Tech Stack
 
 | Component | Technology |
 |-----------|------------|
-| Engine | Python 3.12+, anthropic, httpx, feedparser, trafilatura, sqlite-utils, apscheduler, gitpython |
-| LLM | Claude API (Haiku for triage/decay, Sonnet for planning/writing/synthesis) |
-| Site | Astro with markdown content collections |
-| Hosting | Vercel (site), Hetzner VPS (engine) |
+| Engine | Python 3.11+, anthropic, httpx, feedparser, trafilatura, apscheduler, gitpython |
+| LLM | Claude API — model per stage set in `settings.yaml` `models:` (currently claude-sonnet-4-6 for all stages) |
+| Site | Astro 4 with a markdown content collection |
+| Hosting | Vercel (site), Hetzner VPS (engine — not yet deployed) |
 
-## Content Types
+## Content Model
 
-All content is markdown with YAML frontmatter in `site/content/`:
-- `articles/` — Evergreen pages and full articles
-- `editorial/` — AI editorial overviews (labelled "Editor's Perspective")
-- `curated/` — Link posts to quality content elsewhere
-- `trends/` — Periodic trend reports
-- `updates/` — Timestamped updates to existing content
+All published content lives **flat** in `site/src/content/content/` as markdown with YAML frontmatter, in a single Astro collection named `content`. Schema is defined in `site/src/content/config.ts`:
+
+- `type: evergreen | curated | editorial` distinguishes content kinds (there are no per-type directories)
+- Required: `title`, `summary`, `type`, `first_published`; optional: `tags`, `sources`, `last_updated`, `external_url` (used by curated link posts)
+- `section` is currently always `parenting`
+
+Site pages (`site/src/pages/`) filter the collection by `type` for the `/articles`, `/editorial`, and `/curated` sections, and by tag for `/topics`.
 
 ## Content Guardrails (Hard Boundaries)
 
@@ -95,20 +96,20 @@ Quality test: "Would a knowledgeable, caring paediatrician be comfortable sharin
 
 ## LLM Integration Pattern
 
-All LLM calls go through `engine/src/llm/client.py` which:
-1. Loads the Site Bible from disk (cached per pipeline run)
-2. Selects model based on stage (configured in settings.yaml)
-3. Prepends Bible as system context
-4. Logs token usage for cost tracking
+All LLM calls go through `LLMClient` in `engine/src/llm/client.py`, which:
+1. Loads the Site Bible via `BibleManager` (cached; `reload_bible()` is called at the start of each pipeline run)
+2. Selects the model for the stage from `settings.yaml`
+3. Prepends the Bible as the system prompt (plus optional `extra_system_context`)
+4. Retries on rate-limit/connection errors, then logs token usage and estimated cost to the DB
 
-Individual modules never load the Bible directly — they call `llm_client.call(stage, user_prompt)`.
+Individual modules never load the Bible or construct an Anthropic client directly — they call `llm_client.call(stage, user_prompt)`, which returns `(response_text, metadata)`.
 
 ## Development Phases
 
-The project follows phased development starting with Parenting section only:
-- Phase 1: Scanner + Triage pipeline
-- Phase 2: Planner + Writer + Publisher (daily batch)
-- Phase 3: Editorial synthesis, trends, competitive intel
-- Phase 4: Admin dashboard, monitoring
+The project follows phased development starting with the Parenting section only:
+- Phase 1: Scanner + Triage pipeline ✅
+- Phase 2: Planner + Writer + Publisher (weekly batch) ✅
+- Phase 3: Editorial synthesis, trends, decay checking, competitive intel (stubs)
+- Phase 4: Admin dashboard, monitoring, web search discovery
 - Phase 5: Expand to additional sections
 - Phase 6: Toys & Reviews (monetisation)

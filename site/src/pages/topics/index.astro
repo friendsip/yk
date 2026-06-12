@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import { sectionArt, artForTag } from '../../lib/topicArt';
 
 const allContent = await getCollection('content');
 
@@ -21,21 +23,22 @@ function toDisplayName(tag: string): string {
 ---
 
 <BaseLayout title="Topics" description="Browse parenting content by topic." wide>
-  <div class="page-hero">
-    <h1>Topics</h1>
-    <p>Browse our content by topic.</p>
-  </div>
+  <SectionHero title="Topics" blurb="Browse our content by topic." art={sectionArt.topics} />
 
   {topics.length === 0 ? (
     <p class="empty-state">No topics yet.</p>
   ) : (
     <div class="topic-grid">
-      {topics.map(({ tag, count }) => (
-        <a href={`/topics/${tag}`} class="topic-card">
-          <span class="topic-card__name">{toDisplayName(tag)}</span>
-          <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
-        </a>
-      ))}
+      {topics.map(({ tag, count }) => {
+        const art = artForTag(tag);
+        return (
+          <a href={`/topics/${tag}`} class="topic-card" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
+            <span class="topic-card__art" aria-hidden="true" set:html={art.svg} />
+            <span class="topic-card__name">{toDisplayName(tag)}</span>
+            <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
+          </a>
+        );
+      })}
     </div>
   )}
 </BaseLayout>

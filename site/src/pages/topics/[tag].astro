@@ -2,6 +2,8 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ContentCard from '../../components/ContentCard.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import { artForTag } from '../../lib/topicArt';
 
 export async function getStaticPaths() {
   const allContent = await getCollection('content');
@@ -45,13 +47,12 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
 }
 
 const displayName = toDisplayName(tag);
+const art = artForTag(tag);
+const blurb = `${items.length} ${items.length === 1 ? 'article' : 'articles'} in this topic`;
 ---
 
 <BaseLayout title={displayName} description={`All content tagged "${displayName}".`} wide>
-  <div class="page-hero">
-    <h1>{displayName}</h1>
-    <p>{items.length} {items.length === 1 ? 'article' : 'articles'} in this topic</p>
-  </div>
+  <SectionHero title={displayName} blurb={blurb} art={art} />
 
   <div class="content-grid">
     {items.map((item) => (

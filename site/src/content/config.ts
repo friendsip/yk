@@ -12,6 +12,8 @@ const content = defineCollection({
     first_published: z.coerce.date(),
     last_updated: z.coerce.date().optional(),
     external_url: z.string().url().optional(),
+    /** Optional per-article artwork; cards fall back to topic art when absent */
+    image: z.string().optional(),
   }),
 });
 

@@ -1,0 +1,46 @@
+---
+import Logo from './Logo.astro';
+
+const year = new Date().getFullYear();
+
+const sections = [
+  { href: '/articles', label: 'Articles' },
+  { href: '/curated', label: 'Curated Links' },
+  { href: '/editorial', label: 'Editorials' },
+  { href: '/topics', label: 'Topics' },
+];
+---
+
+<footer class="site-footer">
+  <div class="site-footer__columns">
+    <div class="site-footer__about">
+      <Logo />
+      <p>
+        Carefully curated articles, guides, and links for parents — grounded in
+        real sources, updated weekly, free of noise.
+      </p>
+    </div>
+
+    <nav class="site-footer__links" aria-label="Footer">
+      <p class="site-footer__heading">Explore</p>
+      <ul>
+        {sections.map(({ href, label }) => (
+          <li><a href={href}>{label}</a></li>
+        ))}
+        <li><a href="/rss.xml">RSS feed</a></li>
+      </ul>
+    </nav>
+
+    <div class="site-footer__newsletter">
+      <p class="site-footer__heading">Weekly digest</p>
+      <p>
+        A short email every Sunday with the week's best new guides and links.
+        <span class="coming-soon-pill">Coming soon</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="site-footer__legal">
+    <p>&copy; {year} YourKids. Curated with care for parents.</p>
+  </div>
+</footer>

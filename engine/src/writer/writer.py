@@ -46,6 +46,10 @@ Requirements:
   first_published: {today_date}
   ---
   For curated links, also include: external_url: "https://primary-source-url.com/article"
+- For full articles (type: evergreen), include a "## Key takeaways" section
+  immediately after the opening paragraph: 3-5 short bullet points summarising
+  the practical advice. The site renders this section as a highlighted box.
+  Skip it for curated links.
 - Keep between {min_words} and {max_words} words
 - Use at least {min_sources} independent sources
 - End with inline links to sources throughout the text

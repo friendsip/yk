@@ -3,6 +3,7 @@ import BaseLayout from './BaseLayout.astro';
 import TypeBadge from '../components/TypeBadge.astro';
 import TagList from '../components/TagList.astro';
 import SourcesList from '../components/SourcesList.astro';
+import { artForTags } from '../lib/topicArt';
 
 interface Props {
   title: string;
@@ -13,9 +14,21 @@ interface Props {
   first_published: Date;
   last_updated?: Date;
   external_url?: string;
+  /** Raw markdown body, used for reading time */
+  body?: string;
 }
 
-const { title, summary, type, tags, sources = [], first_published, last_updated, external_url } = Astro.props;
+const {
+  title,
+  summary,
+  type,
+  tags,
+  sources = [],
+  first_published,
+  last_updated,
+  external_url,
+  body = '',
+} = Astro.props;
 
 const formattedDate = first_published.toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -34,11 +47,37 @@ const backLinks: Record<string, { href: string; label: string }> = {
   curated: { href: '/curated', label: 'All curated links' },
   editorial: { href: '/editorial', label: 'All editorials' },
 };
+
+const art = artForTags(tags);
+const readingMinutes = Math.max(1, Math.round(body.split(/\s+/).length / 220));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: summary,
+  datePublished: first_published.toISOString(),
+  dateModified: (last_updated ?? first_published).toISOString(),
+  author: { '@type': 'Organization', name: 'YourKids Editorial Team' },
+  publisher: { '@type': 'Organization', name: 'YourKids', url: Astro.site?.toString() },
+  mainEntityOfPage: new URL(Astro.url.pathname, Astro.site).toString(),
+};
 ---
 
-<BaseLayout title={title} description={summary}>
+<BaseLayout
+  title={title}
+  description={summary}
+  ogType="article"
+  publishedTime={first_published}
+  modifiedTime={last_updated}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} slot="head" />
+
   <article>
-    <header class="content-header">
+    <header class="content-header" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
+      <div class="content-header__band" aria-hidden="true">
+        <div class="content-header__art" set:html={art.svg} />
+      </div>
       {type === 'editorial' && (
         <div class="editorial-banner">Editor's Perspective</div>
       )}
@@ -46,6 +85,7 @@ const backLinks: Record<string, { href: string; label: string }> = {
         <TypeBadge type={type} />
         <time datetime={first_published.toISOString()}>{formattedDate}</time>
         {updatedDate && <span>&middot; Updated {updatedDate}</span>}
+        {body && <span>&middot; {readingMinutes} min read</span>}
       </div>
       <h1>{title}</h1>
       <p class="content-header__summary">{summary}</p>

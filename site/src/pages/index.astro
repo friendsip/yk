@@ -2,13 +2,15 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ContentCard from '../components/ContentCard.astro';
+import { artForTag, defaultArt } from '../lib/topicArt';
 
 const allContent = await getCollection('content');
 const sorted = allContent.sort(
   (a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf()
 );
 
-const latest = sorted.slice(0, 6);
+const [featured, ...rest] = sorted;
+const latest = rest.slice(0, 6);
 const curatedLinks = sorted.filter(c => c.data.type === 'curated').slice(0, 3);
 
 // Build tag counts from all content
@@ -36,16 +38,64 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
 }
 ---
 
-<BaseLayout title="Home" description="Curated parenting resources — articles, guides, and links for families." wide>
-  <div class="home-intro">
-    <h1>YourKids</h1>
-    <p>Carefully curated articles, guides, and links for parents — updated weekly.</p>
-  </div>
+<BaseLayout title="Home" description="Thoughtful parenting, minus the noise. Carefully curated articles, guides, and links for parents — grounded in real sources, updated weekly." wide>
+  <section class="home-hero">
+    <div class="home-hero__text">
+      <h1>Thoughtful parenting, minus the noise.</h1>
+      <p>
+        Carefully curated articles, guides, and links for parents — grounded in
+        real sources, free of judgement, updated every week.
+      </p>
+      <div class="home-hero__actions">
+        <a href="/topics" class="button button--primary">Browse by topic</a>
+        <a href="/articles" class="button button--ghost">Latest articles</a>
+      </div>
+      <p class="home-hero__newsletter">
+        Weekly digest by email <span class="coming-soon-pill">Coming soon</span>
+      </p>
+    </div>
+    <div class="home-hero__art" aria-hidden="true">
+      <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <!-- sun -->
+        <circle cx="226" cy="44" r="26" fill="#e8b84b"/>
+        <!-- clouds -->
+        <ellipse cx="60" cy="38" rx="28" ry="11" fill="#f5f0ea"/>
+        <ellipse cx="86" cy="46" rx="22" ry="9" fill="#f0ece6"/>
+        <!-- paper boat -->
+        <path d="M140 52 L140 118 L192 118 Z" fill="#e07856"/>
+        <path d="M140 64 L140 118 L104 118 Z" fill="#c17f2e"/>
+        <path d="M76 128 L212 128 L186 158 L102 158 Z" fill="#5b7a5e"/>
+        <!-- waves -->
+        <path d="M28 172 Q48 162 68 172 T108 172 T148 172 T188 172 T228 172 T262 172" stroke="#7da8c3" stroke-width="7" stroke-linecap="round"/>
+        <path d="M48 190 Q68 182 88 190 T128 190 T168 190 T208 190 T244 190" stroke="#a7c4d6" stroke-width="5" stroke-linecap="round"/>
+        <!-- sprout on deck -->
+        <circle cx="144" cy="120" r="6" fill="#e8b84b"/>
+      </svg>
+    </div>
+  </section>
+
+  {featured && (
+    <section class="home-section fade-up">
+      <div class="section-heading">
+        <h2>Featured</h2>
+      </div>
+      <ContentCard
+        title={featured.data.title}
+        summary={featured.data.summary}
+        type={featured.data.type}
+        tags={featured.data.tags}
+        date={featured.data.first_published}
+        href={hrefForItem(featured)}
+        featured
+      />
+    </section>
+  )}
 
   {latest.length > 0 && (
-    <section class="home-section">
+    <section class="home-section fade-up">
       <div class="section-heading">
         <h2>Latest</h2>
+        <a href="/articles">All articles &rarr;</a>
       </div>
       <div class="content-grid">
         {latest.map((item) => (
@@ -63,24 +113,28 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
   )}
 
   {topics.length > 0 && (
-    <section class="home-section">
+    <section class="home-section fade-up">
       <div class="section-heading">
         <h2>Browse by Topic</h2>
         <a href="/topics">All topics &rarr;</a>
       </div>
       <div class="topic-grid">
-        {topics.map(({ tag, count }) => (
-          <a href={`/topics/${tag}`} class="topic-card">
-            <span class="topic-card__name">{toDisplayName(tag)}</span>
-            <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
-          </a>
-        ))}
+        {topics.map(({ tag, count }) => {
+          const art = artForTag(tag);
+          return (
+            <a href={`/topics/${tag}`} class="topic-card" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
+              <span class="topic-card__art" aria-hidden="true" set:html={art.svg} />
+              <span class="topic-card__name">{toDisplayName(tag)}</span>
+              <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
+            </a>
+          );
+        })}
       </div>
     </section>
   )}
 
   {curatedLinks.length > 0 && (
-    <section class="home-section">
+    <section class="home-section fade-up">
       <div class="section-heading">
         <h2>Curated Links</h2>
         <a href="/curated">All curated links &rarr;</a>

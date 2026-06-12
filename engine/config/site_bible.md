@@ -245,6 +245,18 @@ We add the next section when:
 - The editorial voice is established enough to extend to new topics
 - We're not spreading too thin — quality over breadth
 
+### Design & illustration style
+The site uses a warm, hand-drawn-feeling, flat-colour illustration style.
+Palette: sage green (#5b7a5e), amber (#c17f2e), plum (#6b5b8a), plus accents
+coral (#e07856), sky blue (#7da8c3), and sunshine yellow (#e8b84b) on warm
+off-white (#faf9f6). The brand motif is a paper boat on a wave. Every topic
+tag has an assigned illustration and accent colour (mapped in
+`site/src/lib/topicArt.ts`), so published content gets artwork automatically.
+Rules: no stock photography; no photorealistic AI-generated images of
+children; illustrations are decorative and never carry information that isn't
+also in text. Articles may include a "## Key takeaways" section after the
+opening paragraph (3-5 bullets), which the site renders as a highlighted box.
+
 ### Competitive landscape:
 (This section is populated over time as the competitive intelligence module
 identifies relevant sites, approaches, and partnership opportunities.)

@@ -1,4 +1,6 @@
 ---
+import Logo from './Logo.astro';
+
 const pathname = Astro.url.pathname;
 
 const links = [
@@ -17,7 +19,7 @@ function isCurrent(href: string): boolean {
 
 <header class="site-header">
   <div class="site-header-inner">
-    <a href="/" class="site-logo">YourKids</a>
+    <Logo />
     <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <line x1="3" y1="6" x2="21" y2="6" />

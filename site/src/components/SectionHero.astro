@@ -1,0 +1,20 @@
+---
+import type { TopicArt } from '../lib/topicArt';
+
+interface Props {
+  title: string;
+  blurb: string;
+  /** Accent + illustration for the tinted band */
+  art: TopicArt;
+}
+
+const { title, blurb, art } = Astro.props;
+---
+
+<div class="section-hero" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
+  <div class="section-hero__text">
+    <h1>{title}</h1>
+    <p>{blurb}</p>
+  </div>
+  <div class="section-hero__art" aria-hidden="true" set:html={art.svg} />
+</div>

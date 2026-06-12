@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+  <rect width="1200" height="1200" fill="#ffffff"/>
+  <g transform="translate(0,285)">
+    <rect width="1200" height="630" fill="#faf9f6"/>
+    <rect width="1200" height="12" fill="#5b7a5e"/>
+    <circle cx="1040" cy="140" r="60" fill="#e8b84b"/>
+    <ellipse cx="830" cy="115" rx="70" ry="26" fill="#f0ece6"/>
+    <path d="M890 240 L890 400 L1000 400 Z" fill="#e07856"/>
+    <path d="M890 265 L890 400 L812 400 Z" fill="#c17f2e"/>
+    <path d="M750 422 L1070 422 L1008 488 L812 488 Z" fill="#5b7a5e"/>
+    <path d="M680 535 Q725 512 770 535 T860 535 T950 535 T1040 535 T1130 535" stroke="#7da8c3" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <text x="90" y="290" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="700" fill="#2c2c2c" letter-spacing="-2">YourKids</text>
+    <text x="92" y="368" font-family="Helvetica, Arial, sans-serif" font-size="34" fill="#5a5a5a">Thoughtful parenting, minus the noise.</text>
+    <text x="92" y="425" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#8a8a8a">Curated articles, guides and links — updated weekly</text>
+  </g>
+</svg>
