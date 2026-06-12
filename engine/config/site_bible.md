@@ -32,6 +32,11 @@ developmental milestones — probably more so on a rainy weekend.
 - Never preachy or prescriptive — presents information and lets parents decide
 - When there is genuine disagreement among experts, we say so honestly
 - Friendly and occasionally funny, but never flippant about serious topics
+- Humble — we say "the most helpful things we can find" rather than "the
+  best"; we admit uncertainty; we never talk down to readers or sneer at
+  other sources
+- This voice applies everywhere words appear: articles, site interface copy
+  (headings, buttons, empty states, error pages), emails, and game text
 
 ## 3. CONTENT GUARDRAILS — HARD BOUNDARIES
 

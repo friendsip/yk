@@ -11,7 +11,7 @@ yourkids.com is a self-refreshing, AI-curated parenting content site. Two compon
 
 The engine aggregates content continuously throughout the week but publishes in a single weekly batch (Sunday morning, Europe/London). This is deliberate — it builds a curated knowledge base rather than chasing news.
 
-`docs/` holds the project overview, build log, and prioritised next-tasks list (`docs/next-tasks.md`).
+**Roadmap and status live in `docs/`, not here:** `docs/revitalization-plan.md` is the active phased development plan (visual redesign ✅ shipped, backend/subscriptions, admin, games area) with per-phase status notes; `docs/next-tasks.md` is the prioritised task list with checkboxes kept current; `docs/illustration-brief.md` is the artwork commissioning list. Update those documents when completing work, and read them before starting new work.
 
 ## Architecture
 
@@ -87,6 +87,16 @@ All published content lives **flat** in `site/src/content/content/` as markdown 
 - `section` is currently always `parenting`
 
 Site pages (`site/src/pages/`) filter the collection by `type` for the `/articles`, `/editorial`, and `/curated` sections, and by tag for `/topics`.
+
+Articles may include a `## Key takeaways` section after the opening paragraph (3–5 bullets); the site styles it as a highlighted box via the heading's slugified id, and the engine writer prompt instructs the LLM to produce it for evergreen articles.
+
+## Site Design System
+
+- **Voice everywhere** (Site Bible §2): warm, friendly, humble — applies to interface copy (headings, buttons, empty states, error pages) as much as articles. "The most helpful things we can find", never "the best"; admit uncertainty; never sneer.
+- **Illustration layer**: `site/src/lib/topicArt.ts` maps topic tags and sections to flat SVG illustrations + accent colours (sage/amber/plum + coral/sky/sunshine). Cards, topic pages, section heroes, and article headers pull from it automatically, so engine-published content gets artwork with no engine changes. Current SVGs are in-house placeholders, swappable 1:1 for commissioned art (see `docs/illustration-brief.md`). Style rules live in Site Bible §13: no stock photos, no photorealistic AI images of children, illustrations are decorative only.
+- **Brand motif**: paper boat on a wave (`Logo.astro`, `public/favicon.svg`, OG image). The OG image source is `site/src/assets/og-default.svg`; regenerate `public/og-default.png` (1200×630) via qlmanage + sips center-crop on macOS.
+- **Key components**: `Logo`, `Footer` (3-column), `SectionHero` (tinted accent band), `ContentCard` (art band + accent top border, `featured` variant for the homepage).
+- **SEO**: BaseLayout emits canonical, OG/Twitter meta, and favicon/RSS links on every page; ContentLayout adds JSON-LD Article schema and reading time (pass `body={item.body}`). Sitemap via `@astrojs/sitemap` — **pinned to exact 3.2.1**; newer versions require Astro 5 and break the build. RSS at `/rss.xml`, robots.txt in `public/`.
 
 ## Content Guardrails (Hard Boundaries)
 

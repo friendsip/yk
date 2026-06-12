@@ -11,7 +11,7 @@ const editorials = (await getCollection('content'))
 ---
 
 <BaseLayout title="Editorials" description="Editor's perspectives on parenting topics." wide>
-  <SectionHero title="Editorials" blurb="Our editor's perspective on parenting topics that matter." art={sectionArt.editorial} />
+  <SectionHero title="Editorials" blurb="Our honest take on tricky topics — clearly labelled as perspective, not gospel." art={sectionArt.editorial} />
 
   {editorials.length === 0 ? (
     <p class="empty-state">No editorials yet. Check back soon.</p>

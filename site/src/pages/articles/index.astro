@@ -11,7 +11,7 @@ const articles = (await getCollection('content'))
 ---
 
 <BaseLayout title="Articles" description="In-depth articles and guides for parents." wide>
-  <SectionHero title="Articles" blurb="In-depth guides and evergreen resources for parents." art={sectionArt.articles} />
+  <SectionHero title="Articles" blurb="Guides we've researched and written with care — to inform, never to lecture." art={sectionArt.articles} />
 
   {articles.length === 0 ? (
     <p class="empty-state">No articles yet. Check back soon.</p>

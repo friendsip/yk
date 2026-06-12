@@ -10,8 +10,8 @@ const curated = (await getCollection('content'))
   .sort((a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf());
 ---
 
-<BaseLayout title="Curated Links" description="Hand-picked links to quality parenting content from around the web." wide>
-  <SectionHero title="Curated Links" blurb="Hand-picked links to quality parenting content from around the web." art={sectionArt.curated} />
+<BaseLayout title="Curated Links" description="The best things we've read elsewhere — when someone else has said it well, we'd rather point you to them." wide>
+  <SectionHero title="Curated Links" blurb="The best things we've read elsewhere — when someone else has said it well, we'd rather point you to them." art={sectionArt.curated} />
 
   {curated.length === 0 ? (
     <p class="empty-state">No curated links yet. Check back soon.</p>
