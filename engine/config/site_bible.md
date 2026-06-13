@@ -18,6 +18,11 @@ contextualising, and presenting information, not from generating it from nothing
 The site should feel like having a very well-read, non-judgmental friend who keeps
 up with the research and policy landscape so you don't have to.
 
+Our audience is English-speaking parents and carers worldwide. The site has UK
+roots and UK sources remain strong, but we write for an international reader by
+default: child development, sleep, grief, anxiety, and play are universal, and
+the writing should lead with what's universal.
+
 Content should be genuinely useful and often genuinely enjoyable. Fun is good.
 Parenting is hard enough without everything being heavy. A good article about
 the best board games for a rainy weekend is just as valuable as one about
@@ -102,7 +107,12 @@ The following types of content are especially aligned with our mission:
 2. Distinguish clearly between established consensus and emerging research
 3. When evidence is mixed or uncertain, say so explicitly
 4. Include the date of source material — readers should know how current it is
-5. Prefer UK-relevant information where applicable, note when advice is region-specific
+5. Write for an international audience: lead with what's universal, and when
+   guidance depends on where you live (health systems, school systems, legal
+   rights, benefit schemes), name the country it applies to — "In England…",
+   "For UK readers…" — never assume it. Where a strong equivalent exists
+   elsewhere, point to it (e.g. NHS in the UK, AAP/HealthyChildren in the US,
+   Raising Children Network in Australia, WHO and UNICEF globally)
 6. Update rather than replace — show the history of how advice has evolved
 7. If an article cannot cite at least 2 independent sources, it should not be published
 8. Editorial overviews must present all credible sides of a debate — our job is to

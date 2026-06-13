@@ -53,6 +53,34 @@ sources:
     filter_keywords: ["parenting", "child development", "family", "behavior", "attachment", "foster"]
     active: true
 
+  # --- TIER 2: International ---
+  - name: "Zero to Three (US, early childhood)"
+    url: "https://www.zerotothree.org/feed/"
+    type: rss
+    category: parenting
+    tier: 2
+    check_interval: 240
+    active: true
+
+  - name: "The Conversation - Parenting (international, academic)"
+    url: "https://theconversation.com/us/topics/parenting-372/articles.atom"
+    type: rss
+    category: parenting
+    tier: 3
+    check_interval: 240
+    active: true
+
+  # Feed URL is canonical (declared on their homepage) but the server blocks
+  # some non-browser user agents; deactivate if it accumulates failures.
+  - name: "Child Mind Institute (US)"
+    url: "https://childmind.org/feed/"
+    type: rss
+    category: parenting
+    tier: 2
+    check_interval: 240
+    filter_keywords: ["parent", "child", "anxiety", "behavior", "development", "school"]
+    active: true
+
   # --- TIER 3: Quality Journalism ---
   - name: "Guardian - Family"
     url: "https://www.theguardian.com/lifeandstyle/family/rss"
@@ -78,7 +106,7 @@ sources:
     tier: 1
     check_interval: 120
     filter_keywords: ["child", "infant", "maternal", "paediatric", "pediatric", "vaccination", "nutrition"]
-    active: false
+    active: true
 
   - name: "GOV.UK - Education"
     url: "https://www.gov.uk/search/news-and-communications.atom?topics%5B%5D=education"
@@ -96,6 +124,7 @@ sources:
     check_interval: 240
     active: false
 
+  # Feed currently returns 403 to non-browser clients — re-test before activating.
   - name: "UNICEF UK"
     url: "https://www.unicef.org.uk/feed/"
     type: rss
@@ -111,6 +140,11 @@ discovery_searches:
     active: true
 
   - query: "fostering adoption UK guidance"
+    frequency: weekly
+    category: parenting
+    active: true
+
+  - query: "child development parenting guidance international 2026"
     frequency: weekly
     category: parenting
     active: true

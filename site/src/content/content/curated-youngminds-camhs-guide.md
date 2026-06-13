@@ -1,6 +1,6 @@
 ---
 title: "YoungMinds: A Parent's Guide to CAMHS"
-summary: "The clearest parent-facing guide to how Child and Adolescent Mental Health Services work in England — what to expect from a referral, and what to do if your child is refused."
+summary: "One of the clearest parent-facing guides we've found to how Child and Adolescent Mental Health Services work in England — what to expect from a referral, and what to do if your child is refused."
 type: curated
 section: parenting
 tags:
@@ -8,12 +8,14 @@ tags:
 external_url: "https://www.youngminds.org.uk/find-help/for-parents/parents-guide-to-support-a-z/parents-guide-to-camhs/"
 sources:
   - https://www.youngminds.org.uk
+  - https://childmind.org
 first_published: 2026-03-05
+last_updated: 2026-06-13
 ---
 
-If your child has been referred to CAMHS, or you're trying to get a referral, YoungMinds has published what is arguably the most useful parent-facing guide available. It covers what the different CAMHS tiers mean in practice — something professionals often don't explain — what to expect from an assessment, and critically, what to do if your child is refused or placed on a long waiting list.
+YoungMinds is a UK charity, and this guide is about CAMHS — the NHS's Child and Adolescent Mental Health Services — so it's mainly useful if you're in the UK. But if your child has been referred to CAMHS, or you're trying to get a referral, it's one of the most useful parent-facing guides we've found. It covers what the different CAMHS tiers mean in practice — something professionals often don't explain — what to expect from an assessment, and critically, what to do if your child is refused or placed on a long waiting list.
 
-Worth bookmarking and returning to at different stages of the process.
+Worth bookmarking and returning to at different stages of the process. If you're outside the UK and looking for parent-friendly child mental health guidance, the US-based [Child Mind Institute](https://childmind.org) is a well-known starting point.
 
 ---
 
