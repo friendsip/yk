@@ -81,6 +81,37 @@ sources:
     filter_keywords: ["parent", "child", "anxiety", "behavior", "development", "school"]
     active: true
 
+  # --- TIER 3: Positive & Solutions Journalism ---
+  # Feeds the site's good-news strand: uplifting, evidence-grounded stories
+  # about families, children, play, and community. Triage still applies the
+  # usual quality bar — feel-good is not an excuse for AI slop or puffery.
+  - name: "Positive News (UK)"
+    url: "https://www.positive.news/feed/"
+    type: rss
+    category: parenting
+    tier: 3
+    check_interval: 240
+    filter_keywords: ["child", "children", "family", "families", "parent", "school", "play", "young people"]
+    active: true
+
+  - name: "Good News Network"
+    url: "https://www.goodnewsnetwork.org/feed/"
+    type: rss
+    category: parenting
+    tier: 3
+    check_interval: 240
+    filter_keywords: ["child", "children", "family", "families", "parent", "kids", "school"]
+    active: true
+
+  - name: "Reasons to be Cheerful"
+    url: "https://reasonstobecheerful.world/feed/"
+    type: rss
+    category: parenting
+    tier: 3
+    check_interval: 240
+    filter_keywords: ["child", "children", "family", "families", "parent", "school", "education", "play"]
+    active: true
+
   # --- TIER 3: Quality Journalism ---
   - name: "Guardian - Family"
     url: "https://www.theguardian.com/lifeandstyle/family/rss"

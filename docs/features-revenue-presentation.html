@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>yourkids.com — New Features &amp; Revenue Opportunities (June 2026)</title>
+<style>
+  :root {
+    --sage: #5b7a5e;
+    --amber: #c17f2e;
+    --plum: #6b5b8a;
+    --coral: #e07856;
+    --sky: #7da8c3;
+    --sunshine: #e8b84b;
+    --paper: #faf9f6;
+    --ink: #2d2a26;
+    --ink-soft: #5a554e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-snap-type: y mandatory; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .slide {
+    min-height: 100vh;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem clamp(2rem, 8vw, 8rem);
+    position: relative;
+    border-bottom: 1px solid #ece8e1;
+  }
+  .slide-num {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 2rem;
+    font-size: 0.8rem;
+    color: #b8b2a8;
+  }
+  h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.15; margin-bottom: 1rem; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-bottom: 1.5rem; line-height: 1.2; }
+  h3 { font-size: 1.15rem; margin: 1.2rem 0 0.4rem; }
+  p.lead { font-size: 1.2rem; color: var(--ink-soft); max-width: 46rem; }
+  .kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+  .accent-sage   { color: var(--sage); }
+  .accent-amber  { color: var(--amber); }
+  .accent-plum   { color: var(--plum); }
+  .accent-coral  { color: var(--coral); }
+  .accent-sky    { color: var(--sky); }
+  .band { border-top: 6px solid; padding-top: 1.6rem; }
+  .band-sage   { border-color: var(--sage); }
+  .band-amber  { border-color: var(--amber); }
+  .band-plum   { border-color: var(--plum); }
+  .band-coral  { border-color: var(--coral); }
+  .band-sky    { border-color: var(--sky); }
+  .band-sunshine { border-color: var(--sunshine); }
+  ul { padding-left: 1.3rem; max-width: 52rem; }
+  li { margin-bottom: 0.55rem; }
+  li::marker { color: var(--amber); }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.6rem; margin-top: 1rem; }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.4rem 1.5rem;
+    box-shadow: 0 2px 10px rgba(45,42,38,0.06);
+    border-top: 4px solid var(--sage);
+  }
+  .card.amber  { border-top-color: var(--amber); }
+  .card.plum   { border-top-color: var(--plum); }
+  .card.coral  { border-top-color: var(--coral); }
+  .card.sky    { border-top-color: var(--sky); }
+  .card.sunshine { border-top-color: var(--sunshine); }
+  .card h3 { margin-top: 0; }
+  .card p, .card li { font-size: 0.95rem; color: var(--ink-soft); }
+  .big-stat { font-size: 2.2rem; font-weight: 800; line-height: 1.1; }
+  .stat-label { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.3rem; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 56rem;
+    margin-top: 1rem;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(45,42,38,0.06);
+    font-size: 0.92rem;
+  }
+  th {
+    background: var(--sage);
+    color: #fff;
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    font-weight: 600;
+  }
+  td { padding: 0.65rem 0.9rem; border-bottom: 1px solid #f0ece6; vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  .table-amber th { background: var(--amber); }
+  .table-plum th { background: var(--plum); }
+  .table-coral th { background: var(--coral); }
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 0.4rem;
+  }
+  .pill-low    { background: #e8efe9; color: var(--sage); }
+  .pill-med    { background: #fdf3e4; color: var(--amber); }
+  .pill-high   { background: #fbeae3; color: var(--coral); }
+  .footnote { font-size: 0.8rem; color: #a39d92; margin-top: 1.6rem; max-width: 50rem; }
+  .boat { width: 110px; margin-bottom: 1.6rem; }
+  .warn {
+    background: #fbeae3;
+    border-left: 5px solid var(--coral);
+    padding: 1rem 1.3rem;
+    border-radius: 0 10px 10px 0;
+    max-width: 52rem;
+    margin-top: 1rem;
+  }
+  .nav-hint {
+    position: fixed; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
+    font-size: 0.78rem; color: #b8b2a8; background: rgba(250,249,246,0.9);
+    padding: 0.3rem 0.9rem; border-radius: 999px; z-index: 10;
+  }
+  @media print {
+    .slide { min-height: auto; page-break-after: always; padding: 2rem; }
+    .nav-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 · TITLE -->
+<section class="slide">
+  <svg class="boat" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true">
+    <circle cx="94" cy="18" r="8" fill="#e8b84b"/>
+    <path d="M58 16 L58 40 L76 40 Z" fill="#e07856"/>
+    <path d="M58 20 L58 40 L44 40 Z" fill="#c17f2e"/>
+    <path d="M34 44 L86 44 L76 56 L44 56 Z" fill="#5b7a5e"/>
+    <path d="M22 62 Q32 58 42 62 T62 62 T82 62 T100 62" stroke="#7da8c3" stroke-width="3.5" stroke-linecap="round"/>
+  </svg>
+  <p class="kicker accent-amber">yourkids.com · Strategy research · June 2026</p>
+  <h1>New features &amp; revenue:<br>what the evidence says</h1>
+  <p class="lead">Findings from a three-track research sweep of the parenting-media landscape — what successful sites are shipping, what families actually pay for, and where the gaps are.</p>
+  <p class="footnote">Sources throughout: NYT/Nieman Lab, Fortune, Paved &amp; beehiiv benchmark data, ICO &amp; FTC guidance, company filings and press, June 2026. Full citations in the research transcripts.</p>
+  <span class="slide-num">1</span>
+</section>
+
+<!-- 2 · LANDSCAPE -->
+<section class="slide band band-plum">
+  <p class="kicker accent-plum">The landscape</p>
+  <h2>SEO traffic is dying. Habit and email are the new assets.</h2>
+  <div class="cols">
+    <div class="card plum">
+      <div class="big-stat accent-plum">~60%</div>
+      <p class="stat-label">of Google searches now end without a click; CTR falls to ~8% under AI Overviews. Review/affiliate content is hit hardest.</p>
+    </div>
+    <div class="card plum">
+      <div class="big-stat accent-plum">½ direct</div>
+      <p class="stat-label">Mumsnet's traffic declines monthly — but ~half of what remains is <em>direct</em>. The destination habit survives; drive-by SEO doesn't.</p>
+    </div>
+    <div class="card plum">
+      <div class="big-stat accent-plum">$32 / 1k</div>
+      <p class="stat-label">Family-category newsletters earn $32 per 1,000 subscribers per sponsored send — the top of all consumer categories (Paved, 2026).</p>
+    </div>
+  </div>
+  <h3>What this means for us</h3>
+  <ul>
+    <li>Generic SEO articles alone are the dying model. Tools, age-personalisation, email programmes and a trusted voice convert drive-by visits into direct habit.</li>
+    <li>The weekly-batch editorial engine is the content supply; the question is what wraps around it to create <strong>return visits and a list</strong>.</li>
+  </ul>
+  <span class="slide-num">2</span>
+</section>
+
+<!-- 3 · WHO'S WINNING -->
+<section class="slide band band-amber">
+  <p class="kicker accent-amber">Who's winning, and how</p>
+  <h2>Four proof points worth copying from</h2>
+  <div class="cols">
+    <div class="card amber">
+      <h3>Good Inside (Dr Becky)</h3>
+      <p><strong>$34M/yr, 100k members at ~$25/mo.</strong> An AI coach ("Gigi") grounded strictly in her own vetted corpus. The pattern: <em>trusted voice + RAG chatbot</em>, not generic GPT.</p>
+    </div>
+    <div class="card amber">
+      <h3>NYT Games</h3>
+      <p><strong>11.1bn plays in 2024; $10/mo Games-only family plan</strong> (Sept 2025). Subscribers who play + read retain far better. Families already co-play dailies — <em>nobody has built the kids-first daily</em>.</p>
+    </div>
+    <div class="card amber">
+      <h3>Twinkl</h3>
+      <p><strong>£98.9M revenue FY2025</strong> from a printables subscription — teachers, parents, nurseries. Proof that quality-assured family printables scale enormously.</p>
+    </div>
+    <div class="card amber">
+      <h3>Raising Children Network</h3>
+      <p>The best <strong>no-login age-stage architecture</strong>: every page keyed to pregnancy→teen bands, development trackers as content pages. Closest structural model to us.</p>
+    </div>
+  </div>
+  <span class="slide-num">3</span>
+</section>
+
+<!-- 4 · FEATURES TIER 1 -->
+<section class="slide band band-sage">
+  <p class="kicker accent-sage">Feature opportunities — quick wins</p>
+  <h2>Tier 1: low effort, proven demand, fits the static site</h2>
+  <table>
+    <tr><th>Feature</th><th>Evidence</th><th>Effort</th></tr>
+    <tr>
+      <td><strong>Age-band content architecture</strong> — browse by child age/stage, not just topic</td>
+      <td>Raising Children Network's whole IA; the universal anchor pattern (BabyCenter, Lovevery)</td>
+      <td><span class="pill pill-low">Low</span> routing + tagging work</td>
+    </tr>
+    <tr>
+      <td><strong>Printables library</strong> — colouring, activity sheets, scavenger hunts in the house illustration style</td>
+      <td>Twinkl £99M; printables are the classic parenting email-capture engine; zero data exposure</td>
+      <td><span class="pill pill-low">Low</span> pairs with commissioned art</td>
+    </tr>
+    <tr>
+      <td><strong>Static calculators &amp; tools</strong> — wake-window/nap calculator, development checklists, school-term planner</td>
+      <td>Huckleberry's SweetSpot is a whole business; name/sleep tools are proven SEO magnets; UK term-dates planner is an <em>unserved gap</em></td>
+      <td><span class="pill pill-low">Low–Med</span> each</td>
+    </tr>
+    <tr>
+      <td><strong>Friday family quiz</strong> — weekly pass-and-play quiz page (already in Phase 5 plan; could ship earlier as plain content)</td>
+      <td>The Week Junior (hundreds of thousands of child subs); Kahoot family plans; NYT family-plan economics</td>
+      <td><span class="pill pill-low">Low</span> content-only version</td>
+    </tr>
+  </table>
+  <span class="slide-num">4</span>
+</section>
+
+<!-- 5 · FEATURES TIER 2 -->
+<section class="slide band band-sky">
+  <p class="kicker accent-sky">Feature opportunities — bigger bets</p>
+  <h2>Tier 2: medium effort, habit-forming</h2>
+  <table class="table-plum">
+    <tr><th>Feature</th><th>Evidence</th><th>Notes</th></tr>
+    <tr>
+      <td><strong>"Set your child's age"</strong> — localStorage toggle that re-keys homepage &amp; digest to age band</td>
+      <td>Date-keyed weekly emails are publishing's highest-retention email products (BabyCenter/What to Expect)</td>
+      <td>No backend needed on-site; digest version needs Phase 2 subscriber records</td>
+    </tr>
+    <tr>
+      <td><strong>Daily co-play puzzle for families</strong> — the kids-first Wordle, one fresh puzzle a day</td>
+      <td>NYT model proven; the only kids comparable (Spellie) is indie-scale. <em>Near-empty niche.</em></td>
+      <td>Strongest single addition to the planned Games area; daily beats weekly for habit</td>
+    </tr>
+    <tr>
+      <td><strong>Ask yourkids — RAG chatbot over our own vetted corpus</strong>, in the site voice, parent-facing only</td>
+      <td>Good Inside's Gigi; Lovevery's "Ask Lovevery". Engine already has LLM client + Site Bible + content store</td>
+      <td>Subscriber-gated = a real reason to sign up. Never child-facing</td>
+    </tr>
+    <tr>
+      <td><strong>Scheduled expert Q&amp;A / webinars</strong> — monthly sessions, not open forums</td>
+      <td>Raising Children &amp; Lovevery both run these; open forums are a dying acquisition channel and a moderation money pit</td>
+      <td>Ops-heavy not code-heavy; builds list + community safely</td>
+    </tr>
+    <tr>
+      <td><strong>Parent-mediated story generator</strong> — parent prompts, reviews, reads aloud; template-personalised</td>
+      <td>Wonderbly: 10M books sold, acquired by Penguin Random House 2025. Parents accept AI images only with human-reviewed text</td>
+      <td>Fits "no AI slop" guardrail if human-reviewed templates, not open generation</td>
+    </tr>
+  </table>
+  <span class="slide-num">5</span>
+</section>
+
+<!-- 6 · GAMES VALIDATION -->
+<section class="slide band band-coral">
+  <p class="kicker accent-coral">The games area</p>
+  <h2>The roadmap's games bet is validated — with two upgrades</h2>
+  <ul>
+    <li><strong>Families demonstrably pay for puzzle bundles</strong>: NYT launched a $10/mo Games-only family plan in Sept 2025 specifically so every family member gets their own streak; family plans drove a Q3 subscriber jump.</li>
+    <li><strong>The kids/family daily-puzzle niche is nearly empty</strong> — dozens of adult dailies, almost no child-calibrated ones. PBS Kids (~40M plays/month) proves children's browser games at scale.</li>
+    <li><strong>Upgrade 1 — go daily, not just sessional</strong>: add one daily co-play puzzle to the planned lineup. The daily appointment is the retention mechanic, and it's mostly a content-scheduling problem.</li>
+    <li><strong>Upgrade 2 — family streaks, not child streaks</strong>: household-level, no loss-aversion penalties. Duolingo-style individual streaks for kids are now widely criticised; Prodigy Math (16 upsell ads in 19 minutes of play) is the anti-pattern that drew an FTC complaint.</li>
+  </ul>
+  <div class="warn">
+    <strong>Compliance is a design choice.</strong> No child accounts, no ads, no profiling, localStorage-only progress, parent-held subscription = minimal COPPA exposure (amended rule fully in force April 2026). The UK Children's Code still applies — a DPIA and high-privacy defaults are needed regardless. Our planned model is already close to the minimal-burden configuration.
+  </div>
+  <span class="slide-num">6</span>
+</section>
+
+<!-- 7 · REVENUE MENU -->
+<section class="slide band band-amber">
+  <p class="kicker accent-amber">Revenue — the menu</p>
+  <h2>Realistic numbers at three audience sizes</h2>
+  <table class="table-amber">
+    <tr><th>Stream</th><th>Small<br>(5–10k list / 20k sessions)</th><th>Medium<br>(25k list / 50k sessions)</th><th>Large<br>(100k list / 200k+ sessions)</th></tr>
+    <tr><td><strong>Newsletter sponsorship</strong> (Family category: $32/1k subs/send)</td><td>~$8k/yr</td><td>~$40k/yr</td><td>$150k+/yr</td></tr>
+    <tr><td><strong>Membership</strong> (1.5% conversion, ~$8/mo)</td><td>~$6.5k/yr</td><td>~$32k/yr</td><td>$130–260k/yr</td></tr>
+    <tr><td><strong>Affiliate</strong> (gear + edtech + family finance)</td><td>$2–12k/yr</td><td>$12–40k/yr</td><td>$60–240k/yr</td></tr>
+    <tr><td><strong>Digital products / printables</strong></td><td>$2–6k/yr</td><td>$12–60k/yr</td><td>course-led: six figures</td></tr>
+    <tr><td><strong>Display ads</strong> (~$25 RPM, Journey from 10k sessions)</td><td>~$3k/yr</td><td>~$15k/yr</td><td>~$60k/yr</td></tr>
+    <tr><td><strong>B2B licensing</strong> (nurseries, employers, health)</td><td>—</td><td>first deals: £5–25k/yr each</td><td>3–5 licensees + Twinkl-style ceiling</td></tr>
+  </table>
+  <p class="footnote">Benchmarks: Paved Apr-2026 transaction data; Substack real-world conversion (1–3%, not the 5–10% marketing claim); Mediavine parenting-blogger income reports; Authority Hacker affiliate rate cards. Display revenue is traffic-fragile and falling sector-wide.</p>
+  <span class="slide-num">7</span>
+</section>
+
+<!-- 8 · REVENUE STRATEGY -->
+<section class="slide band band-sage">
+  <p class="kicker accent-sage">Revenue — what the evidence favours</p>
+  <h2>Four strategic conclusions</h2>
+  <div class="cols">
+    <div class="card">
+      <h3>1 · The list is the asset</h3>
+      <p>Family newsletters monetise at the top of all consumer categories. Display ads are traffic-fragile and stylistically wrong for a premium illustration-led site. Every feature should feed the email list.</p>
+    </div>
+    <div class="card">
+      <h3>2 · Utility membership, not persona membership</h3>
+      <p>Every big parenting membership (Good Inside, ParentData, Big Little Feelings) is persona-led. Without a face, our membership case is <strong>utility</strong>: games + printables vault + Ask yourkids + age-keyed digest. The free-subscription games gate already builds this muscle.</p>
+    </div>
+    <div class="card">
+      <h3>3 · The best affiliate isn't toys</h3>
+      <p>Family finance pays $20–75 <em>per lead</em> (life insurance, wills); edtech &amp; boxes pay $10–20 bounties (Outschool 20%, KiwiCo, Lovevery). Baby gear via Amazon is 1–3%. "New parents need life insurance" content is the highest-EPC play — and it's genuinely useful advice.</p>
+    </div>
+    <div class="card">
+      <h3>4 · B2B is the sleeper</h3>
+      <p>Twinkl (£99M) and Nemours KidsHealth prove institutions buy quality-assured family content (nurseries, employers' family-benefits platforms, health systems). Buyers demand editorial provenance — our human-reviewed curation model is an asset here, pure AI generation is disqualifying.</p>
+    </div>
+  </div>
+  <span class="slide-num">8</span>
+</section>
+
+<!-- 9 · AVOID -->
+<section class="slide band band-coral">
+  <p class="kicker accent-coral">What to avoid</p>
+  <h2>Evidence-backed "do not build" list</h2>
+  <ul>
+    <li><strong>Child-facing AI chat</strong> — Character.AI banned under-18s from open-ended chat (Nov 2025) under lawsuits and FTC investigation. Parent-facing AI lands well; child-facing AI is legally and reputationally toxic.</li>
+    <li><strong>Open anonymous forums</strong> — the dying acquisition channel (Mumsnet), a moderation money pit, and a Children's Code burden. Structured expert Q&amp;A gets the community value without the cost.</li>
+    <li><strong>Individual streaks / loss-aversion mechanics for children</strong> — ICO games guidance explicitly targets reward-mechanic nudges; the 2025 commentary on Duolingo-for-kids is uniformly negative.</li>
+    <li><strong>Display ads now</strong> — below ~50k sessions it's pocket money, it fights the brand, and the sector revenue is falling. Revisit at Mediavine threshold, if ever.</li>
+    <li><strong>Unreviewed AI-generated story/content products</strong> — parents accept AI images only with human-authored text and expert review; "AI slop" backlash is real and growing. Our Site Bible already forbids this; the market agrees with it.</li>
+  </ul>
+  <span class="slide-num">9</span>
+</section>
+
+<!-- 10 · ROADMAP -->
+<section class="slide band band-sunshine">
+  <p class="kicker accent-amber">Putting it together</p>
+  <h2>Suggested additions to the existing roadmap</h2>
+  <table>
+    <tr><th>When</th><th>Addition</th><th>Why now</th></tr>
+    <tr>
+      <td><strong>Now</strong> (alongside Phase 2 backend)</td>
+      <td>Age-band browsing · first printables (house art style) · school-term planner · wake-window calculator</td>
+      <td>All static, all SEO/list builders, no dependencies</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 2–3</strong></td>
+      <td>Age-keyed weekly digest (uses new subscriber records) · family-finance affiliate content · first newsletter sponsor slot</td>
+      <td>Monetises the list as it grows; sponsorship viable from ~2.5k subs (beehiiv network minimum)</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 4 games</strong> (upgraded)</td>
+      <td>Daily co-play puzzle as the flagship (not just sessional games) · household streaks · DPIA done at design time</td>
+      <td>The daily is the retention engine and the niche is empty</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 5</strong></td>
+      <td>"Ask yourkids" RAG chatbot (subscriber-gated) · printables vault behind subscription · parent-mediated story templates</td>
+      <td>Turns free subscription into utility membership; engine plumbing already exists</td>
+    </tr>
+    <tr>
+      <td><strong>Phase 6+</strong></td>
+      <td>B2B licensing conversations (nurseries, family-benefits platforms) · paid tier on entitlements table · expert webinar series</td>
+      <td>Needs trust + volume first; entitlements architecture already future-proofed</td>
+    </tr>
+  </table>
+  <span class="slide-num">10</span>
+</section>
+
+<!-- 11 · CLOSE -->
+<section class="slide">
+  <p class="kicker accent-sage">The one-line summary</p>
+  <h2 style="max-width:54rem">Build the daily habit (games + tools + printables), feed everything into the email list, and let membership, sponsorship and B2B licensing grow on top of it.</h2>
+  <p class="lead" style="margin-top:1rem">The existing roadmap is structurally right. The evidence says: lean harder into <strong>daily mechanics</strong>, <strong>age personalisation</strong>, and <strong>the list</strong> — and stay disciplined about the "do not build" list, which mostly matches guardrails we already have.</p>
+  <p class="footnote">Research: three parallel sweeps, June 2026 — parenting-site feature landscape, niche content-site revenue models, family games/AI engagement &amp; compliance. Full sourced reports available in the session transcripts.</p>
+  <span class="slide-num">11</span>
+</section>
+
+<div class="nav-hint">Scroll or use ↑ ↓ / PgUp PgDn · Cmd+P to print/PDF</div>
+
+<script>
+  document.addEventListener('keydown', (e) => {
+    const slides = [...document.querySelectorAll('.slide')];
+    const idx = slides.findIndex(s => s.getBoundingClientRect().top > -window.innerHeight / 2);
+    if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+      e.preventDefault();
+      slides[Math.min(idx + (slides[idx]?.getBoundingClientRect().top <= 10 ? 1 : 0), slides.length - 1)]?.scrollIntoView({ behavior: 'smooth' });
+    } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      slides[Math.max(idx - 1, 0)]?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+</script>
+</body>
+</html>

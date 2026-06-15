@@ -44,6 +44,7 @@ Requirements:
     - https://source-url-1.com/article
     - https://source-url-2.com/article
   first_published: {today_date}
+  featured: true
   ---
   For curated links, also include: external_url: "https://primary-source-url.com/article"
 - For full articles (type: evergreen), include a "## Key takeaways" section

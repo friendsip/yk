@@ -144,7 +144,10 @@ Client-side search across all content.
 
 ## 8. Amazon Affiliate Integration
 
-Monetisation through book and educational toy recommendations.
+Monetisation through book and educational toy recommendations, plus a deals
+section for big-ticket parent kit (pushchairs/buggies, car seats, cots,
+monitors) — see the revitalization plan Phase 6 for the editorial rules
+(recommend what's genuinely good, dated prices, clear disclosure).
 
 ### Phase 1: Manual affiliate links
 - [ ] **Sign up for Amazon Associates UK**
@@ -210,3 +213,4 @@ Lower-priority improvements to the site itself.
 | Later | Editorial synthesis | Needs more content volume to be meaningful |
 | Later | Admin dashboard | Defer until manual intervention patterns are clear |
 | Later | Competitive intelligence | Lower priority than own content quality |
+| Later | Translation / multi-language | After games ship; needs i18n string layer + human review of translated health guidance |

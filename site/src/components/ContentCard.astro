@@ -29,7 +29,7 @@ const formattedDate = date.toLocaleDateString('en-GB', {
   class={`content-card${featured ? ' content-card--featured' : ''}`}
   style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}
 >
-  <div class="content-card__art" aria-hidden="true" set:html={art.svg} />
+  <div class="content-card__art" aria-hidden="true" set:html={art.markup} />
   <div class="content-card__body">
     <div class="content-card__meta">
       <TypeBadge type={type} />

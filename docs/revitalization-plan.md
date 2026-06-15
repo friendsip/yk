@@ -129,6 +129,65 @@ Goal: turn yourkids.com from a clean-but-plain reading site into a vibrant desti
 
 ## Phase 6 — Growth, polish & monetisation groundwork
 
+> **Revenue strategy — decided June 2026** (from the features/revenue research,
+> see `docs/features-revenue-research.md`). The email list is the asset, not
+> web traffic: SEO is collapsing sector-wide (AI Overviews, ~60% zero-click),
+> so the strategy is list-first, with revenue layered on top in this priority
+> order:
+>
+> 1. **Newsletter sponsorship — primary stream.** Family-category newsletters
+>    monetise at ~$32 per 1,000 subscribers per send, the top of all consumer
+>    categories (Paved, 2026). It doesn't need a human persona (unlike
+>    membership), doesn't fight the premium brand (unlike display), and isn't
+>    traffic-fragile (unlike affiliate/SEO). The free-subscription games gate
+>    (Phases 2–4) *is* the list-building engine, so the funnel is already on
+>    the roadmap. Viable from ~2,500 subs (beehiiv network minimum); real money
+>    from ~10k. One clearly-labelled, editorially-vetted sponsor per issue;
+>    Site Bible §12 labelling rules apply. **Prerequisite: the free
+>    subscription must be genuinely worth signing up for — games, tools, and
+>    printables are the top of this funnel, not separate features.**
+> 2. **Family-finance affiliate — easy complement.** "New parents need a will
+>    and life insurance" content pays $20–75 *per lead* (vs Amazon toys at
+>    1–3%), is genuinely useful, and earns at low volume without depending on
+>    Google traffic. Same disclosure framework as the toys/deals work below.
+> 3. **B2B licensing — long game, highest ceiling.** Curated, human-reviewed
+>    family content licensed to nurseries, employer family-benefits platforms
+>    (Cleo, Maven), or health systems. Our human-review model is the
+>    *qualifying credential* here, where pure AI generation would be
+>    disqualifying. Long sales cycles; needs trust + volume first. Ceiling is
+>    large (cf. Twinkl, £99M).
+>
+> **Deprioritised for now:** *membership* (every successful parenting
+> membership is persona-led; without a face our case is weaker — revisit only
+> with a stronger hook than utility) and *display ads* (pocket money below
+> ~50k sessions, fights the illustration-led brand, falling sector-wide —
+> probably never). Amazon Associates / deals work below still proceeds as
+> useful utility content, but isn't the headline revenue bet.
+
+- **Great toys on Amazon** (extends next-tasks §8): a `/recommended` area of
+  topic-organised toy and book recommendations with Amazon Associates links.
+  Editorial rule (protected Bible §12 territory): recommend what's genuinely
+  good, not what pays well; age ranges and a plain-English "why we like it" on
+  every product; affiliate disclosure component on any page carrying links.
+  The engine can draft recommendation copy; humans approve picks.
+- **Great deals for parents**: a deals section for the big-ticket kit parents
+  actually need — pushchairs/buggies (strollers), car seats, cots, monitors.
+  Start manual and honest (a weekly "deals we'd actually consider" post,
+  clearly disclosed where links earn commission); later the engine can watch
+  retailer feeds and draft deal round-ups for human approval. Needs the same
+  disclosure framework as the toys work, and prices/availability must always
+  be dated — deals go stale fast, and our credibility rides on accuracy.
+- **Translation / multi-language (future feature)**: serve the site in other
+  languages. Astro supports i18n routing natively (e.g. `/es/`, `/fr/`);
+  content translation is LLM-drafted (a natural new engine stage) with the
+  same staging→approval flow as game packs, because translated health
+  guidance must be reviewed before publish. Jurisdiction labels matter even
+  more here ("for UK readers" must not silently imply local applicability in
+  translation). Sequencing: after the games area ships and analytics tell us
+  which languages readers actually want. Site chrome (nav, footer, UI
+  strings) needs an i18n string layer first — worth building when the games
+  UI strings are extracted anyway.
+
 - **Analytics** (privacy-respecting: Plausible or Umami): page views, game starts/completions (anonymous), gate-view → signup conversion, digest click-through. Feed topic-level engagement back to the planner — closing the loop so the LLM curates toward what parents actually read and play.
 - **Search** (Pagefind), dark mode, print styles, full accessibility audit.
 - **Member home** (`/account`): manage email, see new-since-last-visit, future preferences (children's age bands → personalised digest, opt-in).

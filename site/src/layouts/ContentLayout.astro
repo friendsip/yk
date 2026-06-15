@@ -76,7 +76,7 @@ const jsonLd = {
   <article>
     <header class="content-header" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
       <div class="content-header__band" aria-hidden="true">
-        <div class="content-header__art" set:html={art.svg} />
+        <div class="content-header__art" set:html={art.markup} />
       </div>
       {type === 'editorial' && (
         <div class="editorial-banner">Editor's Perspective</div>

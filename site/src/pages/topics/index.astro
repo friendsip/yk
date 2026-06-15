@@ -33,7 +33,7 @@ function toDisplayName(tag: string): string {
         const art = artForTag(tag);
         return (
           <a href={`/topics/${tag}`} class="topic-card" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
-            <span class="topic-card__art" aria-hidden="true" set:html={art.svg} />
+            <span class="topic-card__art" aria-hidden="true" set:html={art.markup} />
             <span class="topic-card__name">{toDisplayName(tag)}</span>
             <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
           </a>

@@ -90,6 +90,11 @@ If not, don't publish it.
   fostering information, how to talk to your kids about difficult topics, etc.
 - **Fun stuff**: Best toys for different ages, rainy day activities, book recommendations,
   games, craft ideas. Parenting isn't all serious.
+- **Good news** (tag: `good-news`): Uplifting, evidence-grounded stories — the benefits
+  of family activities and exercise, communities doing right by children, encouraging
+  research findings. Feel-good but never fluffy: the same sourcing rules apply, and we
+  don't oversell tentative findings just because they're cheering. The site surfaces
+  this tag as its own feed.
 - **Reviews** (in the Toys & Reviews section only): See Section 12 for monetisation rules.
 
 ### 4.2 Content we particularly value
