@@ -222,6 +222,27 @@ birth-date personalisation. Follow-ups:
 - [ ] **Printables** — the guides are a natural base for the printable
   checklists mentioned in the Phase 6 funnel note.
 
+**The app** (`/app`, shipped July 2026): standalone installable PWA — wizard
+(name/birthdate/sex), daily Today screen (celebrations, hints, facts,
+affirmations, feeding/games), in-app guide, multi-child, all data on-device.
+App follow-ups:
+
+- [ ] **Google sign-in setup (Mark)** — create an OAuth client ID (type: Web)
+  in Google Cloud Console; authorised JavaScript origins:
+  `https://yourkids.com` (and `http://localhost:4321` for local testing).
+  Then set `PUBLIC_GOOGLE_CLIENT_ID=<id>` in Vercel env vars (and
+  `site/.env`) and redeploy — the "Sign in with Google" button appears
+  automatically. Until then the app shows "Get started" only.
+- [ ] **Subdomain (Mark)** — when ready, add `app.yourkids.com` to the Vercel
+  project and redirect/rewrite it to `/app` (the PWA scope/manifest work
+  as-is at the path; revisit `start_url` if serving natively on the
+  subdomain).
+- [ ] **Service-worker cache version** — bump `CACHE` in `public/app/sw.js`
+  if the app shell changes in a breaking way (network-first means normal
+  deploys just work).
+- [ ] **Homepage promo** — the app promo banners exist on /baby and /toddler;
+  consider one on the homepage too.
+
 ---
 
 ## Suggested Order

@@ -20,6 +20,18 @@ Goal: turn yourkids.com from a clean-but-plain reading site into a vibrant desti
 > on-device birth dates (nothing sent to us). This is the first "tools" rung
 > of the list-building funnel described in the Phase 6 revenue note — a
 > reason to visit weekly before the games area exists.
+>
+> **Also shipped — July 2026: the companion app** (`/app`): a standalone,
+> installable PWA with its own look and feel (sunrise palette, rounded cards,
+> bottom tab bar — deliberately nothing like the editorial site). Optional
+> client-side Google sign-in, a warm onboarding wizard (name, birthdate,
+> sex), then a daily "Today" screen per child: little celebrations (week
+> birthdays, month birthdays, 100 days), what to expect right now, a daily
+> hint, fun fact, feeding tip or toddler game, and a loving affirmation for
+> the parent. Multi-child, offline-capable, everything on-device. This is a
+> daily-habit surface — the strongest list-building tool yet; a "get the
+> weekly email" hook inside the app is the natural next step once the
+> newsletter ships.
 
 ## Guiding principles
 

@@ -1,0 +1,940 @@
+---
+/**
+ * The Baby & Toddler app — a single-page, installable PWA shell.
+ *
+ * Everything is client-side: the parent's name (from optional Google
+ * sign-in), children's profiles and preferences live ONLY in localStorage on
+ * the device (see /privacy §3a). Stage content is fetched per-stage from
+ * /app/data/stage/*.json; daily pools from /app/data/daily.json.
+ */
+import AppLayout from '../../layouts/AppLayout.astro';
+import { babyWeeks } from '../../data/baby/weeks';
+import { babyMonths } from '../../data/baby/months';
+import { toddlerStages } from '../../data/toddler/stages';
+
+const stageIndex = [
+  ...[...babyWeeks, ...babyMonths].map((s) => ({
+    id: s.id,
+    label: s.label,
+    from: s.ageWeeksFrom,
+    to: s.ageWeeksTo,
+    kind: 'baby',
+  })),
+  ...toddlerStages.map((s) => ({
+    id: s.id,
+    label: s.label,
+    from: s.ageWeeksFrom,
+    to: s.ageWeeksTo,
+    kind: 'toddler',
+  })),
+];
+
+const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
+---
+
+<AppLayout
+  title="YourKids — your baby, day by day"
+  description="A loving daily companion for your baby's and toddler's first years — what to expect today, gentle hints, and little celebrations."
+>
+  <div
+    id="app"
+    data-stage-index={JSON.stringify(stageIndex)}
+    data-google-client-id={googleClientId}
+  >
+    <!-- ── Welcome ── -->
+    <section class="screen welcome" id="screen-welcome" hidden>
+      <img class="welcome__mark" src="/app/icon.svg" alt="" width="108" height="108" />
+      <h1>Hello, little one!</h1>
+      <p class="welcome__sub">
+        A daily companion for your baby's and toddler's first years — what to
+        expect today, gentle hints, and little celebrations.
+      </p>
+      <div class="welcome__actions">
+        <div id="gsi-btn"></div>
+        <button class="app-btn" id="welcome-start" type="button">Get started</button>
+        <p class="welcome__privacy">
+          Everything stays on this phone — names and birthdays are never sent
+          to us. <a href="/privacy" target="_blank">How we handle privacy</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ── Wizard ── -->
+    <section class="screen wizard" id="screen-wizard" hidden>
+      <div class="wizard__dots" aria-hidden="true">
+        <span class="wizard__dot" data-dot="0"></span>
+        <span class="wizard__dot" data-dot="1"></span>
+        <span class="wizard__dot" data-dot="2"></span>
+        <span class="wizard__dot" data-dot="3"></span>
+      </div>
+
+      <div class="wizard-step" data-step="0" hidden>
+        <h1>What's your little one's name?</h1>
+        <p>Just a first name — it stays on this phone.</p>
+        <form id="wizard-name-form">
+          <label class="sr-only" for="wizard-name">First name</label>
+          <input class="app-input" id="wizard-name" type="text" autocomplete="off" maxlength="30" placeholder="First name" />
+          <p class="wizard__error" hidden></p>
+          <button class="app-btn" type="submit">Next</button>
+        </form>
+      </div>
+
+      <div class="wizard-step" data-step="1" hidden>
+        <h1 id="wizard-dob-title">When were they born?</h1>
+        <p>We'll use this to bring you the right day, every day.</p>
+        <form id="wizard-dob-form">
+          <label class="sr-only" for="wizard-dob">Date of birth</label>
+          <input class="app-input" id="wizard-dob" type="date" />
+          <p class="wizard__error" hidden></p>
+          <button class="app-btn" type="submit">Next</button>
+          <button class="wizard__back" type="button" data-back>Back</button>
+        </form>
+      </div>
+
+      <div class="wizard-step" data-step="2" hidden>
+        <h1 id="wizard-sex-title">And they are a…</h1>
+        <p>This just helps us say "she" or "he" — skip it happily.</p>
+        <div class="wizard-choices">
+          <button class="wizard-choice" type="button" data-sex="girl">A girl 🌸</button>
+          <button class="wizard-choice" type="button" data-sex="boy">A boy 🐳</button>
+          <button class="wizard-choice" type="button" data-sex="na">Skip this</button>
+          <button class="wizard__back" type="button" data-back>Back</button>
+        </div>
+      </div>
+
+      <div class="wizard-step celebrate" data-step="3" hidden>
+        <div class="confetti" id="wizard-confetti"></div>
+        <h1 id="wizard-done-title">Wonderful!</h1>
+        <p id="wizard-done-sub"></p>
+        <button class="app-btn" id="wizard-done-btn" type="button">Let's go</button>
+      </div>
+    </section>
+
+    <!-- ── Today ── -->
+    <section class="screen" id="screen-today" hidden>
+      <header class="today-head">
+        <div class="child-avatar" id="today-avatar"></div>
+        <div>
+          <div class="today-head__greeting" id="today-greeting"></div>
+          <div class="today-head__age" id="today-age"></div>
+        </div>
+      </header>
+      <p class="today-date" id="today-date"></p>
+      <div id="today-cards"></div>
+      <p class="today-footer">
+        Want to go deeper? The full guides live on
+        <a href="/baby" target="_blank">yourkids.com</a>.
+      </p>
+    </section>
+
+    <!-- ── Guide ── -->
+    <section class="screen" id="screen-guide" hidden>
+      <div class="guide-head">
+        <button class="guide-nav-btn" id="guide-prev" type="button" aria-label="Earlier stage">&larr;</button>
+        <div class="guide-head__title">
+          <h1 id="guide-title"></h1>
+          <p id="guide-sub"></p>
+        </div>
+        <button class="guide-nav-btn" id="guide-next" type="button" aria-label="Later stage">&rarr;</button>
+      </div>
+      <div id="guide-body"></div>
+      <p class="guide-sources" id="guide-sources"></p>
+    </section>
+
+    <!-- ── You / settings ── -->
+    <section class="screen settings" id="screen-settings" hidden>
+      <h1>You &amp; yours</h1>
+      <div id="settings-parent"></div>
+      <div id="settings-children"></div>
+      <button class="app-btn app-btn--ghost" id="settings-add" type="button">
+        Add another little one
+      </button>
+      <div class="app-card" style="--card-accent: var(--app-teal); margin-top: 1rem;">
+        <div class="app-card__kicker">How you're feeding</div>
+        <div class="feed-mode-chips" id="settings-feeding"></div>
+        <p style="font-size: 0.85rem;">Used to pick the feeding tips you see. Change it any time.</p>
+      </div>
+      <p class="settings-note">
+        Everything here lives only on this device — nothing is sent to us or
+        anyone else. Removing a profile deletes it instantly.
+        <a href="/privacy" target="_blank">Privacy</a>
+      </p>
+      <p class="settings-note">
+        Made with love by <a href="/" target="_blank">yourkids.com</a> — free,
+        for every kind of family.
+      </p>
+    </section>
+
+    <!-- ── Tab bar ── -->
+    <nav class="tabbar" id="tabbar" hidden aria-label="App sections">
+      <button class="tabbar__btn" data-tab="today" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4.5" />
+          <line x1="12" y1="2.5" x2="12" y2="5" /><line x1="12" y1="19" x2="12" y2="21.5" />
+          <line x1="2.5" y1="12" x2="5" y2="12" /><line x1="19" y1="12" x2="21.5" y2="12" />
+          <line x1="5.3" y1="5.3" x2="7" y2="7" /><line x1="17" y1="17" x2="18.7" y2="18.7" />
+          <line x1="5.3" y1="18.7" x2="7" y2="17" /><line x1="17" y1="7" x2="18.7" y2="5.3" />
+        </svg>
+        Today
+      </button>
+      <button class="tabbar__btn" data-tab="guide" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 5 C7 3.5 10 3.5 12 5 C14 3.5 17 3.5 20 5 V19 C17 17.5 14 17.5 12 19 C10 17.5 7 17.5 4 19 Z" />
+          <line x1="12" y1="5" x2="12" y2="19" />
+        </svg>
+        Guide
+      </button>
+      <button class="tabbar__btn" data-tab="settings" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20 C7 16 3.5 12.5 3.5 9 C3.5 6.5 5.5 4.5 8 4.5 C9.6 4.5 11.2 5.4 12 6.8 C12.8 5.4 14.4 4.5 16 4.5 C18.5 4.5 20.5 6.5 20.5 9 C20.5 12.5 17 16 12 20 Z" />
+        </svg>
+        You
+      </button>
+    </nav>
+  </div>
+</AppLayout>
+
+<script>
+  // ────────────────────────────────────────────────────────────────────
+  // Types & state
+  // ────────────────────────────────────────────────────────────────────
+  type Sex = 'girl' | 'boy' | 'na';
+  interface Child {
+    id: string;
+    name: string;
+    sex: Sex;
+    birthdate: string; // YYYY-MM-DD
+  }
+  interface StageRef {
+    id: string;
+    label: string;
+    from: number;
+    to: number;
+    kind: 'baby' | 'toddler';
+  }
+  interface BandedItem {
+    fromWeeks: number;
+    toWeeks: number;
+    text: string;
+  }
+
+  const PARENT_KEY = 'yk-app-parent';
+  const CHILDREN_KEY = 'yk-app-children';
+  const ACTIVE_KEY = 'yk-app-active';
+  const FEEDING_KEY = 'yk-feeding-mode';
+
+  const FEEDING_LABELS: Record<string, string> = {
+    breast: 'Breastfeeding',
+    'breast-expressed': 'Breast + expressed',
+    'breast-formula': 'Breast + formula',
+    formula: 'Formula',
+  };
+
+  const root = document.getElementById('app') as HTMLElement;
+  const STAGES: StageRef[] = JSON.parse(root.dataset.stageIndex || '[]');
+  const GOOGLE_CLIENT_ID = root.dataset.googleClientId || '';
+
+  const load = (key: string) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  };
+  const save = (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      /* private browsing */
+    }
+  };
+  const remove = (key: string) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const getParent = (): { name?: string; picture?: string } | null => {
+    const raw = load(PARENT_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  };
+  const getChildren = (): Child[] => {
+    const raw = load(CHILDREN_KEY);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  };
+  const setChildren = (children: Child[]) => save(CHILDREN_KEY, JSON.stringify(children));
+  const activeChild = (): Child | null => {
+    const children = getChildren();
+    if (!children.length) return null;
+    return children.find((c) => c.id === load(ACTIVE_KEY)) ?? children[0];
+  };
+
+  // ────────────────────────────────────────────────────────────────────
+  // Little helpers
+  // ────────────────────────────────────────────────────────────────────
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const ageDays = (iso: string): number =>
+    Math.floor((Date.now() - new Date(`${iso}T00:00:00`).getTime()) / 864e5);
+
+  function ageString(days: number): string {
+    if (days < 0) return '';
+    if (days === 0) return 'brand new today';
+    if (days < 14) return `${days} day${days === 1 ? '' : 's'} old`;
+    const weeks = Math.floor(days / 7);
+    if (weeks < 13) {
+      const rem = days % 7;
+      return rem ? `${weeks} weeks and ${rem} day${rem === 1 ? '' : 's'} old` : `${weeks} weeks old`;
+    }
+    const months = Math.floor(days / 30.44);
+    if (months < 24) {
+      const remWeeks = Math.floor((days - months * 30.44) / 7);
+      return remWeeks ? `${months} months and ${remWeeks} week${remWeeks === 1 ? '' : 's'} old` : `${months} months old`;
+    }
+    const years = Math.floor(months / 12);
+    const remMonths = months % 12;
+    return remMonths ? `${years} years and ${remMonths} month${remMonths === 1 ? '' : 's'} old` : `${years} years old`;
+  }
+
+  const stageForWeeks = (weeks: number): StageRef | null =>
+    STAGES.find((s) => weeks >= s.from && weeks <= s.to) ?? null;
+
+  const hashStr = (s: string): number => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h;
+  };
+
+  const dayNumber = () => Math.floor(Date.now() / 864e5);
+
+  function pickDaily<T>(pool: T[], salt: number): T | null {
+    if (!pool.length) return null;
+    return pool[(dayNumber() * 7919 + salt) % pool.length];
+  }
+
+  const bandFilter = (pool: BandedItem[], weeks: number): BandedItem[] => {
+    const hits = pool.filter((i) => weeks >= i.fromWeeks && weeks <= i.toWeeks);
+    return hits.length ? hits : pool;
+  };
+
+  const pronouns = (sex: Sex) =>
+    sex === 'girl'
+      ? { they: 'she', their: 'her' }
+      : sex === 'boy'
+        ? { they: 'he', their: 'his' }
+        : { they: 'they', their: 'their' };
+
+  function celebration(child: Child): string | null {
+    const days = ageDays(child.birthdate);
+    if (days <= 0) return null;
+    const name = child.name;
+    const p = pronouns(child.sex);
+
+    const birth = new Date(`${child.birthdate}T00:00:00`);
+    const now = new Date();
+    const monthsDiff =
+      (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
+    const isMonthDay = now.getDate() === birth.getDate() && monthsDiff > 0;
+
+    if (isMonthDay && monthsDiff === 12) return `🎂 Happy FIRST birthday, ${name}! What a year ${p.they} ${p.they === 'they' ? 'have' : 'has'} had.`;
+    if (isMonthDay && monthsDiff === 24) return `🎂 ${name} is TWO today! Happy birthday, little whirlwind.`;
+    if (isMonthDay && monthsDiff === 36) return `🎂 Three years of ${name}! Happy birthday!`;
+    if (isMonthDay && monthsDiff === 6) return `🌟 Half birthday! ${name} is six months old today.`;
+    if (isMonthDay && monthsDiff < 24) return `🎉 ${name} is exactly ${monthsDiff} month${monthsDiff === 1 ? '' : 's'} old today!`;
+    if (isMonthDay) return `🎉 ${name} is ${Math.floor(monthsDiff / 12)} years and ${monthsDiff % 12} months today!`;
+    if (days === 100) return `💯 100 days of ${name}! One hundred days of you two figuring it out together.`;
+    if (days % 7 === 0 && days / 7 < 13) return `🎉 ${name} is ${days / 7} week${days === 7 ? '' : 's'} old today!`;
+    return null;
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Screen switching
+  // ────────────────────────────────────────────────────────────────────
+  const screens = {
+    welcome: document.getElementById('screen-welcome')!,
+    wizard: document.getElementById('screen-wizard')!,
+    today: document.getElementById('screen-today')!,
+    guide: document.getElementById('screen-guide')!,
+    settings: document.getElementById('screen-settings')!,
+  };
+  const tabbar = document.getElementById('tabbar')!;
+
+  function show(name: keyof typeof screens) {
+    Object.entries(screens).forEach(([key, el]) => {
+      el.hidden = key !== name;
+    });
+    const isTabbed = name === 'today' || name === 'guide' || name === 'settings';
+    tabbar.hidden = !isTabbed;
+    tabbar.querySelectorAll('.tabbar__btn').forEach((btn) => {
+      btn.classList.toggle('is-active', (btn as HTMLElement).dataset.tab === name);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  tabbar.querySelectorAll('.tabbar__btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = (btn as HTMLElement).dataset.tab as 'today' | 'guide' | 'settings';
+      if (tab === 'today') renderToday();
+      if (tab === 'guide') openGuide(null);
+      if (tab === 'settings') renderSettings();
+      show(tab);
+    });
+  });
+
+  // ────────────────────────────────────────────────────────────────────
+  // Confetti
+  // ────────────────────────────────────────────────────────────────────
+  function burstConfetti(container: HTMLElement) {
+    const colours = ['#ff7a59', '#9d7bd8', '#35b8a4', '#ffc247', '#f26d9d', '#6fb5e8'];
+    container.innerHTML = '';
+    for (let i = 0; i < 26; i++) {
+      const bit = document.createElement('span');
+      bit.style.left = `${Math.random() * 100}%`;
+      bit.style.background = colours[i % colours.length];
+      bit.style.animationDelay = `${Math.random() * 0.7}s`;
+      bit.style.transform = `rotate(${Math.random() * 360}deg)`;
+      container.appendChild(bit);
+    }
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Welcome + Google sign-in (client-side only; profile stays on-device)
+  // ────────────────────────────────────────────────────────────────────
+  document.getElementById('welcome-start')!.addEventListener('click', () => startWizard(null));
+
+  if (GOOGLE_CLIENT_ID) {
+    const s = document.createElement('script');
+    s.src = 'https://accounts.google.com/gsi/client';
+    s.async = true;
+    s.onload = () => {
+      const g = (window as any).google;
+      if (!g?.accounts?.id) return;
+      g.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (resp: { credential: string }) => {
+          try {
+            const payload = JSON.parse(
+              atob(resp.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))
+            );
+            save(
+              PARENT_KEY,
+              JSON.stringify({ name: payload.given_name || payload.name || '', picture: payload.picture || '' })
+            );
+          } catch {
+            /* sign-in is a nicety — carry on regardless */
+          }
+          startWizard(null);
+        },
+      });
+      g.accounts.id.renderButton(document.getElementById('gsi-btn'), {
+        theme: 'outline',
+        size: 'large',
+        shape: 'pill',
+        text: 'continue_with',
+      });
+      (document.getElementById('welcome-start') as HTMLElement).classList.add('app-btn--ghost');
+      document.getElementById('welcome-start')!.textContent = 'Continue without signing in';
+    };
+    document.head.appendChild(s);
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Wizard
+  // ────────────────────────────────────────────────────────────────────
+  let draft: Partial<Child> = {};
+  let editingId: string | null = null;
+
+  const wizardSteps = [...screens.wizard.querySelectorAll('.wizard-step')] as HTMLElement[];
+  const wizardDots = [...screens.wizard.querySelectorAll('.wizard__dot')] as HTMLElement[];
+
+  function wizardGo(step: number) {
+    wizardSteps.forEach((el) => {
+      el.hidden = Number(el.dataset.step) !== step;
+    });
+    wizardDots.forEach((d, i) => d.classList.toggle('is-active', i <= step));
+  }
+
+  function startWizard(child: Child | null) {
+    editingId = child?.id ?? null;
+    draft = child ? { ...child } : {};
+    const nameInput = document.getElementById('wizard-name') as HTMLInputElement;
+    const dobInput = document.getElementById('wizard-dob') as HTMLInputElement;
+    nameInput.value = child?.name ?? '';
+    // Prefill from the guide pages' stored dates if a first-time visitor
+    dobInput.value = child?.birthdate ?? load('yk-baby-birthdate') ?? load('yk-toddler-birthdate') ?? '';
+    dobInput.max = new Date().toISOString().slice(0, 10);
+    show('wizard');
+    wizardGo(0);
+    nameInput.focus();
+  }
+
+  document.getElementById('wizard-name-form')!.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('wizard-name') as HTMLInputElement;
+    const err = input.parentElement!.querySelector('.wizard__error') as HTMLElement;
+    const name = input.value.trim();
+    if (!name) {
+      err.textContent = 'A name (or nickname!) helps us make this feel like theirs.';
+      err.hidden = false;
+      return;
+    }
+    err.hidden = true;
+    draft.name = name.slice(0, 30);
+    (document.getElementById('wizard-dob-title') as HTMLElement).textContent = `When was ${draft.name} born?`;
+    (document.getElementById('wizard-sex-title') as HTMLElement).textContent = `And ${draft.name} is…`;
+    wizardGo(1);
+  });
+
+  document.getElementById('wizard-dob-form')!.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('wizard-dob') as HTMLInputElement;
+    const err = input.parentElement!.querySelector('.wizard__error') as HTMLElement;
+    const value = input.value;
+    const days = value ? ageDays(value) : -1;
+    if (!value || days < 0) {
+      err.textContent = "That date looks like it's in the future — double-check?";
+      err.hidden = false;
+      return;
+    }
+    if (days > 365 * 6) {
+      err.textContent = 'This app covers birth to three — that date looks a bit earlier. Typo?';
+      err.hidden = false;
+      return;
+    }
+    err.hidden = true;
+    draft.birthdate = value;
+    wizardGo(2);
+  });
+
+  screens.wizard.querySelectorAll('[data-sex]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      draft.sex = (btn as HTMLElement).dataset.sex as Sex;
+      finishWizard();
+    });
+  });
+
+  screens.wizard.querySelectorAll('[data-back]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const step = Number((btn.closest('.wizard-step') as HTMLElement).dataset.step);
+      wizardGo(step - 1);
+    });
+  });
+
+  function finishWizard() {
+    const children = getChildren();
+    if (editingId) {
+      const i = children.findIndex((c) => c.id === editingId);
+      if (i >= 0) children[i] = { ...children[i], ...(draft as Child) };
+      setChildren(children);
+      save(ACTIVE_KEY, editingId);
+    } else {
+      const child: Child = {
+        id: `c${Date.now().toString(36)}`,
+        name: draft.name!,
+        sex: draft.sex ?? 'na',
+        birthdate: draft.birthdate!,
+      };
+      children.push(child);
+      setChildren(children);
+      save(ACTIVE_KEY, child.id);
+    }
+    const child = activeChild()!;
+    const days = ageDays(child.birthdate);
+    (document.getElementById('wizard-done-title') as HTMLElement).textContent =
+      days === 0 ? `Welcome to the world, ${child.name}!` : `Lovely to meet you, ${child.name}!`;
+    (document.getElementById('wizard-done-sub') as HTMLElement).textContent =
+      days === 0
+        ? 'Born today — congratulations! Your day-by-day companion starts right now.'
+        : `${child.name} is ${ageString(days)}. Your day-by-day companion is ready.`;
+    burstConfetti(document.getElementById('wizard-confetti') as HTMLElement);
+    wizardGo(3);
+  }
+
+  document.getElementById('wizard-done-btn')!.addEventListener('click', () => {
+    renderToday();
+    show('today');
+  });
+
+  // ────────────────────────────────────────────────────────────────────
+  // Data fetching (SW caches these for offline)
+  // ────────────────────────────────────────────────────────────────────
+  let dailyCache: { affirmations: string[]; funFacts: BandedItem[]; dailyHints: BandedItem[] } | null = null;
+  async function getDaily() {
+    if (!dailyCache) {
+      dailyCache = await fetch('/app/data/daily.json').then((r) => r.json());
+    }
+    return dailyCache!;
+  }
+
+  const stageCache: Record<string, any> = {};
+  async function getStage(id: string) {
+    if (!stageCache[id]) {
+      stageCache[id] = await fetch(`/app/data/stage/${id}.json`).then((r) => r.json());
+    }
+    return stageCache[id];
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Today screen
+  // ────────────────────────────────────────────────────────────────────
+  const card = (accent: string, kicker: string, body: string) =>
+    `<div class="app-card" style="--card-accent: ${accent};">
+       <div class="app-card__kicker">${kicker}</div>
+       ${body}
+     </div>`;
+
+  async function renderToday() {
+    const child = activeChild();
+    if (!child) return;
+
+    const days = ageDays(child.birthdate);
+    const weeks = Math.floor(days / 7);
+    const parent = getParent();
+    const hour = new Date().getHours();
+    const timeOfDay = hour < 5 ? 'Hello, night owl' : hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+    (document.getElementById('today-avatar') as HTMLElement).textContent = child.name.charAt(0).toUpperCase();
+    (document.getElementById('today-greeting') as HTMLElement).textContent = parent?.name
+      ? `${timeOfDay}, ${parent.name}!`
+      : `${timeOfDay}!`;
+    (document.getElementById('today-age') as HTMLElement).textContent = `${child.name} is ${ageString(days)}`;
+    (document.getElementById('today-date') as HTMLElement).textContent = new Date().toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+
+    const holder = document.getElementById('today-cards') as HTMLElement;
+    const salt = hashStr(child.id);
+    const stageRef = stageForWeeks(weeks);
+    let html = '';
+
+    const fete = celebration(child);
+    if (fete) {
+      html += `<div class="celebration-banner"><div class="confetti" id="today-confetti"></div>${esc(fete)}</div>`;
+    }
+
+    if (!stageRef) {
+      // Graduated (3+) — still loving, points onwards
+      const daily = await getDaily();
+      const affirmation = pickDaily(daily.affirmations, dayNumber());
+      html += card(
+        'var(--app-sunshine)',
+        '🎓 Onwards!',
+        `<h2>${esc(child.name)} has graduated the app!</h2>
+         <p>This companion covers birth to three — and what three years they've been. The adventure carries on over at yourkids.com.</p>
+         <a class="app-card__link" href="/topics" target="_blank">Explore the parenting guides &rarr;</a>`
+      );
+      if (affirmation) {
+        html += card('var(--app-rose)', '💛 For you', `<p>${esc(affirmation)}</p>`);
+      }
+      holder.innerHTML = html;
+      return;
+    }
+
+    const [daily, stage] = await Promise.all([getDaily(), getStage(stageRef.id)]);
+
+    // This stage right now
+    const expectFirst = stage.expect?.[0];
+    html += card(
+      'var(--app-lavender)',
+      stageRef.kind === 'baby' ? `📖 ${stageRef.label} with ${esc(child.name)}` : `📖 ${esc(child.name)} at ${stageRef.label}`,
+      `<h2>${esc(stage.title)}</h2>
+       <p>${esc(stage.summary)}</p>
+       ${expectFirst ? `<p><strong>${esc(expectFirst.heading)}:</strong> ${esc(expectFirst.paragraphs[0])}</p>` : ''}
+       <a class="app-card__link" href="#" data-open-guide>Read all about this ${stageRef.kind === 'baby' ? 'week' : 'stage'} &rarr;</a>`
+    );
+
+    // Today's hint
+    const hint = pickDaily(bandFilter(daily.dailyHints, weeks), salt + 1);
+    if (hint) {
+      html += card('var(--app-teal)', '✨ Try today', `<p>${esc(hint.text)}</p>`);
+    }
+
+    // Feeding (babies) or game (toddlers)
+    if (stageRef.kind === 'baby') {
+      const mode = load(FEEDING_KEY) ?? 'breast';
+      const tips: string[] = stage.feedingNotes?.[mode] ?? [];
+      const tip = pickDaily(tips, salt + 2);
+      if (tip) {
+        html += card(
+          'var(--app-sky)',
+          `🍼 Feeding<span class="mode-chip">${FEEDING_LABELS[mode] ?? mode}</span>`,
+          `<p>${esc(tip)}</p><a class="app-card__link" href="#" data-open-settings>Feeding differently? Change it &rarr;</a>`
+        );
+      }
+    } else {
+      const game = pickDaily(stage.games ?? [], salt + 2) as { name: string; how: string; parentEnergy: string } | null;
+      if (game) {
+        html += card(
+          'var(--app-sky)',
+          '🎲 Game for today',
+          `<h2>${esc(game.name)}${game.parentEnergy === 'low' ? '<span class="game-energy">low effort</span>' : ''}</h2>
+           <p>${esc(game.how)}</p>`
+        );
+      }
+    }
+
+    // Did you know?
+    const fact = pickDaily(bandFilter(daily.funFacts, weeks), salt + 3);
+    if (fact) {
+      html += card('var(--app-sunshine)', '🧠 Did you know?', `<p>${esc(fact.text)}</p>`);
+    }
+
+    // Totally normal
+    const normal = pickDaily(stage.dontWorry ?? [], salt + 4);
+    if (normal) {
+      html += card('var(--app-coral)', '😮‍💨 Totally normal', `<p>${esc(normal as string)}</p>`);
+    }
+
+    // For you
+    const affirmation = pickDaily(daily.affirmations, dayNumber() + salt + 5);
+    if (affirmation) {
+      html += `<div class="app-card app-card--affirm" style="--card-accent: var(--app-rose);">
+        <div class="app-card__kicker" style="color: var(--app-rose);">💛 For you</div>
+        <p>${esc(affirmation)}</p>
+      </div>`;
+    }
+
+    holder.innerHTML = html;
+
+    const confettiEl = document.getElementById('today-confetti');
+    if (confettiEl) burstConfetti(confettiEl as HTMLElement);
+    holder.querySelector('[data-open-guide]')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      openGuide(stageRef.id);
+      show('guide');
+    });
+    holder.querySelector('[data-open-settings]')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      renderSettings();
+      show('settings');
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Guide screen
+  // ────────────────────────────────────────────────────────────────────
+  let guideStageId: string | null = null;
+
+  async function openGuide(id: string | null) {
+    const child = activeChild();
+    if (!id) {
+      const weeks = child ? Math.floor(ageDays(child.birthdate) / 7) : 0;
+      id = guideStageId ?? stageForWeeks(weeks)?.id ?? STAGES[0].id;
+    }
+    guideStageId = id;
+    const stage = await getStage(id);
+
+    (document.getElementById('guide-title') as HTMLElement).textContent = stage.label;
+    (document.getElementById('guide-sub') as HTMLElement).textContent = stage.title;
+
+    const prevBtn = document.getElementById('guide-prev') as HTMLButtonElement;
+    const nextBtn = document.getElementById('guide-next') as HTMLButtonElement;
+    prevBtn.disabled = !stage.prevId;
+    nextBtn.disabled = !stage.nextId;
+    prevBtn.onclick = () => stage.prevId && openGuide(stage.prevId);
+    nextBtn.onclick = () => stage.nextId && openGuide(stage.nextId);
+
+    let html = '';
+
+    html += card(
+      'var(--app-lavender)',
+      '📖 What to expect',
+      `<div class="guide-section-block">${(stage.expect ?? [])
+        .map(
+          (sec: any) =>
+            `<h3>${esc(sec.heading)}</h3>${sec.paragraphs.map((p: string) => `<p>${esc(p)}</p>`).join('')}`
+        )
+        .join('')}</div>`
+    );
+
+    if (stage.kind === 'toddler' && stage.encourage?.length) {
+      html += card(
+        'var(--app-teal)',
+        '🌱 How to help them grow',
+        `<div class="guide-section-block">${stage.encourage
+          .map(
+            (sec: any) =>
+              `<h3>${esc(sec.heading)}</h3>${sec.paragraphs.map((p: string) => `<p>${esc(p)}</p>`).join('')}`
+          )
+          .join('')}</div>`
+      );
+    }
+
+    if (stage.kind === 'baby' && stage.feedingNotes) {
+      const mode = load(FEEDING_KEY) ?? 'breast';
+      const chips = Object.keys(FEEDING_LABELS)
+        .filter((m) => stage.feedingNotes[m]?.length)
+        .map(
+          (m) =>
+            `<button class="feed-mode-chip${m === mode ? ' is-active' : ''}" data-feed-mode="${m}" type="button">${FEEDING_LABELS[m]}</button>`
+        )
+        .join('');
+      const tips: string[] = stage.feedingNotes[mode] ?? [];
+      html += card(
+        'var(--app-sky)',
+        '🍼 Feeding at this stage',
+        `<div class="feed-mode-chips">${chips}</div>
+         <ul>${tips.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`
+      );
+    }
+
+    if (stage.kind === 'toddler' && stage.games?.length) {
+      html += card(
+        'var(--app-sky)',
+        '🎲 Games for this stage',
+        `<ul>${stage.games
+          .map(
+            (g: any) =>
+              `<li><strong>${esc(g.name)}</strong>${g.parentEnergy === 'low' ? '<span class="game-energy">low effort</span>' : ''}<br>${esc(g.how)}</li>`
+          )
+          .join('')}</ul>`
+      );
+    }
+
+    html += card(
+      'var(--app-coral)',
+      '😮‍💨 Totally normal',
+      `<ul>${(stage.dontWorry ?? []).map((d: string) => `<li>${esc(d)}</li>`).join('')}</ul>`
+    );
+
+    html += card(
+      'var(--app-sunshine)',
+      '🩺 Worth checking',
+      `<p>You know your child best — if any of these ring true, or something feels off, it's always OK to ask. This is general information, not medical advice.</p>
+       <ul>${(stage.watchFor ?? []).map((w: string) => `<li>${esc(w)}</li>`).join('')}</ul>`
+    );
+
+    (document.getElementById('guide-body') as HTMLElement).innerHTML = html;
+
+    (document.getElementById('guide-sources') as HTMLElement).innerHTML = (stage.sources ?? [])
+      .map(
+        (s: any) =>
+          `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.org)} (${esc(s.region)})</a>`
+      )
+      .join(' · ');
+
+    document.querySelectorAll('[data-feed-mode]').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        save(FEEDING_KEY, (chip as HTMLElement).dataset.feedMode!);
+        openGuide(guideStageId);
+      });
+    });
+  }
+
+  // ────────────────────────────────────────────────────────────────────
+  // Settings
+  // ────────────────────────────────────────────────────────────────────
+  function renderSettings() {
+    const parent = getParent();
+    const parentEl = document.getElementById('settings-parent') as HTMLElement;
+    parentEl.innerHTML = parent?.name
+      ? card(
+          'var(--app-lavender)',
+          '👋 Signed in',
+          `<p>Hello, <strong>${esc(parent.name)}</strong>! Your sign-in only personalises greetings — nothing is stored anywhere but this device.</p>
+           <button class="danger-link" id="sign-out" type="button">Sign out</button>`
+        )
+      : card(
+          'var(--app-lavender)',
+          '👋 Hello',
+          `<p>You're not signed in — and that's completely fine. Everything works the same either way.</p>`
+        );
+    parentEl.querySelector('#sign-out')?.addEventListener('click', () => {
+      remove(PARENT_KEY);
+      renderSettings();
+    });
+
+    const childrenEl = document.getElementById('settings-children') as HTMLElement;
+    const children = getChildren();
+    const active = activeChild();
+    childrenEl.innerHTML = children
+      .map((c) => {
+        const isActive = c.id === active?.id;
+        return `<div class="app-card" style="--card-accent: ${isActive ? 'var(--app-coral)' : 'var(--app-ink-faint)'};">
+          <div class="child-row">
+            <div class="child-avatar">${esc(c.name.charAt(0).toUpperCase())}</div>
+            <div class="child-row__info">
+              <strong>${esc(c.name)}</strong>
+              <span>${ageString(ageDays(c.birthdate))}${isActive ? ' · showing now' : ''}</span>
+            </div>
+            ${isActive ? '' : `<button class="app-btn app-btn--ghost app-btn--small" data-switch="${c.id}" type="button">Show</button>`}
+            <button class="app-btn app-btn--ghost app-btn--small" data-edit="${c.id}" type="button">Edit</button>
+          </div>
+          <button class="danger-link" data-remove="${c.id}" type="button" style="margin-top:0.6rem;">Remove ${esc(c.name)}'s profile</button>
+        </div>`;
+      })
+      .join('');
+
+    childrenEl.querySelectorAll('[data-switch]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        save(ACTIVE_KEY, (btn as HTMLElement).dataset.switch!);
+        renderToday();
+        show('today');
+      })
+    );
+    childrenEl.querySelectorAll('[data-edit]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const child = getChildren().find((c) => c.id === (btn as HTMLElement).dataset.edit);
+        if (child) startWizard(child);
+      })
+    );
+    childrenEl.querySelectorAll('[data-remove]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const id = (btn as HTMLElement).dataset.remove!;
+        const child = getChildren().find((c) => c.id === id);
+        if (!child) return;
+        if (!confirm(`Remove ${child.name}'s profile from this device?`)) return;
+        const rest = getChildren().filter((c) => c.id !== id);
+        setChildren(rest);
+        if (load(ACTIVE_KEY) === id) remove(ACTIVE_KEY);
+        if (!rest.length) {
+          show('welcome');
+        } else {
+          renderSettings();
+        }
+      })
+    );
+
+    const feedingEl = document.getElementById('settings-feeding') as HTMLElement;
+    const mode = load(FEEDING_KEY) ?? 'breast';
+    feedingEl.innerHTML = Object.entries(FEEDING_LABELS)
+      .map(
+        ([m, label]) =>
+          `<button class="feed-mode-chip${m === mode ? ' is-active' : ''}" data-mode="${m}" type="button">${label}</button>`
+      )
+      .join('');
+    feedingEl.querySelectorAll('[data-mode]').forEach((chip) =>
+      chip.addEventListener('click', () => {
+        save(FEEDING_KEY, (chip as HTMLElement).dataset.mode!);
+        renderSettings();
+      })
+    );
+  }
+
+  document.getElementById('settings-add')!.addEventListener('click', () => startWizard(null));
+
+  // ────────────────────────────────────────────────────────────────────
+  // Boot
+  // ────────────────────────────────────────────────────────────────────
+  if (activeChild()) {
+    renderToday();
+    show('today');
+  } else {
+    show('welcome');
+  }
+</script>

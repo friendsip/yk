@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd9c0"/>
+      <stop offset="0.55" stop-color="#f0d5f5"/>
+      <stop offset="1" stop-color="#cfe7fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- smiling sun -->
+  <g>
+    <circle cx="256" cy="238" r="104" fill="#ffc247"/>
+    <g stroke="#ffc247" stroke-width="22" stroke-linecap="round">
+      <line x1="256" y1="86" x2="256" y2="56"/>
+      <line x1="256" y1="390" x2="256" y2="420"/>
+      <line x1="104" y1="238" x2="74" y2="238"/>
+      <line x1="408" y1="238" x2="438" y2="238"/>
+      <line x1="149" y1="131" x2="128" y2="110"/>
+      <line x1="363" y1="131" x2="384" y2="110"/>
+      <line x1="149" y1="345" x2="128" y2="366"/>
+      <line x1="363" y1="345" x2="384" y2="366"/>
+    </g>
+    <!-- closed happy eyes + smile -->
+    <path d="M206 226 q14 -16 28 0" fill="none" stroke="#3a3153" stroke-width="12" stroke-linecap="round"/>
+    <path d="M278 226 q14 -16 28 0" fill="none" stroke="#3a3153" stroke-width="12" stroke-linecap="round"/>
+    <path d="M216 272 q40 34 80 0" fill="none" stroke="#3a3153" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="192" cy="258" r="13" fill="#ff9d7e" opacity="0.7"/>
+    <circle cx="320" cy="258" r="13" fill="#ff9d7e" opacity="0.7"/>
+  </g>
+  <!-- little star -->
+  <path d="M404 96 l9 22 22 9 -22 9 -9 22 -9 -22 -22 -9 22 -9 z" fill="#ffffff"/>
+</svg>

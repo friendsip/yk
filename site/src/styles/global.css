@@ -1962,6 +1962,50 @@ li {
   margin-top: var(--space-md);
 }
 
+/* App promo banner on the guide hubs */
+.app-promo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  background: linear-gradient(135deg, #ffe3d0, #f3ddf5);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-lg) 0;
+  text-decoration: none;
+  color: var(--color-ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.app-promo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(44, 44, 44, 0.1);
+}
+
+.app-promo img {
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.app-promo__text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.app-promo__cta {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-weight: 700;
+  color: #9d7bd8;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .app-promo__cta {
+    display: none;
+  }
+}
+
 /* Guide disclaimer */
 .guide-disclaimer {
   background: var(--color-bg-warm);
