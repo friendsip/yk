@@ -3,8 +3,10 @@
 import json
 import sqlite3
 import threading
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
+
+from src.utils.clock import to_sqlite, utcnow, utcnow_sqlite
 
 
 class Database:
@@ -124,8 +126,23 @@ class Database:
             "UPDATE discovered_items SET status = ? WHERE id = ?", (status, item_id)
         )
 
+    def increment_triage_attempts(self, item_id: int):
+        self._execute(
+            "UPDATE discovered_items SET triage_attempts = COALESCE(triage_attempts, 0) + 1 WHERE id = ?",
+            (item_id,),
+        )
+
     def get_item_by_id(self, item_id: int) -> dict | None:
         return self._fetchone("SELECT * FROM discovered_items WHERE id = ?", (item_id,))
+
+    def item_url_known(self, url: str) -> bool:
+        """True if an item with this URL has already been discovered."""
+        return (
+            self._fetchone(
+                "SELECT 1 FROM discovered_items WHERE external_url = ?", (url,)
+            )
+            is not None
+        )
 
     # ── Triage ───────────────────────────────────────────────
 
@@ -190,7 +207,7 @@ class Database:
 
     def get_pending_actions(self, plan_id: int) -> list[dict]:
         """Return pending actions, plus any stuck in_progress for >1 hour."""
-        one_hour_ago = (datetime.now() - timedelta(hours=1)).isoformat()
+        one_hour_ago = to_sqlite(utcnow() - timedelta(hours=1))
         return self._fetchall(
             """SELECT * FROM plan_actions
                WHERE plan_id = ?
@@ -201,7 +218,7 @@ class Database:
         )
 
     def update_action_status(self, action_id: int, status: str):
-        completed_at = datetime.now().isoformat() if status == "completed" else None
+        completed_at = utcnow_sqlite() if status == "completed" else None
         self._execute(
             "UPDATE plan_actions SET status = ?, completed_at = ?, updated_at = datetime('now') WHERE id = ?",
             (status, completed_at, action_id),
@@ -249,7 +266,7 @@ class Database:
         )
 
     def get_recent_publishes(self, days: int = 7) -> list[dict]:
-        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        cutoff = to_sqlite(utcnow() - timedelta(days=days))
         return self._fetchall(
             "SELECT * FROM published_content WHERE first_published_at >= ? ORDER BY first_published_at DESC",
             (cutoff,),
@@ -266,7 +283,7 @@ class Database:
         )
 
     def get_recent_trend_signals(self, days: int = 30) -> list[dict]:
-        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        cutoff = to_sqlite(utcnow() - timedelta(days=days))
         return self._fetchall(
             "SELECT * FROM trend_signals WHERE signal_date >= ? ORDER BY signal_date DESC",
             (cutoff,),
@@ -289,7 +306,7 @@ class Database:
         )
 
     def get_daily_token_usage(self) -> list[dict]:
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = utcnow().strftime("%Y-%m-%d")
         return self._fetchall(
             "SELECT stage, SUM(input_tokens) as total_input, SUM(output_tokens) as total_output, "
             "SUM(estimated_cost_usd) as total_cost FROM token_usage "

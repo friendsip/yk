@@ -1,0 +1,72 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import AffiliateDisclosure from '../../components/AffiliateDisclosure.astro';
+import { sectionArt } from '../../lib/topicArt';
+
+const all = (await getCollection('recommendations')).sort(
+  (a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf()
+);
+
+// Group by category, in a friendly order
+const categoryOrder = ['book', 'toy', 'gear', 'app', 'finance'] as const;
+const categoryNames: Record<string, string> = {
+  book: 'Books',
+  toy: 'Toys & Play',
+  gear: 'Gear & Equipment',
+  app: 'Apps & Software',
+  finance: 'For the Family',
+};
+
+const groups = categoryOrder
+  .map(cat => ({ cat, items: all.filter(r => r.data.category === cat) }))
+  .filter(g => g.items.length > 0);
+
+const hasAffiliate = all.some(r => r.data.affiliate_url);
+---
+
+<BaseLayout
+  title="Recommended"
+  description="Toys, books, gear, and services for families — the things we genuinely think are worth your time. Honest picks, never paid placements."
+  wide
+>
+  <SectionHero
+    title="Recommended"
+    blurb="The toys, books, and bits of kit we genuinely rate — chosen because they're good, never because they pay. We'll always tell you what's worth it and what isn't."
+    art={sectionArt.recommended}
+  />
+
+  {hasAffiliate && <AffiliateDisclosure />}
+
+  {groups.length === 0 ? (
+    <p class="empty-state">
+      We're still putting this together. Soon you'll find our honest picks here —
+      the toys, books, and gear we'd genuinely recommend to a friend.
+    </p>
+  ) : (
+    groups.map(({ cat, items }) => (
+      <section class="recommend-group">
+        <h2 class="recommend-group__heading">{categoryNames[cat]}</h2>
+        <div class="product-grid">
+          {items.map(item => (
+            <ProductCard
+              title={item.data.title}
+              summary={item.data.summary}
+              tags={item.data.tags}
+              ageRange={item.data.age_range}
+              affiliateUrl={item.data.affiliate_url}
+              retailer={item.data.retailer}
+            />
+          ))}
+        </div>
+      </section>
+    ))
+  )}
+
+  <p class="recommend-footnote">
+    Looking for a deal on bigger kit — buggies, car seats, cots? See our
+    <a href="/deals">deals we'd actually consider</a>.
+  </p>
+</BaseLayout>

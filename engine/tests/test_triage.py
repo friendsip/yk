@@ -111,3 +111,98 @@ def test_triage_discards_low_scores(test_db, mock_llm_client, monkeypatch):
 
     item = test_db.get_item_by_id(1)
     assert item["status"] == "discarded"
+
+
+def test_triage_parse_failure_counts_attempt(test_db, mock_llm_client, monkeypatch):
+    """An unparseable LLM response increments attempts instead of wedging the queue."""
+    monkeypatch.setattr("src.triage.triage.get_db", lambda: test_db)
+
+    source_id = test_db.upsert_source(
+        name="Test", url="https://example.com/feed",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+    test_db.insert_discovered_item(
+        source_id=source_id, url="https://example.com/a",
+        title="A", content="content", content_hash="attempt1",
+    )
+
+    mock_llm_client.call.return_value = (
+        "Sorry, I can't produce JSON today.",
+        {"model": "test", "input_tokens": 100, "output_tokens": 50, "cost_usd": 0.001},
+    )
+
+    run_triage(llm_client=mock_llm_client)
+
+    item = test_db.get_item_by_id(1)
+    assert item["status"] == "unprocessed"  # still retryable
+    assert item["triage_attempts"] == 1
+
+
+def test_triage_failed_after_max_attempts(test_db, mock_llm_client, monkeypatch):
+    """Items unhandled for MAX_TRIAGE_ATTEMPTS cycles stop blocking the queue."""
+    monkeypatch.setattr("src.triage.triage.get_db", lambda: test_db)
+
+    source_id = test_db.upsert_source(
+        name="Test", url="https://example.com/feed",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+    test_db.insert_discovered_item(
+        source_id=source_id, url="https://example.com/b",
+        title="B", content="content", content_hash="attempt3",
+    )
+    test_db.increment_triage_attempts(1)
+    test_db.increment_triage_attempts(1)
+
+    mock_llm_client.call.return_value = (
+        "not json",
+        {"model": "test", "input_tokens": 100, "output_tokens": 50, "cost_usd": 0.001},
+    )
+
+    run_triage(llm_client=mock_llm_client)
+
+    item = test_db.get_item_by_id(1)
+    assert item["status"] == "triage_failed"
+    assert test_db.get_unprocessed_items() == []
+
+
+def test_triage_ignores_item_ids_outside_batch(test_db, mock_llm_client, monkeypatch):
+    """LLM-returned IDs not in the batch must not touch other rows or abort the run."""
+    monkeypatch.setattr("src.triage.triage.get_db", lambda: test_db)
+
+    source_id = test_db.upsert_source(
+        name="Test", url="https://example.com/feed",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+    test_db.insert_discovered_item(
+        source_id=source_id, url="https://example.com/c",
+        title="C", content="content", content_hash="foreign1",
+    )
+
+    foreign_response = json.dumps([{
+        "item_id": 999,
+        "relevance_score": 9,
+        "novelty_score": 9,
+        "importance_score": 9,
+        "reliability_score": 9,
+        "suggested_action": "new_article",
+        "suggested_section": "parenting",
+        "topic_tags": ["sleep"],
+        "opposing_view_flag": False,
+        "brief_reasoning": "Hallucinated id.",
+    }])
+
+    mock_llm_client.call.return_value = (
+        foreign_response,
+        {"model": "test", "input_tokens": 100, "output_tokens": 50, "cost_usd": 0.001},
+    )
+
+    triaged = run_triage(llm_client=mock_llm_client)
+    assert triaged == 0
+
+    # The real batch item was unhandled, so it gets an attempt counted
+    item = test_db.get_item_by_id(1)
+    assert item["status"] == "unprocessed"
+    assert item["triage_attempts"] == 1

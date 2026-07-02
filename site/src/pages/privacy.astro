@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// NOTE FOR MARK:
+//  • Update the "Last reviewed" date whenever the policy changes.
+//  • When the newsletter or analytics go live, un-comment / adjust those
+//    sections so they describe what's actually running.
+const lastReviewed = '2 July 2026';
+---
+
+<BaseLayout
+  title="Privacy"
+  description="How yourkids.com handles your privacy — in plain English. We collect as little as we can, we don't track you, and we'll always tell you what's going on."
+>
+  <article class="content-body legal-page">
+    <h1>Privacy</h1>
+    <p class="legal-page__updated">Last reviewed: {lastReviewed}</p>
+
+    <div class="legal-page__summary">
+      <p><strong>The short version.</strong> yourkids.com is a place to read about
+      parenting. You don't need an account, we don't track you around the web, and
+      we collect as little information as we possibly can. When that changes —
+      because you've signed up for our email, say — we'll tell you plainly and
+      only ever ask for what we actually need.</p>
+    </div>
+
+    <h2>1. Who we are</h2>
+    <p>
+      This site is run by <strong>Mark Trudinger</strong>
+      ("we", "us"). If you have any questions about your privacy, or you'd like to
+      make a request about your information, email us at
+      <a href="mailto:mark@clouddev.group">mark@clouddev.group</a>.
+    </p>
+    <p>
+      We're the "data controller" for the small amount of information described
+      below, under UK data protection law (the UK GDPR and the Data Protection Act
+      2018) and, for readers in the EU/EEA, the EU GDPR.
+    </p>
+
+    <h2>2. When you simply read the site</h2>
+    <p>
+      You can read everything here without giving us any information at all. We
+      don't ask you to register, we don't run advertising, and we don't place
+      analytics or tracking cookies on your device.
+    </p>
+    <p>
+      Our site is hosted by <strong>Vercel</strong>. Like any web host, Vercel's
+      servers automatically process technical information needed to deliver the
+      pages to you — such as your IP address, browser type, and the time of your
+      request — and may keep short-lived logs for security and reliability. We
+      don't use this information to identify you, and we don't combine it with
+      anything else. You can read Vercel's own privacy notice at
+      <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">vercel.com/legal/privacy-policy</a>.
+    </p>
+
+    <h2>3. Cookies</h2>
+    <p>
+      We don't set any cookies of our own for tracking or advertising. The only
+      cookies you might encounter come from third parties when you choose to
+      interact with them — for example, if you click an affiliate link (see
+      below). If we ever add analytics, we'll use a privacy-respecting tool and
+      update this page first.
+    </p>
+
+    <h2>3a. Tools that remember things on your device</h2>
+    <p>
+      Some of our tools — like the <a href="/baby">Baby</a> and
+      <a href="/toddler">Toddler</a> guides — can remember a date of birth and
+      your feeding preference so they open at the right page next time. That
+      information is stored only in your browser on your own device (using
+      "local storage", not cookies). It is never sent to us or to anyone else,
+      and you can clear it at any time by clearing your browser's site data.
+    </p>
+
+    <h2>4. Affiliate links</h2>
+    <p>
+      Some pages — mainly our <a href="/recommended">Recommended</a> and
+      <a href="/deals">Deals</a> sections — may contain affiliate links to shops
+      such as Amazon. If you click one and buy something, we may earn a small
+      commission, at no extra cost to you. We label this clearly wherever it
+      applies, and it never changes what we choose to recommend.
+    </p>
+    <p>
+      When you click an affiliate link, you leave our site and the retailer
+      (for example, Amazon) may set its own cookies and process your information
+      under <em>its</em> privacy policy, not ours. We'd encourage you to read the
+      privacy notice of any shop you buy from.
+    </p>
+
+    <h2>5. Our weekly email</h2>
+    <p>
+      Our weekly digest isn't live yet. When it launches, signing up will be
+      entirely optional, and we'll only ask for your email address so we can send
+      you the email you asked for. We'll explain exactly how it works — including
+      how to unsubscribe in one click — at the point you sign up, and we'll update
+      this page to name the email provider we use. We will never sell your email
+      address or use it for anything other than the digest you opted into.
+    </p>
+
+    <h2>6. Children's privacy</h2>
+    <p>
+      yourkids.com is written for parents and carers — grown-ups — not for
+      children. We don't knowingly collect any personal information from children.
+      If you believe a child has provided us with personal information, please
+      contact us and we'll delete it.
+    </p>
+
+    <h2>7. Readers around the world</h2>
+    <p>
+      We have UK roots and write for an international audience. Wherever you're
+      reading from, we apply the same principle: collect as little as possible and
+      be honest about it. Because our host and any third-party services may operate
+      internationally, information necessarily processed to deliver the site (such
+      as the technical data in section 2) may be handled on servers outside your
+      own country, with appropriate safeguards in place.
+    </p>
+
+    <h2>8. Your rights</h2>
+    <p>
+      Under UK and EU data protection law you have rights over your personal
+      information, including the right to ask us for a copy of it, to have it
+      corrected or deleted, and to object to or restrict how it's used. Since we
+      hold almost nothing about you, there's usually very little for us to act on —
+      but if you'd like to make a request, email
+      <a href="mailto:mark@clouddev.group">mark@clouddev.group</a> and we'll
+      respond within the timeframes the law requires (normally one month).
+    </p>
+
+    <h2>9. Keeping information</h2>
+    <p>
+      We keep personal information only for as long as we need it. Technical
+      hosting logs are short-lived. If you join our email list in future, we'll
+      keep your address until you unsubscribe or ask us to remove it.
+    </p>
+
+    <h2>10. Changes to this policy</h2>
+    <p>
+      As the site grows — for example when the email digest or any analytics go
+      live — we'll update this page and change the "last reviewed" date at the top.
+      Significant changes will be flagged clearly.
+    </p>
+
+    <h2>11. Complaints</h2>
+    <p>
+      If you're unhappy with how we've handled your information, please tell us
+      first so we can put it right. You also have the right to complain to a data
+      protection regulator. In the UK that's the Information Commissioner's Office
+      (<a href="https://ico.org.uk" target="_blank" rel="noopener noreferrer">ico.org.uk</a>);
+      readers in the EU/EEA can contact their national data protection authority.
+    </p>
+
+    <h2>12. Contact</h2>
+    <p>
+      Questions about anything on this page? Email
+      <a href="mailto:mark@clouddev.group">mark@clouddev.group</a> — a real
+      person will read it.
+    </p>
+  </article>
+</BaseLayout>

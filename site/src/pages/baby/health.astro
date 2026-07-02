@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { healthTopics } from '../../data/baby/health';
+
+const art = sectionArt.baby;
+---
+
+<BaseLayout
+  title="Baby health"
+  description="Calm, evidence-based guides to baby health in the first year — fevers, rashes, crying, safe sleep, and exactly when to get help."
+>
+  <SectionHero
+    title="Baby health"
+    blurb="What's normal, what's worth a call, and what needs help right now — written calmly, sourced properly, and honest when nobody quite knows."
+    art={art}
+  />
+
+  <p class="stage-breadcrumb guide-breadcrumb"><a href="/baby">&larr; Baby, week by week</a></p>
+
+  <GuideDisclaimer />
+
+  <div class="health-topics">
+    {healthTopics.map((topic, i) => (
+      <details class="health-topic" open={i === 0}>
+        <summary>
+          <span class="health-topic__title">{topic.title}</span>
+          <span class="health-topic__summary">{topic.summary}</span>
+        </summary>
+        <div class="health-topic__body">
+          {topic.sections.map((sec) => (
+            <section>
+              <h3>{sec.heading}</h3>
+              {sec.paragraphs.map((p) => <p>{p}</p>)}
+            </section>
+          ))}
+
+          {topic.urgent && topic.urgent.length > 0 && (
+            <div class="callout callout--urgent">
+              <h3>Get help now if</h3>
+              <ul>
+                {topic.urgent.map((u) => <li>{u}</li>)}
+              </ul>
+            </div>
+          )}
+
+          <p class="health-topic__sources">
+            Sources:{' '}
+            {topic.sources.map((s, j) => (
+              <>
+                {j > 0 && ' · '}
+                <a href={s.url} target="_blank" rel="noopener noreferrer">{s.org} ({s.region})</a>
+              </>
+            ))}
+          </p>
+        </div>
+      </details>
+    ))}
+  </div>
+</BaseLayout>

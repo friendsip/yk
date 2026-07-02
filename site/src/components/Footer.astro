@@ -4,10 +4,15 @@ import Logo from './Logo.astro';
 const year = new Date().getFullYear();
 
 const sections = [
+  { href: '/baby', label: 'Baby week by week' },
+  { href: '/toddler', label: 'Toddler guide' },
   { href: '/articles', label: 'Articles' },
   { href: '/curated', label: 'Curated Links' },
   { href: '/editorial', label: 'Editorials' },
   { href: '/topics', label: 'Topics' },
+  { href: '/recommended', label: 'Recommended' },
+  { href: '/deals', label: 'Deals' },
+  { href: '/sites', label: 'Trusted Sites' },
 ];
 ---
 
@@ -43,5 +48,8 @@ const sections = [
 
   <div class="site-footer__legal">
     <p>&copy; {year} YourKids. Curated with care for parents.</p>
+    <p class="site-footer__legal-links">
+      <a href="/privacy">Privacy</a>
+    </p>
   </div>
 </footer>

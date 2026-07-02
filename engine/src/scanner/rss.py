@@ -4,6 +4,7 @@ import json
 import logging
 
 import feedparser
+import httpx
 
 from src.db import get_db
 from src.scanner.extractor import extract_article
@@ -11,6 +12,9 @@ from src.utils.config import load_sources
 from src.utils.hashing import content_hash
 
 logger = logging.getLogger(__name__)
+
+FEED_TIMEOUT_SECONDS = 30.0
+USER_AGENT = "yourkids-bot/0.1 (+https://yourkids.com)"
 
 
 def scan_rss_sources():
@@ -44,7 +48,7 @@ def scan_rss_sources():
 
 def _scan_single_feed(db, source: dict) -> int:
     """Scan a single RSS feed and return count of new items."""
-    feed = feedparser.parse(source["url"])
+    feed = _fetch_feed(source["url"])
 
     if feed.bozo and not feed.entries:
         logger.warning(f"Feed error for {source['name']}: {getattr(feed, 'bozo_exception', 'unknown')}")
@@ -64,6 +68,12 @@ def _scan_single_feed(db, source: dict) -> int:
 
         # Apply keyword filter if configured
         if filter_keywords and not _matches_keywords(title, entry.get("summary", ""), filter_keywords):
+            continue
+
+        # Skip URLs we've already seen BEFORE fetching — otherwise every
+        # hourly scan re-fetches every entry in every feed, and page churn
+        # (ads, edits) re-inserts the same URL as a "new" item
+        if db.item_url_known(url):
             continue
 
         # Try to extract full article text
@@ -87,6 +97,22 @@ def _scan_single_feed(db, source: dict) -> int:
     db.update_source_last_checked(source["id"])
     logger.info(f"Scanned {source['name']}: {new_count} new items from {len(feed.entries)} entries")
     return new_count
+
+
+def _fetch_feed(url: str):
+    """Fetch a feed with a timeout, then parse.
+
+    feedparser.parse(url) fetches with no timeout, so one hung feed would
+    block the scanner thread indefinitely.
+    """
+    response = httpx.get(
+        url,
+        timeout=FEED_TIMEOUT_SECONDS,
+        follow_redirects=True,
+        headers={"User-Agent": USER_AGENT},
+    )
+    response.raise_for_status()
+    return feedparser.parse(response.text)
 
 
 def _get_filter_keywords(source: dict) -> list[str] | None:

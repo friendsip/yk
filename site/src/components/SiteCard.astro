@@ -1,0 +1,29 @@
+---
+import { artForTags } from '../lib/topicArt';
+
+interface Props {
+  name: string;
+  url: string;
+  domain: string;
+  review: string;
+  region: string;
+  tags?: string[];
+}
+
+const { name, url, domain, review, region, tags = [] } = Astro.props;
+const art = artForTags(tags);
+---
+
+<div class="product-card" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
+  <div class="product-card__art" aria-hidden="true" set:html={art.markup} />
+  <div class="product-card__body">
+    {region && <span class="product-card__kicker">{region}</span>}
+    <h3 class="product-card__title">
+      <a href={url} target="_blank" rel="noopener noreferrer">{name}</a>
+    </h3>
+    <p class="product-card__summary">{review}</p>
+    <a class="product-card__cta" href={url} target="_blank" rel="noopener noreferrer">
+      Visit {domain} &rarr;
+    </a>
+  </div>
+</div>

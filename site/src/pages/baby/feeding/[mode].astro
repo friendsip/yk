@@ -1,0 +1,78 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GuideDisclaimer from '../../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../../lib/topicArt';
+import { feedingGuides } from '../../../data/baby/feeding';
+import type { FeedingGuide } from '../../../data/types';
+
+export async function getStaticPaths() {
+  return feedingGuides.map((guide) => ({
+    params: { mode: guide.mode },
+    props: { guide },
+  }));
+}
+
+interface Props {
+  guide: FeedingGuide;
+}
+
+const { guide } = Astro.props;
+const art = sectionArt.baby;
+---
+
+<BaseLayout
+  title={`${guide.label} — feeding your baby`}
+  description={guide.intro[0]}
+>
+  <article class="stage-page" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+    <p class="stage-breadcrumb"><a href="/baby/feeding">&larr; All feeding guides</a></p>
+
+    <header class="stage-header">
+      <span class="stage-kicker">Feeding</span>
+      <h1>{guide.label}</h1>
+    </header>
+
+    <section class="stage-section">
+      {guide.intro.map((p) => <p>{p}</p>)}
+    </section>
+
+    {guide.stages.map((stage) => (
+      <section class="stage-section">
+        <h2>{stage.range}</h2>
+        <ul class="tip-list">
+          {stage.tips.map((tip) => <li>{tip}</li>)}
+        </ul>
+      </section>
+    ))}
+
+    {guide.troubleshooting.length > 0 && (
+      <section class="stage-section">
+        <h2>When it's not going smoothly</h2>
+        <div class="trouble-list">
+          {guide.troubleshooting.map((t) => (
+            <details class="trouble-item">
+              <summary>{t.problem}</summary>
+              <ul>
+                {t.help.map((h) => <li>{h}</li>)}
+              </ul>
+            </details>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <GuideDisclaimer />
+
+    <footer class="stage-sources">
+      <h2>Sources</h2>
+      <ul>
+        {guide.sources.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+            {' '}— {s.org} <span class="stage-sources__region">({s.region})</span>
+          </li>
+        ))}
+      </ul>
+    </footer>
+  </article>
+</BaseLayout>

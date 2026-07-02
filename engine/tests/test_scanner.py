@@ -80,3 +80,35 @@ def test_scan_rss_with_mock(test_db, sample_rss_xml):
     feed = feedparser.parse(sample_rss_xml)
     assert len(feed.entries) == 2
     assert feed.entries[0]["title"] == "New Research on Child Sleep Patterns"
+
+
+def test_scan_skips_known_urls_before_fetching(test_db, sample_rss_xml, monkeypatch):
+    """A second scan neither re-fetches nor re-inserts already-known URLs."""
+    import feedparser
+
+    from src.scanner import rss
+
+    source_id = test_db.upsert_source(
+        name="Test Feed", url="https://example.com/feed.xml",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+    source = {"id": source_id, "name": "Test Feed", "url": "https://example.com/feed.xml", "notes": None}
+
+    monkeypatch.setattr(rss, "_fetch_feed", lambda url: feedparser.parse(sample_rss_xml))
+
+    fetches = []
+
+    def fake_extract(url):
+        fetches.append(url)
+        return f"Extracted content from {url}"
+
+    monkeypatch.setattr(rss, "extract_article", fake_extract)
+
+    first = rss._scan_single_feed(test_db, source)
+    assert first == 2
+    assert len(fetches) == 2
+
+    second = rss._scan_single_feed(test_db, source)
+    assert second == 0
+    assert len(fetches) == 2  # no re-fetch of known URLs

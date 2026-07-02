@@ -1,0 +1,61 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import AffiliateDisclosure from '../../components/AffiliateDisclosure.astro';
+import { sectionArt } from '../../lib/topicArt';
+
+const categoryNames: Record<string, string> = {
+  pushchair: 'Pushchair',
+  'car-seat': 'Car seat',
+  cot: 'Cot',
+  monitor: 'Monitor',
+  other: 'For the family',
+};
+
+// Hide expired deals automatically; newest first
+const now = new Date();
+const deals = (await getCollection('deals'))
+  .filter(d => !d.data.expires || d.data.expires >= now)
+  .sort((a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf());
+
+const hasAffiliate = deals.some(d => d.data.affiliate_url);
+---
+
+<BaseLayout
+  title="Deals"
+  description="Deals on the big-ticket kit parents actually need — buggies, car seats, cots, monitors. Only ones we'd genuinely consider, with the price and the date we checked it."
+  wide
+>
+  <SectionHero
+    title="Deals we'd actually consider"
+    blurb="The big-ticket kit — buggies, car seats, cots, monitors — only when there's a deal we'd genuinely take ourselves. Every price is dated, because deals go stale fast."
+    art={sectionArt.deals}
+  />
+
+  {hasAffiliate && <AffiliateDisclosure />}
+
+  {deals.length === 0 ? (
+    <p class="empty-state">
+      No deals up right now. We only post the big stuff when there's genuinely a
+      saving worth your while — and we always show the price and when we checked
+      it, because these things change by the day. Do check back.
+    </p>
+  ) : (
+    <div class="product-grid">
+      {deals.map(item => (
+        <ProductCard
+          title={item.data.title}
+          summary={item.data.summary}
+          kicker={categoryNames[item.data.category]}
+          affiliateUrl={item.data.affiliate_url}
+          retailer={item.data.retailer}
+          price={item.data.price}
+          rrp={item.data.rrp}
+          priceChecked={item.data.price_checked}
+        />
+      ))}
+    </div>
+  )}
+</BaseLayout>

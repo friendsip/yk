@@ -1,0 +1,137 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { toddlerStages } from '../../data/toddler/stages';
+import { toddlerGuides } from '../../data/toddler/guides';
+
+const art = sectionArt.toddler;
+const stageRanges = toddlerStages.map((s) => ({
+  id: s.id,
+  label: s.label,
+  from: s.ageWeeksFrom,
+  to: s.ageWeeksTo,
+}));
+---
+
+<BaseLayout
+  title="Your toddler, stage by stage"
+  description="A free guide to the toddler years, one to three — what to expect at each stage, how to help and encourage them, positive parenting, easy games, and surviving a baby and toddler together."
+>
+  <SectionHero
+    title="Your toddler, stage by stage"
+    blurb="One to three is glorious, exhausting chaos. Here's what to expect at each stage, how to help them grow, and honest support for the hard bits — tantrums included. Free, no account needed."
+    art={art}
+  />
+
+  <section
+    class="birth-card"
+    id="birth-card"
+    data-stages={JSON.stringify(stageRanges)}
+    data-kind="toddler"
+    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
+  >
+    <h2>Find your stage</h2>
+    <p>
+      Tell us when your toddler was born and we'll take you to the right stage
+      — and remember it for next time.
+    </p>
+    <form class="birth-card__form">
+      <label class="sr-only" for="birth-date">Your toddler's date of birth</label>
+      <input type="date" id="birth-date" required />
+      <button type="submit" class="birth-card__btn">Find our stage</button>
+    </form>
+    <p class="birth-card__result" hidden></p>
+    <p class="birth-card__note">
+      The date stays on this device only — it's never sent to us. Got a baby
+      too? The <a href="/baby">baby guide</a> remembers theirs separately.
+    </p>
+  </section>
+
+  <section class="guide-section">
+    <h2>Stage by stage</h2>
+    <div class="stage-grid stage-grid--wide">
+      {toddlerStages.map((s) => (
+        <a class="stage-card" href={`/toddler/${s.id}`} data-stage-id={s.id}>
+          <span class="stage-card__label">{s.label}</span>
+          <span class="stage-card__title">{s.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>The guides every toddler parent ends up needing</h2>
+    <div class="stage-grid stage-grid--wide">
+      {toddlerGuides.map((g) => (
+        <a class="stage-card" href={`/toddler/${g.id}`}>
+          <span class="stage-card__label">Guide</span>
+          <span class="stage-card__title">{g.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <GuideDisclaimer />
+</BaseLayout>
+
+<script>
+  import {
+    TODDLER_BIRTH_KEY,
+    saveStored,
+    loadStored,
+    completedWeeks,
+    formatAge,
+    stageForWeeks,
+    type StageRange,
+  } from '../../lib/childAge';
+
+  const card = document.getElementById('birth-card');
+  if (card) {
+    const stages: StageRange[] = JSON.parse(card.dataset.stages || '[]');
+    const form = card.querySelector('form') as HTMLFormElement;
+    const input = card.querySelector('input[type="date"]') as HTMLInputElement;
+    const result = card.querySelector('.birth-card__result') as HTMLElement;
+
+    input.max = new Date().toISOString().slice(0, 10);
+
+    const render = (iso: string) => {
+      const weeks = completedWeeks(iso);
+      document
+        .querySelectorAll('.stage-card.is-current')
+        .forEach((el) => el.classList.remove('is-current'));
+
+      if (weeks === null) {
+        result.textContent = "That date looks like it's in the future — worth a double-check?";
+        result.hidden = false;
+        return;
+      }
+
+      const stage = stageForWeeks(stages, weeks);
+      if (stage) {
+        const stageCard = document.querySelector(`[data-stage-id="${stage.id}"]`);
+        stageCard?.classList.add('is-current');
+        result.innerHTML = `Your toddler is <strong>${formatAge(weeks)}</strong> — <a href="/toddler/${stage.id}">go to ${stage.label}</a>.`;
+      } else if (weeks < 52) {
+        result.innerHTML = `Your little one is <strong>${formatAge(weeks)}</strong> — the <a href="/baby">baby guide</a> covers this stage, week by week.`;
+      } else {
+        result.innerHTML = `Your child is <strong>${formatAge(weeks)}</strong> — beyond the toddler years! Our <a href="/topics">topic guides</a> carry on from here.`;
+      }
+      result.hidden = false;
+    };
+
+    const saved = loadStored(TODDLER_BIRTH_KEY);
+    if (saved) {
+      input.value = saved;
+      render(saved);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!input.value) return;
+      saveStored(TODDLER_BIRTH_KEY, input.value);
+      render(input.value);
+    });
+  }
+</script>

@@ -28,20 +28,22 @@ def create_branch(repo: git.Repo, branch_name: str):
 
 
 def commit_files(repo: git.Repo, file_paths: list[str], message: str):
-    """Stage and commit specific files."""
-    for path in file_paths:
-        repo.index.add([path])
-    repo.index.commit(message)
+    """Stage and commit ONLY the given files.
+
+    Uses `git commit --only` so anything else the user happens to have staged
+    is left alone rather than swept into the content commit.
+    """
+    repo.git.add("--", *file_paths)
+    repo.git.commit("-m", message, "--only", "--", *file_paths)
     logger.info(f"Committed {len(file_paths)} files")
 
 
 def push(repo: git.Repo, branch: str = None):
-    """Push to remote."""
-    remote = repo.remote("origin")
+    """Push to remote. Raises GitCommandError if the push is rejected."""
     if branch:
-        remote.push(branch)
+        repo.git.push("origin", branch)
     else:
-        remote.push()
+        repo.git.push("origin")
     logger.info(f"Pushed to origin{f'/{branch}' if branch else ''}")
 
 

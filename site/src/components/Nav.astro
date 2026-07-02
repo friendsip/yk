@@ -3,17 +3,44 @@ import Logo from './Logo.astro';
 
 const pathname = Astro.url.pathname;
 
-const links = [
+type NavChild = { href: string; label: string };
+type NavItem = { href: string; label: string; children?: NavChild[] };
+
+const links: NavItem[] = [
   { href: '/', label: 'Home' },
+  {
+    href: '/baby',
+    label: 'Baby & Toddler',
+    children: [
+      { href: '/baby', label: 'Baby week by week' },
+      { href: '/baby/feeding', label: 'Feeding' },
+      { href: '/baby/health', label: 'Baby health' },
+      { href: '/toddler', label: 'Toddler' },
+    ],
+  },
   { href: '/topics', label: 'Topics' },
   { href: '/articles', label: 'Articles' },
   { href: '/curated', label: 'Curated Links' },
   { href: '/editorial', label: 'Editorials' },
+  {
+    href: '/recommended',
+    label: 'Recommended',
+    children: [
+      { href: '/recommended', label: 'Toys & Books' },
+      { href: '/deals', label: 'Deals' },
+      { href: '/sites', label: 'Trusted Sites' },
+    ],
+  },
+  { href: '/search', label: 'Search' },
 ];
 
 function isCurrent(href: string): boolean {
   if (href === '/') return pathname === '/';
   return pathname.startsWith(href);
+}
+
+function groupCurrent(children: NavChild[]): boolean {
+  return children.some(c => pathname.startsWith(c.href));
 }
 ---
 
@@ -28,9 +55,33 @@ function isCurrent(href: string): boolean {
       </svg>
     </button>
     <nav class="site-nav" id="site-nav">
-      {links.map(({ href, label }) => (
-        <a href={href} aria-current={isCurrent(href) ? 'page' : undefined}>{label}</a>
-      ))}
+      {links.map((item) =>
+        item.children ? (
+          <div class={`nav-group${groupCurrent(item.children) ? ' is-current' : ''}`}>
+            <a
+              href={item.href}
+              class="nav-group__label"
+              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {item.label}
+              <svg class="nav-group__chevron" viewBox="0 0 12 8" fill="none" aria-hidden="true">
+                <path d="M1 1.5 L6 6.5 L11 1.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+            <ul class="nav-group__menu">
+              {item.children.map((c) => (
+                <li>
+                  <a href={c.href} aria-current={isCurrent(c.href) ? 'page' : undefined}>{c.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+        )
+      )}
     </nav>
   </div>
 </header>
@@ -44,4 +95,29 @@ function isCurrent(href: string): boolean {
       toggle.setAttribute('aria-expanded', String(open));
     });
   }
+
+  // The dropdown opens via CSS (:hover / :focus-within); this mirrors that
+  // state onto aria-expanded and lets Escape close it from the keyboard.
+  document.querySelectorAll('.nav-group').forEach((group) => {
+    const label = group.querySelector('.nav-group__label');
+    if (!label) return;
+
+    const setExpanded = (open: boolean) =>
+      label.setAttribute('aria-expanded', String(open));
+
+    group.addEventListener('mouseenter', () => setExpanded(true));
+    group.addEventListener('mouseleave', () => setExpanded(false));
+    group.addEventListener('focusin', () => setExpanded(true));
+    group.addEventListener('focusout', (e) => {
+      const event = e as FocusEvent;
+      if (!group.contains(event.relatedTarget as Node)) setExpanded(false);
+    });
+    group.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Escape') {
+        setExpanded(false);
+        (label as HTMLElement).focus();
+        (label as HTMLElement).blur();
+      }
+    });
+  });
 </script>

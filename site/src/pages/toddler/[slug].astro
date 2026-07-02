@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { toddlerStages } from '../../data/toddler/stages';
+import { toddlerGuides } from '../../data/toddler/guides';
+import type { ToddlerStage, GuideDoc } from '../../data/types';
+
+export async function getStaticPaths() {
+  const stagePaths = toddlerStages.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      kind: 'stage' as const,
+      stage: entry,
+      guide: null,
+      prev: toddlerStages[i - 1] ?? null,
+      next: toddlerStages[i + 1] ?? null,
+    },
+  }));
+  const guidePaths = toddlerGuides.map((entry) => ({
+    params: { slug: entry.id },
+    props: { kind: 'guide' as const, stage: null, guide: entry, prev: null, next: null },
+  }));
+  return [...stagePaths, ...guidePaths];
+}
+
+interface Props {
+  kind: 'stage' | 'guide';
+  stage: ToddlerStage | null;
+  guide: GuideDoc | null;
+  prev: ToddlerStage | null;
+  next: ToddlerStage | null;
+}
+
+const { kind, stage, guide, prev, next } = Astro.props;
+const art = sectionArt.toddler;
+
+const title = kind === 'stage' ? `${stage!.label} — ${stage!.title}` : guide!.title;
+const description = kind === 'stage' ? stage!.summary : guide!.summary;
+const sources = kind === 'stage' ? stage!.sources : guide!.sources;
+---
+
+<BaseLayout title={title} description={description}>
+  <article
+    class="stage-page"
+    data-kind="toddler"
+    data-stage-from={kind === 'stage' ? stage!.ageWeeksFrom : undefined}
+    data-stage-to={kind === 'stage' ? stage!.ageWeeksTo : undefined}
+    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
+  >
+    <p class="stage-breadcrumb"><a href="/toddler">&larr; Toddler, stage by stage</a></p>
+
+    {kind === 'stage' ? (
+      <>
+        <header class="stage-header">
+          <span class="stage-kicker">{stage!.label}</span>
+          <h1>{stage!.title}</h1>
+          <p class="stage-summary">{stage!.summary}</p>
+        </header>
+
+        <p class="guide-banner" hidden></p>
+
+        {stage!.expect.map((sec) => (
+          <section class="stage-section">
+            <h2>{sec.heading}</h2>
+            {sec.paragraphs.map((p) => <p>{p}</p>)}
+          </section>
+        ))}
+
+        {stage!.encourage.map((sec) => (
+          <section class="stage-section">
+            <h2>{sec.heading}</h2>
+            {sec.paragraphs.map((p) => <p>{p}</p>)}
+          </section>
+        ))}
+
+        <section class="stage-section">
+          <h2>Games to play together</h2>
+          <ul class="game-list">
+            {stage!.games.map((g) => (
+              <li class="game-list__item">
+                <p class="game-list__head">
+                  <strong>{g.name}</strong>
+                  <span class={`energy-pill energy-pill--${g.parentEnergy}`}>
+                    {g.parentEnergy === 'low' ? 'low effort' : 'a bit of energy'}
+                  </span>
+                </p>
+                <p>{g.how}</p>
+              </li>
+            ))}
+          </ul>
+          <p class="feeding-panel__more">
+            <a href="/toddler/easy-games">More games for tired parents &rarr;</a>
+          </p>
+        </section>
+
+        <section class="callout callout--normal">
+          <h2>Totally normal (even when it doesn't feel it)</h2>
+          <ul>
+            {stage!.dontWorry.map((item) => <li>{item}</li>)}
+          </ul>
+        </section>
+
+        <section class="callout callout--watch">
+          <h2>Worth checking</h2>
+          <p class="callout__lede">
+            You know your child best — if any of these ring true, or something
+            just feels off, it's always OK to ask.
+          </p>
+          <ul>
+            {stage!.watchFor.map((item) => <li>{item}</li>)}
+          </ul>
+        </section>
+
+        <nav class="stage-pager" aria-label="Nearby stages">
+          {prev ? (
+            <a class="stage-pager__link" href={`/toddler/${prev.id}`} rel="prev">&larr; {prev.label}</a>
+          ) : (
+            <span></span>
+          )}
+          {next ? (
+            <a class="stage-pager__link stage-pager__link--next" href={`/toddler/${next.id}`} rel="next">{next.label} &rarr;</a>
+          ) : (
+            <span></span>
+          )}
+        </nav>
+      </>
+    ) : (
+      <>
+        <header class="stage-header">
+          <span class="stage-kicker">Guide</span>
+          <h1>{guide!.title}</h1>
+          <p class="stage-summary">{guide!.summary}</p>
+        </header>
+
+        {guide!.sections.map((sec) => (
+          <section class="stage-section">
+            <h2>{sec.heading}</h2>
+            {sec.paragraphs.map((p) => <p>{p}</p>)}
+          </section>
+        ))}
+      </>
+    )}
+
+    <GuideDisclaimer />
+
+    <footer class="stage-sources">
+      <h2>Sources</h2>
+      <ul>
+        {sources.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+            {' '}— {s.org} <span class="stage-sources__region">({s.region})</span>
+          </li>
+        ))}
+      </ul>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  import { TODDLER_BIRTH_KEY, loadStored, completedWeeks, formatAge } from '../../lib/childAge';
+
+  const page = document.querySelector('.stage-page') as HTMLElement | null;
+  const banner = document.querySelector('.guide-banner') as HTMLElement | null;
+  if (page && banner && page.dataset.stageFrom) {
+    const iso = loadStored(TODDLER_BIRTH_KEY);
+    if (iso) {
+      const weeks = completedWeeks(iso);
+      if (weeks !== null) {
+        const from = Number(page.dataset.stageFrom);
+        const to = Number(page.dataset.stageTo);
+        if (weeks >= from && weeks <= to) {
+          banner.textContent = `Your toddler is ${formatAge(weeks)} — this is the right page for you.`;
+          banner.classList.add('guide-banner--match');
+        } else {
+          banner.innerHTML = `Your toddler is ${formatAge(weeks)} — <a href="/toddler">jump to the right stage</a>.`;
+        }
+        banner.hidden = false;
+      }
+    }
+  }
+</script>

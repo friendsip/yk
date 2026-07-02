@@ -51,7 +51,7 @@ models:
   bible_reflection: "claude-sonnet-4-6"
 
 publishing:
-  mode: "auto"
+  mode: "pr"
   max_publishes_per_day: 5
   staging_dir: "engine/staging/"
   git_remote: "origin"

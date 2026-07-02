@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SectionHero from '../../../components/SectionHero.astro';
+import GuideDisclaimer from '../../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../../lib/topicArt';
+import { feedingGuides } from '../../../data/baby/feeding';
+
+const art = sectionArt.baby;
+---
+
+<BaseLayout
+  title="Feeding your baby"
+  description="Honest, judgement-free feeding guides — breastfeeding, expressing, combination feeding and formula. Whatever works for your family is a good way to feed a baby."
+>
+  <SectionHero
+    title="Feeding your baby"
+    blurb="Breast, bottle, or both — fed, loved and responsive is what matters, and every guide here starts from that. Pick the one that matches how you're feeding right now."
+    art={art}
+  />
+
+  <p class="stage-breadcrumb guide-breadcrumb"><a href="/baby">&larr; Baby, week by week</a></p>
+
+  <div class="stage-grid stage-grid--wide guide-section">
+    {feedingGuides.map((g) => (
+      <a class="stage-card" href={`/baby/feeding/${g.mode}`}>
+        <span class="stage-card__label">{g.label}</span>
+        <span class="stage-card__title">{g.intro[0]}</span>
+      </a>
+    ))}
+  </div>
+
+  <GuideDisclaimer />
+</BaseLayout>

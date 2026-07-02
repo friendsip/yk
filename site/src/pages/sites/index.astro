@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import SiteCard from '../../components/SiteCard.astro';
+import { sectionArt } from '../../lib/topicArt';
+import {
+  parentingSites,
+  siteCategoryNames,
+  siteCategoryOrder,
+} from '../../lib/parentingSites';
+
+const groups = siteCategoryOrder
+  .map(cat => ({
+    cat,
+    items: parentingSites.filter(s => s.category === cat),
+  }))
+  .filter(g => g.items.length > 0);
+---
+
+<BaseLayout
+  title="Trusted Sites"
+  description="A hand-picked directory of the parenting websites we trust most — official health bodies, mental-health charities, SEND advice, online-safety guidance and family support, with an honest note on each."
+  wide
+>
+  <SectionHero
+    title="Sites we trust"
+    blurb="Whole websites worth bookmarking — the organisations and charities we'd point a friend to. Each comes with an honest note on what it's good for and who it's for."
+    art={sectionArt.sites}
+  />
+
+  <p class="sites-intro">
+    These are different from our <a href="/curated">curated links</a>, which point
+    to single articles worth reading. Here we're recommending whole sites you can
+    come back to again and again. We've noted the country each one is rooted in —
+    much of the guidance travels, but health systems, rights and services don't,
+    so check what applies where you live.
+  </p>
+
+  {groups.map(({ cat, items }) => (
+    <section class="recommend-group">
+      <h2 class="recommend-group__heading">{siteCategoryNames[cat]}</h2>
+      <div class="product-grid">
+        {items.map(site => (
+          <SiteCard
+            name={site.name}
+            url={site.url}
+            domain={site.domain}
+            review={site.review}
+            region={site.region}
+            tags={site.tags}
+          />
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

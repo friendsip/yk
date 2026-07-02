@@ -133,7 +133,9 @@ def run_continuous(settings: dict, llm_client: LLMClient):
         name="Content Triage",
     )
 
-    # Weekly pipeline: plan + write + publish on Sunday morning
+    # Weekly pipeline: plan + write + publish on Sunday morning.
+    # misfire_grace_time lets the job still fire (once) up to 6 hours late if
+    # the process was busy or suspended at the scheduled moment.
     plan_time = sched.get("planner", {}).get("run_time", "05:00")
     plan_hour, plan_minute = map(int, plan_time.split(":"))
     plan_day = sched.get("planner", {}).get("run_day", "sun")
@@ -142,6 +144,8 @@ def run_continuous(settings: dict, llm_client: LLMClient):
         CronTrigger(day_of_week=plan_day, hour=plan_hour, minute=plan_minute, timezone=tz),
         id="weekly_pipeline",
         name="Weekly Pipeline",
+        misfire_grace_time=6 * 3600,
+        coalesce=True,
     )
 
     logger.info("yourkids.com Editorial Engine starting")
@@ -152,10 +156,46 @@ def run_continuous(settings: dict, llm_client: LLMClient):
     # Run scanner immediately on startup
     scan_rss_sources()
 
+    # If the process was down when the weekly pipeline should have fired, the
+    # in-memory scheduler has forgotten it — catch up before settling in
+    catch_up_missed_pipeline(settings, llm_client)
+
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
         logger.info("Engine shutting down")
+
+
+def catch_up_missed_pipeline(settings: dict, llm_client: LLMClient):
+    """Run the weekly pipeline now if the last scheduled run was missed.
+
+    A fresh install (no plans yet) waits for its first scheduled run rather
+    than publishing whatever happens to be triaged at deploy time.
+    """
+    from src.utils.clock import utcnow
+    from src.utils.schedule import last_scheduled_run
+
+    db = get_db()
+    plans = db.get_recent_plans(limit=1)
+    if not plans:
+        return
+
+    planner_sched = settings.get("scheduling", {}).get("planner", {})
+    due = last_scheduled_run(
+        utcnow(),
+        run_day=planner_sched.get("run_day", "sun"),
+        run_time=planner_sched.get("run_time", "05:00"),
+        tz_name=planner_sched.get("timezone", "Europe/London"),
+    )
+    due_str = due.strftime("%Y-%m-%d %H:%M:%S")
+    last_plan_at = plans[0]["created_at"]  # SQLite datetime('now') format, UTC
+
+    if last_plan_at < due_str:
+        logger.warning(
+            f"Weekly pipeline appears to have been missed "
+            f"(last plan {last_plan_at}, was due {due_str} UTC) — running catch-up now"
+        )
+        run_daily_pipeline(llm_client)
 
 
 def main():

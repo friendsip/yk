@@ -1,7 +1,6 @@
 """Tests for database model changes — item_ids, action status, failure tracking."""
 
 import json
-from datetime import datetime, timedelta
 
 
 def test_insert_plan_action_with_item_ids(test_db):
@@ -74,16 +73,55 @@ def test_stale_in_progress_actions_retried(test_db):
         priority=5,
     )
 
-    # Set to in_progress with a timestamp >1 hour ago
-    two_hours_ago = (datetime.now() - timedelta(hours=2)).isoformat()
+    # Set to in_progress with a timestamp >1 hour ago, in the same format
+    # production writes (SQLite's datetime('now'), UTC)
     test_db._execute(
-        "UPDATE plan_actions SET status = 'in_progress', updated_at = ? WHERE id = ?",
-        (two_hours_ago, action_id),
+        "UPDATE plan_actions SET status = 'in_progress', updated_at = datetime('now', '-2 hours') WHERE id = ?",
+        (action_id,),
     )
 
     actions = test_db.get_pending_actions(plan_id)
     assert len(actions) == 1
     assert actions[0]["status"] == "in_progress"
+
+
+def test_fresh_in_progress_actions_not_retried(test_db):
+    """Actions freshly marked in_progress are NOT returned as pending.
+
+    Regression test: Python isoformat cutoffs compared against SQLite
+    datetime('now') strings made every same-day in_progress action look stale.
+    """
+    plan_id = test_db.insert_editorial_plan("Test plan")
+    action_id = test_db.insert_plan_action(
+        plan_id=plan_id,
+        item_ids=[1],
+        action_type="create",
+        target_path="content/test.md",
+        instructions="Write",
+        priority=5,
+    )
+
+    test_db.update_action_status(action_id, "in_progress")
+
+    assert test_db.get_pending_actions(plan_id) == []
+
+
+def test_triage_attempts_increment(test_db):
+    """Triage attempts increment and persist on discovered items."""
+    source_id = test_db.upsert_source(
+        name="Test", url="https://example.com/feed",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+    item_id = test_db.insert_discovered_item(
+        source_id, "https://a.com", "A", "text a", "hash_attempts"
+    )
+
+    test_db.increment_triage_attempts(item_id)
+    test_db.increment_triage_attempts(item_id)
+
+    item = test_db.get_item_by_id(item_id)
+    assert item["triage_attempts"] == 2
 
 
 def test_source_failure_tracking(test_db):

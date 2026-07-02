@@ -175,6 +175,7 @@ CREATE TABLE IF NOT EXISTS token_usage (
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_items_status ON discovered_items(status);
 CREATE INDEX IF NOT EXISTS idx_items_hash ON discovered_items(content_hash);
+CREATE INDEX IF NOT EXISTS idx_items_url ON discovered_items(external_url);
 CREATE INDEX IF NOT EXISTS idx_triage_score ON triage_results(overall_score);
 CREATE INDEX IF NOT EXISTS idx_content_decay ON published_content(decay_status);
 CREATE INDEX IF NOT EXISTS idx_content_section ON published_content(section);
@@ -225,6 +226,11 @@ def migrate(db_path: str = None):
         _run_migration_v3(conn)
         conn.execute("INSERT INTO schema_version (version) VALUES (3)")
 
+    # Migration v4: triage attempt tracking on discovered_items
+    if current < 4:
+        _run_migration_v4(conn)
+        conn.execute("INSERT INTO schema_version (version) VALUES (4)")
+
     conn.commit()
     conn.close()
 
@@ -265,6 +271,17 @@ def _run_migration_v3(conn):
     }
     if "topic_tags" not in existing_cols:
         conn.execute("ALTER TABLE plan_actions ADD COLUMN topic_tags TEXT")
+
+
+def _run_migration_v4(conn):
+    """Add triage_attempts column to discovered_items."""
+    existing_cols = {
+        row[1] for row in conn.execute("PRAGMA table_info(discovered_items)").fetchall()
+    }
+    if "triage_attempts" not in existing_cols:
+        conn.execute(
+            "ALTER TABLE discovered_items ADD COLUMN triage_attempts INTEGER DEFAULT 0"
+        )
 
 
 if __name__ == "__main__":

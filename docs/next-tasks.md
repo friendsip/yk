@@ -31,6 +31,8 @@ The engine is designed for continuous operation but is currently only run manual
 
 **Tasks:**
 
+- [x] **Pre-deployment hardening (July 2026)** — LLM-supplied `target_path` is sanitised to a flat filename (`src/utils/paths.py` — no traversal or absolute-path reads/writes from planner output); publish is git-first (DB records and staging cleanup happen only after a successful push/PR, so a failed batch retries next run instead of the DB claiming it shipped); triage tracks per-item attempts and marks items `triage_failed` after 3 tries so one bad batch can't wedge the queue; all Python-side timestamps are UTC in SQLite's format (`src/utils/clock.py` — fixes stale-action detection, which previously mis-fired on every same-day action); editor output is validated before staging (a refusal can no longer overwrite a live article); content commits use `git commit --only` so unrelated staged changes aren't swept into content commits. `publishing.mode` switched to `pr` — a human merges the weekly content PR — until prompt-injection mitigation for scraped content exists (the remaining precondition for `auto`).
+- [x] **Pre-deployment hardening, round 2 (July 2026)** — prompt-injection fencing: all scraped fields (titles, URLs, content) are sanitised via `src/llm/fencing.py` before entering triage/planner/writer/editor prompts (angle brackets become lookalikes so scraped text can't break its prompt frame), and every prompt carrying scraped material includes a standing treat-as-data-not-instructions notice. Planner is crash-safe: malformed LLM actions are skipped rather than aborting the run mid-write, and `item_ids` are constrained to the triaged set. Scanner: URL-level dedup *before* fetching (hourly scans no longer re-fetch every entry, and page churn no longer re-inserts known URLs) plus a 30s timeout on feed fetches. Missed-Sunday catch-up: the weekly cron gets a 6-hour misfire grace window, and on startup the engine detects a missed weekly run from the plans table and runs it. Note: returning to `auto` publish mode would still warrant an output-side guardrail review pass — fencing is input-side mitigation, and the weekly PR remains the human gate.
 - [ ] **Provision VPS** — Set up Python 3.12+, Git, SSH keys, and GitHub access on the Hetzner box.
 - [ ] **Systemd service** — Create a service file for the engine process with auto-restart and log rotation.
 - [ ] **Environment variables** — Deploy `.env` with `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`.
@@ -116,13 +118,16 @@ No way to know if anyone is reading the site.
 ## 6. Newsletter
 
 Weekly email digest of new content, timed to the Sunday publish batch.
+**Free to sign up, always — no paid tier** (July 2026 decision, see the
+revitalization plan): the list is the audience-building asset; revenue comes
+later from sponsorship, never from charging subscribers.
 
 **Tasks:**
 
 - [ ] **Choose provider** — Buttondown (simple, developer-friendly) or Mailchimp (established, RSS-to-email).
 - [ ] **Subscribe form** — Add to the site footer or homepage. Just an email input.
 - [ ] **Weekly digest** — Auto-generate from the publish batch. Include titles, summaries, and links for the week's content.
-- [ ] **Unsubscribe and GDPR** — Handled by the provider, but the site needs a privacy policy page.
+- [ ] **Unsubscribe and GDPR** — Handled by the provider; the privacy policy page is live (update its §5 to name the provider when chosen).
 
 **Effort:** Small to medium. The content is already structured for this.
 
@@ -134,9 +139,9 @@ Client-side search across all content.
 
 **Tasks:**
 
-- [ ] **Integrate Pagefind** — Astro has good Pagefind support. Indexes content at build time, runs entirely client-side, no server needed.
-- [ ] **Search UI** — Add a search input to the nav or a dedicated `/search` page.
-- [ ] **Index configuration** — Ensure titles, summaries, tags, and body content are indexed. Exclude nav/footer boilerplate.
+- [x] **Integrate Pagefind** — Installed as a dev dependency; `npm run build` now runs `pagefind --site dist` after the Astro build. Works in `preview`/production (not `astro dev` — the index isn't generated there).
+- [x] **Search UI** — Dedicated `/search` page using the Pagefind default UI, themed with the brand palette; linked from the nav.
+- [x] **Index configuration** — `data-pagefind-body` on the `ContentLayout` article so search returns content pieces (articles/curated/editorial), not nav/footer or listing pages. 20 content pages indexed.
 
 **Effort:** Small. Pagefind is straightforward with Astro.
 
@@ -156,9 +161,9 @@ monitors) — see the revitalization plan Phase 6 for the editorial rules
 - [ ] **Site Bible update** — Add monetisation guidelines to the protected Section 12: recommend what's good, not what pays well.
 
 ### Phase 2: Curated product pages
-- [ ] **Product content type** — New frontmatter fields or a separate collection for product recommendations: `product_name`, `amazon_url`, `age_range`, `why_recommended`.
-- [ ] **`/recommended` section** — Topic-organised product pages (e.g. "Books for Bereaved Children", "Sensory Toys for Autistic Kids").
-- [ ] **Product cards** — New component showing product name, brief editorial note, age range, and affiliate link.
+- [x] **Product content type** — Two data collections: `recommendations` (toys/books/gear/apps/finance) and `deals` (big-ticket kit, dated prices). Schemas in `site/src/content/config.ts`.
+- [x] **`/recommended` section** — Category-grouped product pages, seeded with the three anxiety books already cited in articles. Plus a separate **`/deals`** section with an empty-state until real, dated deals are added.
+- [x] **Product cards** — `ProductCard.astro` (handles both recommendations and deals), `AffiliateDisclosure.astro` (shows only when a live affiliate link exists), nav links, section heroes. **Go-live gate:** Amazon Associates signup is now the only gate — the privacy-policy page is live with real controller/contact details, and `AffiliateDisclosure.astro` carries the Amazon-required wording ("As an Amazon Associate, we earn from qualifying purchases"). See `docs/recommendations-and-deals.md`.
 
 ### Phase 3: Engine-generated recommendations
 - [ ] **Product database** — Table in SQLite tracking recommended products, categories, and which articles reference them.
@@ -195,6 +200,27 @@ Lower-priority improvements to the site itself.
 - [ ] **Print styles** — Articles should print cleanly (hide nav, footer, tag chips).
 - [ ] **Accessibility audit** — Check colour contrast, keyboard navigation, screen reader experience.
 - [ ] **Dark mode** — Optional. The CSS variables make this straightforward to add.
+
+---
+
+## 11. Baby & Toddler Guides
+
+Shipped July 2026 (see the revitalization plan note): `/baby` (weeks 1–12 +
+months 3–12, feeding guides, health section) and `/toddler` (5 stages + 4
+guides), 39 static pages over data modules in `site/src/data/`, with on-device
+birth-date personalisation. Follow-ups:
+
+- [ ] **Search indexing** — Pagefind currently indexes only ContentLayout
+  pages; add `data-pagefind-body` to the guide pages so /search finds them.
+- [ ] **Content re-verification cadence** — health guidance moves (the UK and
+  US vaccination schedules both changed in 2025–26); diarise a quarterly
+  re-check, or extend the Phase 3 decay checker to cover `site/src/data/`.
+- [ ] **Homepage promo** — a section on the homepage introducing the guides
+  (currently reachable via nav/footer only).
+- [ ] **Commissioned artwork** — `baby` and `toddler` sectionArt entries are
+  placeholder SVGs; add to the illustration brief.
+- [ ] **Printables** — the guides are a natural base for the printable
+  checklists mentioned in the Phase 6 funnel note.
 
 ---
 

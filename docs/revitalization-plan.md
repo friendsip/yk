@@ -2,6 +2,25 @@
 
 Goal: turn yourkids.com from a clean-but-plain reading site into a vibrant destination parents return to — through a full visual redesign, a backend for subscription and content management, and a new **Family Games** area: original games built by the YourKids team, free to play with a (free) subscription.
 
+> **Decision — July 2026 (Mark): everything on the site is free to use at this
+> time.** No paid tiers, paywalls, or premium features while the audience is
+> being built. Newsletter signup is encouraged — it's the audience-building
+> mechanism — but signing up never costs money. Paid-tier work in Phase 6
+> remains architectural groundwork only (the `entitlements` table design);
+> nothing paid gets switched on without a fresh decision once the audience
+> exists. Revenue that costs readers nothing (newsletter sponsorship,
+> affiliate links) is unaffected by this decision.
+
+> **Shipped — July 2026: the Baby & Toddler guides** (`/baby`, `/toddler`).
+> A free, mobile-first interactive web app: week-by-week baby guide (birth to
+> 12 months), four judgement-free feeding guides, a baby health section, and
+> a stage-by-stage toddler guide (12–36 months) with positive-parenting,
+> baby-and-toddler, easy-games and independent-play guides. Static Astro
+> pages over data modules in `site/src/data/`, personalised client-side via
+> on-device birth dates (nothing sent to us). This is the first "tools" rung
+> of the list-building funnel described in the Phase 6 revenue note — a
+> reason to visit weekly before the games area exists.
+
 ## Guiding principles
 
 1. **LLMs write and curate; humans direct.** The editorial engine remains the heart of the site. Every new surface — games copy, quiz packs, story prompts, digests, section blurbs — is designed so the engine can write or curate it through the existing `llm_client.call(stage, ...)` pattern, governed by the Site Bible. Humans build mechanics, set direction, and approve; LLMs produce and refresh content.
@@ -191,7 +210,7 @@ Goal: turn yourkids.com from a clean-but-plain reading site into a vibrant desti
 - **Analytics** (privacy-respecting: Plausible or Umami): page views, game starts/completions (anonymous), gate-view → signup conversion, digest click-through. Feed topic-level engagement back to the planner — closing the loop so the LLM curates toward what parents actually read and play.
 - **Search** (Pagefind), dark mode, print styles, full accessibility audit.
 - **Member home** (`/account`): manage email, see new-since-last-visit, future preferences (children's age bands → personalised digest, opt-in).
-- **Monetisation groundwork** (original Phase 6): the `entitlements` table grows a paid tier when ready — e.g. premium game packs or ad-free guarantees — without architectural change. Amazon Associates per next-tasks §8 proceeds independently.
+- **Monetisation groundwork** (original Phase 6): the `entitlements` table grows a paid tier when ready — e.g. premium game packs or ad-free guarantees — without architectural change. **Deferred (July 2026 decision, see top): design only, nothing paid ships while the audience is being built.** Amazon Associates per next-tasks §8 proceeds independently (no cost to readers).
 - **Scale checkpoint:** revisit SQLite→Postgres and engine/backend resource isolation based on real load.
 
 ---

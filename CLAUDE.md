@@ -25,7 +25,7 @@ Key architectural elements:
 - **Site Bible** (`engine/config/site_bible.md`): Living document sent as system context to every LLM call. Defines vision, editorial values, content guardrails, and learned context. The engine can propose amendments (stored in DB) but never modifies Sections 3 (guardrails), 12 (monetisation), or 14 (GDPR) without explicit human instruction.
 - **SQLite database** (`engine/data/yourkids.db`): All pipeline state — sources, discovered items, triage results, plans, plan actions, published content, trend signals, Bible amendments, token usage. Accessed only via the `Database` class in `engine/src/db/models.py` (`get_db()`); no raw SQL elsewhere. Content itself lives as markdown in Git.
 - **Plan actions** drive the writer: `action_type` is `create`, `curated_link`, or `update`; status flows pending → in_progress → staged → completed/failed.
-- **Publishing**: Writer output is staged to `engine/staging/` with `.meta.json` sidecars, then `publish_daily_batch()` copies files flat into `site/src/content/content/`, records them in the DB, and does git operations. Two modes (`publishing.mode` in settings.yaml): `auto` commits directly to main and pushes; `pr` creates a `content/daily-YYYY-MM-DD` branch and a PR. Currently `auto`, capped at 5 items per batch.
+- **Publishing**: Writer output is staged to `engine/staging/` with `.meta.json` sidecars, then `publish_daily_batch()` copies files flat into `site/src/content/content/`, records them in the DB, and does git operations. Two modes (`publishing.mode` in settings.yaml): `auto` commits directly to main and pushes; `pr` creates a `content/daily-YYYY-MM-DD` branch and a PR. Currently `pr` (human merges the weekly PR), capped at 5 items per batch. Publishing is git-first: DB records and staging cleanup happen only after git succeeds, so failed batches retry on the next run.
 - **Phase 3/4 modules are stubs** raising `NotImplementedError`: editorial synthesis, trend snapshots, decay checker, competitive intel (`engine/src/scanner/competitive.py`), web search discovery (`engine/src/scanner/web.py`).
 
 ## Build and Run Commands
@@ -90,6 +90,10 @@ Site pages (`site/src/pages/`) filter the collection by `type` for the `/article
 
 Articles may include a `## Key takeaways` section after the opening paragraph (3–5 bullets); the site styles it as a highlighted box via the heading's slugified id, and the engine writer prompt instructs the LLM to produce it for evergreen articles.
 
+## Baby & Toddler Guides (interactive web app)
+
+Free, mobile-first guides at `/baby` and `/toddler` — static Astro pages rendered from hand-maintained TypeScript data modules in `site/src/data/` (`types.ts` defines the schema; `baby/weeks.ts` weeks 1–12, `baby/months.ts` 3–12 months, `baby/feeding.ts` four judgement-free feeding guides, `baby/health.ts` health topics, `toddler/stages.ts` five stages, `toddler/guides.ts` four cross-cutting guides). All ages are **completed weeks**. Interactivity is client-side enhancement only (`site/src/lib/childAge.ts`): birth dates and the feeding-mode preference live in localStorage (`yk-baby-birthdate`, `yk-toddler-birthdate`, `yk-feeding-mode`) and are never sent anywhere (privacy policy §3a). Content is engine-independent, was verified against NHS/AAP/WHO/Lullaby Trust/CDC guidance in July 2026, and needs periodic human re-verification — vaccination schedules especially.
+
 ## Site Design System
 
 - **Voice everywhere** (Site Bible §2): warm, friendly, humble — applies to interface copy (headings, buttons, empty states, error pages) as much as articles. "The most helpful things we can find", never "the best"; admit uncertainty; never sneer.
@@ -114,6 +118,8 @@ All LLM calls go through `LLMClient` in `engine/src/llm/client.py`, which:
 4. Retries on rate-limit/connection errors, then logs token usage and estimated cost to the DB
 
 Individual modules never load the Bible or construct an Anthropic client directly — they call `llm_client.call(stage, user_prompt)`, which returns `(response_text, metadata)`.
+
+Prompts that embed scraped web content (triage, planner, writer, editor) sanitise it with `src/llm/fencing.py` — `sanitise_untrusted()` neutralises angle brackets so scraped text can't break its prompt frame, and `UNTRUSTED_CONTENT_NOTICE` is included in the prompt. Any new prompt that carries scraped material must do the same.
 
 ## Development Phases
 

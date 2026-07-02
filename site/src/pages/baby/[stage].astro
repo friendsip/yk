@@ -1,0 +1,186 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { babyWeeks } from '../../data/baby/weeks';
+import { babyMonths } from '../../data/baby/months';
+import { FEEDING_MODE_LABELS } from '../../data/types';
+import type { BabyStage, FeedingMode } from '../../data/types';
+
+export async function getStaticPaths() {
+  const all = [...babyWeeks, ...babyMonths];
+  return all.map((entry, i) => ({
+    params: { stage: entry.id },
+    props: { entry, prev: all[i - 1] ?? null, next: all[i + 1] ?? null },
+  }));
+}
+
+interface Props {
+  entry: BabyStage;
+  prev: BabyStage | null;
+  next: BabyStage | null;
+}
+
+const { entry, prev, next } = Astro.props;
+const art = sectionArt.baby;
+const allModes = Object.keys(FEEDING_MODE_LABELS) as FeedingMode[];
+const feedingModes = allModes.filter((m) => (entry.feedingNotes[m] ?? []).length > 0);
+---
+
+<BaseLayout title={`${entry.label} — ${entry.title}`} description={entry.summary}>
+  <article
+    class="stage-page"
+    data-kind="baby"
+    data-stage-from={entry.ageWeeksFrom}
+    data-stage-to={entry.ageWeeksTo}
+    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
+  >
+    <p class="stage-breadcrumb"><a href="/baby">&larr; Baby, week by week</a></p>
+
+    <header class="stage-header">
+      <span class="stage-kicker">{entry.label}</span>
+      <h1>{entry.title}</h1>
+      <p class="stage-summary">{entry.summary}</p>
+    </header>
+
+    <p class="guide-banner" hidden></p>
+
+    {entry.expect.map((sec) => (
+      <section class="stage-section">
+        <h2>{sec.heading}</h2>
+        {sec.paragraphs.map((p) => <p>{p}</p>)}
+      </section>
+    ))}
+
+    {feedingModes.length > 0 && (
+      <section class="stage-section feeding-notes">
+        <h2>Feeding at this stage</h2>
+        <p class="feeding-notes__lede">
+          Pick how you're feeding — we'll remember for next time. Every one of
+          these is a good way to feed a baby.
+        </p>
+        <div class="feeding-tabs">
+          {feedingModes.map((m) => (
+            <button class="feeding-tab" type="button" data-mode={m} aria-pressed="false">
+              {FEEDING_MODE_LABELS[m]}
+            </button>
+          ))}
+        </div>
+        {feedingModes.map((m) => (
+          <div class="feeding-panel" data-mode={m}>
+            <h3 class="feeding-panel__heading">{FEEDING_MODE_LABELS[m]}</h3>
+            <ul>
+              {(entry.feedingNotes[m] ?? []).map((tip) => <li>{tip}</li>)}
+            </ul>
+            <p class="feeding-panel__more">
+              <a href={`/baby/feeding/${m}`}>The full {FEEDING_MODE_LABELS[m].toLowerCase()} guide &rarr;</a>
+            </p>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <section class="callout callout--normal">
+      <h2>Totally normal (even when it doesn't feel it)</h2>
+      <ul>
+        {entry.dontWorry.map((item) => <li>{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="callout callout--watch">
+      <h2>Worth checking</h2>
+      <p class="callout__lede">
+        You know your baby best — if any of these ring true, or something just
+        feels off, it's always OK to ask.
+      </p>
+      <ul>
+        {entry.watchFor.map((item) => <li>{item}</li>)}
+      </ul>
+    </section>
+
+    <nav class="stage-pager" aria-label="Nearby stages">
+      {prev ? (
+        <a class="stage-pager__link" href={`/baby/${prev.id}`} rel="prev">&larr; {prev.label}</a>
+      ) : (
+        <span></span>
+      )}
+      {next ? (
+        <a class="stage-pager__link stage-pager__link--next" href={`/baby/${next.id}`} rel="next">{next.label} &rarr;</a>
+      ) : (
+        <span></span>
+      )}
+    </nav>
+
+    <GuideDisclaimer />
+
+    <footer class="stage-sources">
+      <h2>Sources</h2>
+      <ul>
+        {entry.sources.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+            {' '}— {s.org} <span class="stage-sources__region">({s.region})</span>
+          </li>
+        ))}
+      </ul>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  import {
+    BABY_BIRTH_KEY,
+    FEEDING_MODE_KEY,
+    loadStored,
+    saveStored,
+    completedWeeks,
+    formatAge,
+  } from '../../lib/childAge';
+
+  // "Is this the right page for my baby?" banner
+  const page = document.querySelector('.stage-page') as HTMLElement | null;
+  const banner = document.querySelector('.guide-banner') as HTMLElement | null;
+  if (page && banner) {
+    const iso = loadStored(BABY_BIRTH_KEY);
+    if (iso) {
+      const weeks = completedWeeks(iso);
+      if (weeks !== null) {
+        const from = Number(page.dataset.stageFrom);
+        const to = Number(page.dataset.stageTo);
+        if (weeks >= from && weeks <= to) {
+          banner.textContent = `Your baby is ${formatAge(weeks)} — this is the right page for you.`;
+          banner.classList.add('guide-banner--match');
+        } else {
+          banner.innerHTML = `Your baby is ${formatAge(weeks)} — <a href="/baby">jump to the right week</a>.`;
+        }
+        banner.hidden = false;
+      }
+    }
+  }
+
+  // Feeding mode tabs (all panels visible without JS; tabbed with JS)
+  const notes = document.querySelector('.feeding-notes');
+  if (notes) {
+    notes.classList.add('js-tabs');
+    const tabs = [...notes.querySelectorAll('.feeding-tab')] as HTMLButtonElement[];
+    const panels = [...notes.querySelectorAll('.feeding-panel')] as HTMLElement[];
+
+    const activate = (mode: string, save: boolean) => {
+      if (!panels.some((p) => p.dataset.mode === mode)) {
+        mode = panels[0]?.dataset.mode ?? '';
+      }
+      tabs.forEach((t) => {
+        const on = t.dataset.mode === mode;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-pressed', String(on));
+      });
+      panels.forEach((p) => p.classList.toggle('is-active', p.dataset.mode === mode));
+      if (save) saveStored(FEEDING_MODE_KEY, mode);
+    };
+
+    tabs.forEach((t) =>
+      t.addEventListener('click', () => activate(t.dataset.mode ?? '', true))
+    );
+    activate(loadStored(FEEDING_MODE_KEY) ?? tabs[0]?.dataset.mode ?? '', false);
+  }
+</script>

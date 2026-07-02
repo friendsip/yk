@@ -1,0 +1,178 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { babyWeeks } from '../../data/baby/weeks';
+import { babyMonths } from '../../data/baby/months';
+import { FEEDING_MODE_LABELS } from '../../data/types';
+
+const art = sectionArt.baby;
+const stageRanges = [...babyWeeks, ...babyMonths].map((s) => ({
+  id: s.id,
+  label: s.label,
+  from: s.ageWeeksFrom,
+  to: s.ageWeeksTo,
+}));
+
+const feedingBlurbs: Record<string, string> = {
+  breast: 'Latching, cluster feeding, sore days and settled days.',
+  'breast-expressed': 'Pumping, storing milk safely, and bottles that work.',
+  'breast-formula': 'Combining breast and formula without the guilt.',
+  formula: 'Choosing, preparing and feeding formula with confidence.',
+};
+---
+
+<BaseLayout
+  title="Your baby, week by week"
+  description="A free week-by-week guide to your baby's first year — what to expect, what's normal, what to watch for, and honest feeding help. No account, no cost."
+>
+  <SectionHero
+    title="Your baby, week by week"
+    blurb="What to expect from your baby, week by week from birth — what's completely normal, what's worth checking, and feeding help that never judges. Free, no account needed."
+    art={art}
+  />
+
+  <section
+    class="birth-card"
+    id="birth-card"
+    data-stages={JSON.stringify(stageRanges)}
+    data-kind="baby"
+    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
+  >
+    <h2>Find your week</h2>
+    <p>
+      Tell us when your baby was born and we'll take you straight to the right
+      guide — and remember where you are next time you visit.
+    </p>
+    <form class="birth-card__form">
+      <label class="sr-only" for="birth-date">Your baby's date of birth</label>
+      <input type="date" id="birth-date" required />
+      <button type="submit" class="birth-card__btn">Find our week</button>
+    </form>
+    <p class="birth-card__result" hidden></p>
+    <p class="birth-card__note">
+      The date stays on this device only — it's never sent to us.
+    </p>
+  </section>
+
+  <section class="guide-section">
+    <h2>The first twelve weeks</h2>
+    <div class="stage-grid">
+      {babyWeeks.map((s) => (
+        <a class="stage-card" href={`/baby/${s.id}`} data-stage-id={s.id}>
+          <span class="stage-card__label">{s.label}</span>
+          <span class="stage-card__title">{s.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>Three months to one year</h2>
+    <div class="stage-grid">
+      {babyMonths.map((s) => (
+        <a class="stage-card" href={`/baby/${s.id}`} data-stage-id={s.id}>
+          <span class="stage-card__label">{s.label}</span>
+          <span class="stage-card__title">{s.title}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>Feeding your baby</h2>
+    <p class="guide-section__lede">
+      Breast, bottle, or both — every one of these is a good way to feed a
+      baby. Pick the guide that matches how you're feeding right now.
+    </p>
+    <div class="stage-grid stage-grid--wide">
+      {Object.entries(FEEDING_MODE_LABELS).map(([mode, label]) => (
+        <a class="stage-card" href={`/baby/feeding/${mode}`}>
+          <span class="stage-card__label">{label}</span>
+          <span class="stage-card__title">{feedingBlurbs[mode]}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>Baby health</h2>
+    <p class="guide-section__lede">
+      Calm guides to fevers, rashes, crying, safe sleep and more — including
+      exactly when to get help, so you don't have to guess at 3am.
+    </p>
+    <div class="stage-grid stage-grid--wide">
+      <a class="stage-card" href="/baby/health">
+        <span class="stage-card__label">Health guides</span>
+        <span class="stage-card__title">What's normal, what's not, and who to call</span>
+      </a>
+      <a class="stage-card" href="/toddler">
+        <span class="stage-card__label">Onwards!</span>
+        <span class="stage-card__title">One to three? See the toddler guide</span>
+      </a>
+    </div>
+  </section>
+
+  <GuideDisclaimer />
+</BaseLayout>
+
+<script>
+  import {
+    BABY_BIRTH_KEY,
+    TODDLER_BIRTH_KEY,
+    saveStored,
+    loadStored,
+    completedWeeks,
+    formatAge,
+    stageForWeeks,
+    type StageRange,
+  } from '../../lib/childAge';
+
+  const card = document.getElementById('birth-card');
+  if (card) {
+    const stages: StageRange[] = JSON.parse(card.dataset.stages || '[]');
+    const form = card.querySelector('form') as HTMLFormElement;
+    const input = card.querySelector('input[type="date"]') as HTMLInputElement;
+    const result = card.querySelector('.birth-card__result') as HTMLElement;
+
+    input.max = new Date().toISOString().slice(0, 10);
+
+    const render = (iso: string) => {
+      const weeks = completedWeeks(iso);
+      document
+        .querySelectorAll('.stage-card.is-current')
+        .forEach((el) => el.classList.remove('is-current'));
+
+      if (weeks === null) {
+        result.textContent = "That date looks like it's in the future — worth a double-check?";
+        result.hidden = false;
+        return;
+      }
+
+      const stage = stageForWeeks(stages, weeks);
+      if (stage) {
+        const stageCard = document.querySelector(`[data-stage-id="${stage.id}"]`);
+        stageCard?.classList.add('is-current');
+        result.innerHTML = `Your baby is <strong>${formatAge(weeks)}</strong> — <a href="/baby/${stage.id}">go to ${stage.label}</a>.`;
+      } else {
+        saveStored(TODDLER_BIRTH_KEY, iso);
+        result.innerHTML = `Your little one is <strong>${formatAge(weeks)}</strong> — time for the <a href="/toddler">toddler guide</a>. We'll remember the date over there too.`;
+      }
+      result.hidden = false;
+    };
+
+    const saved = loadStored(BABY_BIRTH_KEY);
+    if (saved) {
+      input.value = saved;
+      render(saved);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!input.value) return;
+      saveStored(BABY_BIRTH_KEY, input.value);
+      render(input.value);
+    });
+  }
+</script>

@@ -1,0 +1,71 @@
+---
+import { artForTags } from '../lib/topicArt';
+
+interface Props {
+  title: string;
+  summary: string;
+  /** Topic tags drive the artwork; falls back to the brand motif */
+  tags?: string[];
+  ageRange?: string;
+  affiliateUrl?: string;
+  retailer?: string;
+  /** Deal-only: current price, was-price, and the date it was checked */
+  price?: string;
+  rrp?: string;
+  priceChecked?: Date;
+  /** Small category label shown above the title */
+  kicker?: string;
+}
+
+const {
+  title,
+  summary,
+  tags = [],
+  ageRange,
+  affiliateUrl,
+  retailer = 'Amazon',
+  price,
+  rrp,
+  priceChecked,
+  kicker,
+} = Astro.props;
+
+const art = artForTags(tags);
+
+const checkedDate = priceChecked?.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<div class="product-card" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
+  <div class="product-card__art" aria-hidden="true" set:html={art.markup} />
+  <div class="product-card__body">
+    {kicker && <span class="product-card__kicker">{kicker}</span>}
+    <h3 class="product-card__title">{title}</h3>
+    {ageRange && <p class="product-card__age">{ageRange}</p>}
+    <p class="product-card__summary">{summary}</p>
+
+    {price && (
+      <p class="product-card__price">
+        <strong>{price}</strong>
+        {rrp && <span class="product-card__rrp"><span class="sr-only">was </span>{rrp}</span>}
+        {checkedDate && <span class="product-card__checked">Price checked {checkedDate}</span>}
+      </p>
+    )}
+
+    {affiliateUrl ? (
+      <a
+        class="product-card__cta"
+        href={affiliateUrl}
+        target="_blank"
+        rel="sponsored nofollow noopener noreferrer"
+      >
+        View on {retailer} &rarr;
+      </a>
+    ) : (
+      <span class="product-card__cta product-card__cta--pending">Link coming soon</span>
+    )}
+  </div>
+</div>
