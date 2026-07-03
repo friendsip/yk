@@ -1,35 +1,65 @@
-/* ── yourkids.com ── warm editorial aesthetic ── */
+/* ── yourkids.com ── "Warm & Playful" (design 1a) ──
+   Tokens per the developer brief: warm cream base, coral primary, teal
+   secondary, sand neutral. The legacy --color-* names are kept and remapped
+   so every existing component inherits the new palette. */
 /* Fonts are loaded via <link> in BaseLayout (preconnect + non-blocking). */
 
 :root {
-  /* Palette */
-  --color-ink: #2c2c2c;
-  --color-ink-light: #5a5a5a;
-  --color-ink-faint: #8a8a8a;
-  --color-bg: #faf9f6;
-  --color-bg-warm: #f5f0ea;
-  --color-bg-card: #ffffff;
-  --color-border: #e8e4de;
-  --color-border-light: #f0ece6;
+  /* Brief tokens */
+  --coral: #D96A47;
+  --coral-hover: #C55A38;
+  --coral-tint: #FCE8DF;
+  --coral-text: #B0674C;
+  --coral-deep: #8F4A32;
+  --teal: #3A9E8F;
+  --teal-hover: #2E8A7C;
+  --teal-deep: #2E7A6D;
+  --teal-tint: #E2F0EC;
+  --teal-text: #22574D;
+  --teal-band-copy: #CFE6E0;
+  --sand: #F3E9D8;
+  --sand-text: #8A7A5C;
+  --sand-deep: #6E5C36;
+  --border-input: #E4D9C4;
+  --border-btn: #D9CDB6;
 
-  /* Accents */
-  --color-sage: #5b7a5e;
-  --color-sage-light: #e8efe9;
-  --color-sage-dark: #3d5a3f;
-  --color-amber: #c17f2e;
-  --color-amber-light: #fdf3e4;
-  --color-editorial: #6b5b8a;
-  --color-editorial-light: #f0ecf5;
-  --color-coral: #e07856;
-  --color-coral-light: #fbeae3;
-  --color-sky: #7da8c3;
-  --color-sky-light: #e9f1f6;
-  --color-sunshine: #e8b84b;
-  --color-sunshine-light: #fdf6e3;
+  /* Shape & elevation */
+  --r-pill: 999px;
+  --r-card: 20px;
+  --r-img: 14px;
+  --r-tile: 18px;
+  --r-band: 24px;
+  --shadow-card: 0 2px 8px rgba(90, 70, 40, 0.07);
+  --shadow-card-hover: 0 6px 18px rgba(90, 70, 40, 0.13);
+
+  /* Legacy palette names, remapped */
+  --color-ink: #2E2921;
+  --color-ink-light: #6B6357;
+  --color-ink-faint: #8A8071;
+  --color-bg: #FBF7EF;
+  --color-bg-warm: #F3E9D8;
+  --color-bg-card: #ffffff;
+  --color-border: #EDE5D6;
+  --color-border-light: #F3EDE1;
+
+  /* Legacy accents, remapped to coral / teal / sand */
+  --color-sage: #3A9E8F;
+  --color-sage-light: #E2F0EC;
+  --color-sage-dark: #2E7A6D;
+  --color-amber: #B0674C;
+  --color-amber-light: #FCE8DF;
+  --color-editorial: #2E7A6D;
+  --color-editorial-light: #E2F0EC;
+  --color-coral: #D96A47;
+  --color-coral-light: #FCE8DF;
+  --color-sky: #3A9E8F;
+  --color-sky-light: #E2F0EC;
+  --color-sunshine: #8A7A5C;
+  --color-sunshine-light: #F3E9D8;
 
   /* Typography */
-  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Baloo 2', system-ui, sans-serif;
+  --font-body: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Spacing */
   --space-xs: 0.25rem;
@@ -41,7 +71,7 @@
 
   /* Layout */
   --max-width: 780px;
-  --max-width-wide: 1080px;
+  --max-width-wide: 1120px;
 }
 
 /* ── Reset ── */
@@ -2038,5 +2068,752 @@ li {
   .birth-card__form input[type='date'],
   .birth-card__btn {
     width: 100%;
+  }
+}
+
+/* ── Tools & calculators ──────────────────────────────────────────── */
+
+.tool-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-left: 4px solid var(--accent, var(--color-sunshine));
+  border-radius: 12px;
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+
+.tool-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 var(--space-sm);
+}
+
+.tool-card__hint {
+  font-size: 0.9rem;
+  color: var(--color-ink-light);
+  margin-bottom: var(--space-md);
+}
+
+.tool-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: flex-end;
+}
+
+.tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 160px;
+  flex: 1;
+}
+
+.tool-field label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-ink-light);
+}
+
+.tool-field input,
+.tool-field select {
+  font: inherit;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+}
+
+.tool-field--checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 100%;
+}
+
+.tool-field--checkbox label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.tool-field--checkbox input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--accent, var(--color-sunshine));
+}
+
+.tool-result {
+  background: var(--accent-tint, var(--color-sunshine-light));
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: var(--space-lg);
+  margin: var(--space-lg) 0;
+}
+
+.tool-result h2,
+.tool-result h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin: 0 0 var(--space-sm);
+}
+
+.tool-result__big {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: var(--space-xs) 0;
+}
+
+.tool-result__sub {
+  color: var(--color-ink-light);
+  font-size: 0.95rem;
+}
+
+.tool-note {
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+  margin-top: var(--space-sm);
+}
+
+/* Timeline (childcare funding, vaccinations) */
+.tool-timeline {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-md) 0;
+  border-left: 3px solid var(--accent, var(--color-sunshine));
+}
+
+.tool-timeline li {
+  position: relative;
+  padding: 0 0 var(--space-lg) var(--space-lg);
+  margin: 0;
+}
+
+.tool-timeline li::before {
+  content: '';
+  position: absolute;
+  left: -8.5px;
+  top: 0.35rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent, var(--color-sunshine));
+  border: 3px solid var(--color-bg);
+}
+
+.tool-timeline__when {
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.tool-timeline__past .tool-timeline__when {
+  color: var(--color-ink-faint);
+}
+
+.tool-timeline__what {
+  color: var(--color-ink-light);
+  font-size: 0.95rem;
+}
+
+.tool-timeline__what ul {
+  margin: var(--space-xs) 0;
+}
+
+/* Wake-window table */
+.tool-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: var(--space-md) 0;
+}
+
+.tool-table th,
+.tool-table td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.tool-table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-light);
+}
+
+.tool-table tr.is-current {
+  background: var(--accent-tint, var(--color-sunshine-light));
+}
+
+.tool-table tr.is-current td:first-child {
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .tool-table {
+    font-size: 0.82rem;
+  }
+  .tool-table th,
+  .tool-table td {
+    padding: 0.45rem 0.5rem;
+  }
+}
+
+/* Checklists */
+.checklist-progress {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.checklist-actions {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  margin: var(--space-md) 0;
+}
+
+.checklist-btn {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-card);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.checklist-btn:hover {
+  border-color: var(--accent, var(--color-sunshine));
+}
+
+.checklist-section {
+  margin: var(--space-lg) 0;
+}
+
+.checklist-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin-bottom: var(--space-sm);
+}
+
+.checklist-items {
+  list-style: none;
+  padding: 0;
+}
+
+.checklist-items li {
+  margin: 0;
+}
+
+.checklist-items label {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.55rem 0.3rem;
+  border-bottom: 1px solid var(--color-border-light);
+  cursor: pointer;
+}
+
+.checklist-items input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  accent-color: var(--color-sage);
+}
+
+.checklist-items input:checked + span {
+  text-decoration: line-through;
+  color: var(--color-ink-faint);
+}
+
+.checklist-items .item-note {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+  text-decoration: none !important;
+}
+
+@media print {
+  .site-header,
+  .site-footer,
+  .checklist-actions,
+  .section-hero__art,
+  .stage-breadcrumb,
+  .guide-disclaimer {
+    display: none !important;
+  }
+  .checklist-items input:checked + span {
+    text-decoration: none;
+    color: inherit;
+  }
+  body {
+    background: #fff;
+  }
+}
+
+/* ── "Warm & Playful" redesign layer (design 1a) ─────────────────────
+   Header, hero, tiles, newsletter band and card polish per the developer
+   brief. Later in the cascade deliberately: these override the legacy
+   component styles above. */
+
+/* Logo: Baloo wordmark, coral with teal dot */
+.site-logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--coral);
+  text-decoration: none;
+}
+
+.site-logo:hover {
+  color: var(--coral-hover);
+}
+
+.site-logo__dot {
+  color: var(--teal);
+}
+
+/* Pill nav */
+.site-nav {
+  gap: 6px;
+}
+
+.site-nav > a,
+.nav-group__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink-light);
+  padding: 8px 14px !important;
+  border-radius: var(--r-pill);
+  border-bottom: none !important;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+@media (min-width: 1001px) {
+  .site-header-inner {
+    gap: var(--space-md);
+  }
+}
+
+.site-nav > a:hover,
+.nav-group__label:hover,
+.site-nav > a[aria-current='page'],
+.nav-group.is-current .nav-group__label {
+  background: var(--sand);
+  color: var(--color-ink);
+  border-bottom: none !important;
+}
+
+/* Header search + CTA */
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--r-pill);
+  border: 1.5px solid var(--border-input);
+  color: var(--color-ink-faint);
+  font-size: 13px;
+  min-width: 150px;
+  background: transparent;
+}
+
+.header-search:focus-within {
+  border-color: var(--teal);
+}
+
+.header-search input {
+  border: 0;
+  outline: 0;
+  background: none;
+  font: inherit;
+  color: var(--color-ink);
+  width: 100%;
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--r-pill);
+  background: var(--coral);
+  color: #fff !important;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 18px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.nav-cta:hover {
+  background: var(--coral-hover);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-pill);
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+  border: 0;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-teal {
+  background: var(--teal);
+  color: #fff;
+  padding: 13px 24px;
+  font-size: 15px;
+}
+
+.btn-teal:hover {
+  background: var(--teal-hover);
+}
+
+.btn-coral {
+  background: var(--coral);
+  color: #fff;
+  padding: 13px 24px;
+  font-size: 15px;
+}
+
+.btn-coral:hover {
+  background: var(--coral-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--border-btn);
+  color: var(--color-ink);
+  padding: 13px 24px;
+  font-size: 15px;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-ink-faint);
+}
+
+/* Legacy button classes used across inner pages, mapped to the new look */
+.button,
+.button--primary,
+.button--ghost {
+  border-radius: var(--r-pill) !important;
+}
+
+.button--primary {
+  background: var(--teal) !important;
+  border-color: var(--teal) !important;
+}
+
+.button--primary:hover {
+  background: var(--teal-hover) !important;
+  border-color: var(--teal-hover) !important;
+}
+
+/* Focus */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* Hero */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 48px;
+  align-items: center;
+  padding: 40px 0 48px;
+}
+
+.hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero-badge {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--teal-tint);
+  color: var(--teal-deep);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(2rem, 4.5vw, 46px);
+  line-height: 1.12;
+  color: var(--color-ink);
+}
+
+.hero-copy > p {
+  margin: 0;
+  font-size: 17px;
+  color: var(--color-ink-light);
+  max-width: 480px;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.hero-art-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-art {
+  height: 300px;
+  border-radius: var(--r-band);
+  background: var(--sand);
+  overflow: hidden;
+}
+
+.hero-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-credit {
+  margin: 0;
+  font-size: 11px;
+  color: var(--color-ink-faint);
+  text-align: right;
+}
+
+.photo-credit a {
+  color: var(--color-ink-faint);
+  text-decoration: underline;
+}
+
+/* Section heads: coral "more" links */
+.section-heading a {
+  color: var(--coral);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.section-heading a:hover {
+  color: var(--coral-hover);
+}
+
+/* Topic tiles */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+.tile {
+  border-radius: var(--r-tile);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.tile:hover {
+  transform: translateY(-2px);
+}
+
+.tile b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.tile span {
+  font-size: 12px;
+}
+
+.tile-coral { background: var(--coral-tint); }
+.tile-coral b { color: var(--coral-deep); }
+.tile-coral span { color: var(--coral-text); }
+.tile-teal { background: var(--teal-tint); }
+.tile-teal b { color: var(--teal-text); }
+.tile-teal span { color: var(--teal-deep); }
+.tile-sand { background: var(--sand); }
+.tile-sand b { color: var(--sand-deep); }
+.tile-sand span { color: var(--sand-text); }
+
+/* Newsletter band */
+.newsletter-band {
+  border-radius: var(--r-band);
+  background: var(--teal-deep);
+  padding: 36px 40px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin: 0 0 var(--space-xl);
+}
+
+.newsletter-band__copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.newsletter-band__copy h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  color: #fff;
+}
+
+.newsletter-band__copy p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--teal-band-copy);
+}
+
+.newsletter-band__form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.newsletter-band__form input {
+  padding: 13px 18px;
+  border-radius: var(--r-pill);
+  border: 0;
+  font: inherit;
+  font-size: 14px;
+  min-width: 220px;
+  color: var(--color-ink);
+}
+
+.newsletter-band__form input::placeholder {
+  color: var(--color-ink-faint);
+}
+
+.newsletter-band__soon {
+  margin: 0;
+  color: #fff;
+  font-weight: 600;
+  max-width: 340px;
+}
+
+/* Card polish: warm shadows, hover lift, rounded */
+.content-card,
+.product-card,
+.site-card,
+.stage-card,
+.topic-card {
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.content-card:hover,
+.product-card:hover,
+.site-card:hover,
+.stage-card:hover,
+.topic-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.section-hero,
+.birth-card,
+.tool-result,
+.app-promo {
+  border-radius: var(--r-band);
+}
+
+/* Responsive: brief breakpoints */
+@media (max-width: 1000px) {
+  .nav-toggle {
+    display: block;
+  }
+  .site-nav {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-md) var(--space-lg);
+    gap: var(--space-xs);
+    z-index: 90;
+  }
+  .site-nav.is-open {
+    display: flex;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .hero-art-wrap {
+    order: -1;
+  }
+  .hero-art {
+    height: 220px;
+  }
+  .tile-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .newsletter-band {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  .newsletter-band__form {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-search {
+    display: none;
+  }
+  .nav-cta {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+  .tile-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }

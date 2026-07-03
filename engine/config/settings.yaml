@@ -58,6 +58,12 @@ publishing:
   git_branch: "main"
   pr_branch_prefix: "content/daily-"
 
+# Data maintenance reviewer (decay checker) — register of apps/tools data
+# and their authoritative sources lives in config/data_maintenance.yaml
+maintenance:
+  create_github_issues: true
+  min_days_between_issues: 21
+
 trends:
   signal_window_days: 30
   trending_threshold_multiplier: 2.0

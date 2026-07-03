@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import { sectionArt } from '../../lib/topicArt';
+
+const art = sectionArt.games;
+
+const planned = [
+  {
+    title: 'Circle-time word and number games',
+    blurb: 'Quick, no-prep games a whole group can play together — nothing needed but a screen (or a printout) and some children.',
+  },
+  {
+    title: 'Quiz packs',
+    blurb: 'Ready-made question rounds for classrooms, after-school clubs and family quiz afternoons, refreshed regularly.',
+  },
+  {
+    title: 'Co-operative games for mixed ages',
+    blurb: "Games where everyone plays on the same team — designed so a four-year-old and a seven-year-old can genuinely play together.",
+  },
+  {
+    title: 'Printable game cards',
+    blurb: 'Print-and-play versions for settings where screens are the wrong tool — the same games, on paper.',
+  },
+];
+---
+
+<BaseLayout
+  title="Educational games — coming soon"
+  description="Original educational games for classrooms, playgroups and family gatherings are coming to yourkids.com — free to play, designed for groups, made with care."
+>
+  <SectionHero
+    title="Educational games"
+    blurb="Original games for classrooms, playgroups, childminders and rainy-day gatherings — designed for groups, built to be genuinely educational, and free to play."
+    art={art}
+  />
+
+  <section class="guide-section" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+    <h2>What's coming <span class="coming-soon-pill">Coming soon</span></h2>
+    <p class="guide-section__lede">
+      We're building a small collection of original games with teachers, group
+      leaders and tired parents in mind: five to fifteen minutes long, easy to
+      explain, with natural stopping points — and quietly educational rather
+      than flashy. No ads, no in-app purchases, ever.
+    </p>
+    <div class="stage-grid stage-grid--wide">
+      {planned.map((p) => (
+        <div class="stage-card">
+          <span class="stage-card__label">{p.title}</span>
+          <span class="stage-card__title">{p.blurb}</span>
+        </div>
+      ))}
+    </div>
+    <p class="tool-note" style="margin-top: 1rem;">
+      We'd rather ship a few genuinely good games than many mediocre ones, so
+      we're taking our time. The weekly digest will announce them when
+      they're ready.
+    </p>
+  </section>
+
+  <section class="guide-section">
+    <h2>In the meantime</h2>
+    <p>
+      If you're after games to play with little ones today, our
+      <a href="/toddler/easy-games">easy games for tired parents</a> guide has
+      a compendium of low-effort games for ones-to-threes, and every
+      <a href="/toddler">toddler stage guide</a> includes games matched to that
+      age. For older children, our <a href="/topics">topic guides</a> cover
+      learning through play.
+    </p>
+  </section>
+</BaseLayout>

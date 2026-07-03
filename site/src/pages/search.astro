@@ -35,6 +35,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           showImages: false,
           resetStyles: false,
         });
+
+        // Support ?q= from the header search field
+        const q = new URLSearchParams(window.location.search).get('q');
+        if (q) {
+          const input = document.querySelector('#search input');
+          if (input) {
+            input.value = q;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
       }
     });
   </script>

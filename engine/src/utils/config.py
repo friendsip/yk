@@ -21,3 +21,9 @@ def load_competitors() -> list[dict]:
     with open(_CONFIG_DIR / "competitors.yaml") as f:
         data = yaml.safe_load(f)
         return data.get("competitors", [])
+
+
+def load_maintenance_register() -> list[dict]:
+    with open(_CONFIG_DIR / "data_maintenance.yaml") as f:
+        data = yaml.safe_load(f)
+        return data.get("artefacts", [])

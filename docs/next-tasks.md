@@ -83,7 +83,11 @@ Triggered when triage detects opposing viewpoints on the same topic.
 
 Configured for Monday 03:00, 90-day max age.
 
-- [ ] **Staleness check** — Query published content older than threshold. Use LLM to assess whether the content is still accurate given current information.
+- [x] **Data maintenance review (July 2026)** — implemented tools-first: the
+  weekly job re-checks the apps/tools/guides data against authoritative
+  sources via LLM and raises GitHub issues with ready-to-run update prompts
+  (see §11). Article-level decay below remains open.
+- [ ] **Staleness check (articles)** — Query published content older than threshold. Use LLM to assess whether the content is still accurate given current information.
 - [ ] **Broken link detection** — HTTP HEAD requests against all source URLs in published content. Flag broken links.
 - [ ] **Auto-update trigger** — When decay is detected, create a plan action of type `update` targeting the stale article, with instructions to refresh it.
 
@@ -231,8 +235,10 @@ App follow-ups:
   in Google Cloud Console; authorised JavaScript origins:
   `https://yourkids.com` (and `http://localhost:4321` for local testing).
   Then set `PUBLIC_GOOGLE_CLIENT_ID=<id>` in Vercel env vars (and
-  `site/.env`) and redeploy — the "Sign in with Google" button appears
-  automatically. Until then the app shows "Get started" only.
+  `site/.env`) and redeploy. **Setting the ID activates the sign-in
+  REQUIREMENT** (decided July 2026): the app is gated behind Google sign-in,
+  sign-out locks it, and the wizard stores first name + DOB only, on-device.
+  Until the ID is set the app stays open-access ("Get started").
 - [ ] **Subdomain (Mark)** — when ready, add `app.yourkids.com` to the Vercel
   project and redirect/rewrite it to `/app` (the PWA scope/manifest work
   as-is at the path; revisit `start_url` if serving natively on the
@@ -242,6 +248,32 @@ App follow-ups:
   deploys just work).
 - [ ] **Homepage promo** — the app promo banners exist on /baby and /toddler;
   consider one on the homepage too.
+- [x] **Tools shipped (July 2026)** — `/tools`: baby age + corrected-age
+  calculator, naps & wake windows guide, four interactive/printable
+  checklists, NHS vaccination planner (Jan 2026 schedule, personalised dates
+  + .ics download), and the UK childcare costs & funding explorer (all four
+  nations' schemes, term-after start dates from the child's DOB, Coram 2026
+  regional prices with the survey's cost-basis handled correctly, regional
+  availability notes). All client-side, data in `site/src/data/tools/`.
+- [x] **Tools maintenance register — automated (July 2026)** — the engine's
+  data-maintenance reviewer (`engine/src/decay/checker.py`, register in
+  `engine/config/data_maintenance.yaml`) runs every Monday 03:00: for each
+  due artefact (9 registered — all tools, guides and app content, with
+  calendar checkpoints for April rates, March Coram, Jan/Jul UKHSA changes)
+  it fetches the authoritative sources, has the LLM compare them against the
+  published data, and opens a GitHub issue with findings and a ready-to-run
+  update prompt. Updates stay human-gated. Add new tools to the register.
+  Needs `gh` authenticated on the VPS for issue creation. This also
+  supersedes the manual "quarterly re-verification cadence" item above.
+- [x] **Educational games section page (July 2026)** — `/games` live as a
+  coming-soon teaser (classroom/group framing, coral accent, in nav +
+  footer). Announced: circle-time games, quiz packs, co-operative mixed-age
+  games, printable game cards. The actual games are revitalization-plan
+  Phases 4–5; see the note there about classroom use vs the subscription gate.
+- [ ] **More tools** — remaining ideas in `docs/app-ideas-research.md`:
+  "what can we do today?" activity generator, on-device feed/sleep logger,
+  printable visual routine builder, first-foods lookup (needs clinical
+  review), growth tracker (UK-WHO charts), due-date calculator.
 
 ---
 

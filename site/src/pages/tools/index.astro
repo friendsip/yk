@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import { sectionArt } from '../../lib/topicArt';
+
+const art = sectionArt.tools;
+
+const tools = [
+  {
+    href: '/tools/baby-age',
+    label: 'Baby age calculator',
+    blurb: 'How many weeks (or months, or days) old is my baby? Includes corrected age for premature babies.',
+  },
+  {
+    href: '/tools/childcare',
+    label: 'Childcare costs & funding',
+    blurb: "What childcare costs near you, what government help you can get, and exactly when it starts — worked out from your child's birthday.",
+  },
+  {
+    href: '/tools/vaccinations',
+    label: 'Vaccination planner',
+    blurb: "Your baby's NHS vaccination timeline, with real dates from their date of birth — and a calendar file to download.",
+  },
+  {
+    href: '/tools/nap-schedule',
+    label: 'Naps & wake windows',
+    blurb: 'Typical wake windows, naps and total sleep by age, from birth to three — ranges, not rules.',
+  },
+  {
+    href: '/tools/checklists',
+    label: 'Checklists',
+    blurb: 'Hospital bag, newborn essentials, travelling with a baby, starting school — tick things off, then print them.',
+  },
+];
+---
+
+<BaseLayout
+  title="Tools & calculators for parents"
+  description="Free, friendly tools for parents — childcare costs and funding, baby age and corrected age, NHS vaccination planner, nap guides and printable checklists. No accounts, no ads."
+>
+  <SectionHero
+    title="Tools & calculators"
+    blurb="Small, genuinely free tools for the practical bits of parenting. No accounts, no ads, and anything you enter stays on your device."
+    art={art}
+  />
+
+  <div class="stage-grid stage-grid--wide guide-section" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+    {tools.map((t) => (
+      <a class="stage-card" href={t.href}>
+        <span class="stage-card__label">{t.label}</span>
+        <span class="stage-card__title">{t.blurb}</span>
+      </a>
+    ))}
+  </div>
+
+  <a class="app-promo" href="/app">
+    <img src="/app/icon.svg" alt="" width="52" height="52" />
+    <span class="app-promo__text">
+      <strong>Meet the app</strong> — a loving daily companion for your baby's
+      and toddler's first years. What to expect today, gentle hints, little
+      celebrations.
+    </span>
+    <span class="app-promo__cta">Open &rarr;</span>
+  </a>
+</BaseLayout>

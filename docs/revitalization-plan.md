@@ -71,6 +71,15 @@ Goal: turn yourkids.com from a clean-but-plain reading site into a vibrant desti
 > pending the artwork-sourcing decision. Outstanding from this phase:
 > self-hosting fonts (currently preloaded from Google Fonts), Search Console
 > submission, and the commissioned artwork swap via `topicArt.ts`.
+>
+> **Re-skinned July 2026 to the "Warm & Playful" direction** (developer brief
+> and reference demo in `Website redesign suggestions/`): cream base,
+> coral/teal/sand tokens, Baloo 2 + Nunito Sans, pill nav with header search
+> and a coral email CTA, restructured homepage (hero photo, deduplicated
+> "Featured this week", tinted topic tiles, teal newsletter band — form shows
+> a coming-soon state until the email provider is wired, per §6 of
+> next-tasks). Article/topic/search page mocks are flagged in the brief as
+> not-yet-designed; they currently inherit the tokens.
 
 **Visual core (the redesign):**
 - Logomark + wordmark (SVG, favicon-ready), default OG image.
@@ -123,6 +132,16 @@ Goal: turn yourkids.com from a clean-but-plain reading site into a vibrant desti
 ## Phase 4 — Games platform & subscription gate
 
 *Ship the games area with one free-preview game and the real gate.*
+
+> **Status (July 2026):** the `/games` section page is live as a coming-soon
+> teaser, and the brief has broadened: **educational games for classrooms and
+> groups** (teachers, childminders, playgroups) alongside the family co-play
+> originals below. Announced strands: circle-time word/number games, quiz
+> packs, co-operative mixed-age games, and printable game cards. Design
+> principles unchanged (5–15 minutes, natural stopping points, no ads or
+> purchases). Note for the gate design: classroom use sits awkwardly with a
+> per-parent subscription gate — group/classroom play may need to stay
+> ungated or use a lighter mechanism; decide when the shell ships.
 
 - **Games collection:** second Astro collection (`site/src/content/games/`): `title`, `summary`, `age_range`, `players`, `duration`, `skills`, `cover_image`, `first_published`, `free_preview`. Body = how-to-play + "what your child practises" parent notes.
 - **GameShell component:** shared frame — fullscreen, restart, sound toggle, how-to-play drawer, and the gate logic: `free_preview` games mount immediately; others call `GET /me/entitlements` via `member.ts` and render the signup/login card if unentitled. Server-side the games are still statically built — the gate is a UX layer plus an entitlement check, not DRM; that's deliberate and acceptable for free content.

@@ -1,0 +1,113 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { wakeWindowBands, wakeWindowIntro, wakeWindowSources } from '../../data/tools/wakeWindows';
+
+const art = sectionArt.tools;
+const ranges = wakeWindowBands.map((b) => ({ id: b.id, from: b.fromWeeks, to: b.toWeeks }));
+---
+
+<BaseLayout
+  title="Naps and wake windows by age — birth to three"
+  description="Typical wake windows, naps per day and total sleep for babies and toddlers, from newborn to three years — presented as honest ranges, not rules."
+>
+  <SectionHero
+    title="Naps & wake windows"
+    blurb="How long can they comfortably stay awake? What do naps typically look like at this age? Ranges, not rules — your baby's cues always win."
+    art={art}
+  />
+
+  <p class="stage-breadcrumb guide-breadcrumb"><a href="/tools">&larr; All tools</a></p>
+
+  <div class="stage-page" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+    <section class="stage-section">
+      {wakeWindowIntro.map((p) => <p>{p}</p>)}
+    </section>
+
+    <div class="tool-card" id="nap-tool" data-ranges={JSON.stringify(ranges)}>
+      <h2>Jump to your baby's age</h2>
+      <div class="tool-form">
+        <div class="tool-field">
+          <label for="nap-dob">Date of birth (optional)</label>
+          <input type="date" id="nap-dob" />
+        </div>
+      </div>
+      <p class="tool-note">We'll highlight the right row below.</p>
+    </div>
+
+    <table class="tool-table">
+      <thead>
+        <tr>
+          <th scope="col">Age</th>
+          <th scope="col">Wake window</th>
+          <th scope="col">Naps/day</th>
+          <th scope="col">Total sleep (24h)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {wakeWindowBands.map((band) => (
+          <tr id={`band-${band.id}`}>
+            <td>{band.ageLabel}</td>
+            <td>{band.wakeWindow}</td>
+            <td>{band.napsPerDay}</td>
+            <td>{band.totalSleep24h}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {wakeWindowBands.map((band) => (
+      <section class="stage-section" id={`notes-${band.id}`}>
+        <h2>{band.ageLabel}</h2>
+        <ul>
+          {band.notes.map((n) => <li>{n}</li>)}
+        </ul>
+      </section>
+    ))}
+
+    <GuideDisclaimer />
+
+    <footer class="stage-sources">
+      <h2>Sources</h2>
+      <ul>
+        {wakeWindowSources.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+            {' '}— {s.org} <span class="stage-sources__region">({s.region})</span>
+          </li>
+        ))}
+      </ul>
+    </footer>
+  </div>
+</BaseLayout>
+
+<script>
+  const tool = document.getElementById('nap-tool') as HTMLElement;
+  const ranges: { id: string; from: number; to: number }[] = JSON.parse(tool.dataset.ranges || '[]');
+  const dob = document.getElementById('nap-dob') as HTMLInputElement;
+  dob.max = new Date().toISOString().slice(0, 10);
+
+  try {
+    const saved = localStorage.getItem('yk-baby-birthdate') || localStorage.getItem('yk-toddler-birthdate');
+    if (saved) dob.value = saved;
+  } catch {}
+
+  function highlight() {
+    document.querySelectorAll('.tool-table tr.is-current').forEach((el) => el.classList.remove('is-current'));
+    if (!dob.value) return;
+    const days = Math.floor((Date.now() - new Date(`${dob.value}T00:00:00`).getTime()) / 864e5);
+    if (days < 0) return;
+    const weeks = Math.floor(days / 7);
+    const band = ranges.find((r) => weeks >= r.from && weeks <= r.to);
+    if (band) {
+      const row = document.getElementById(`band-${band.id}`);
+      row?.classList.add('is-current');
+      row?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }
+  }
+
+  dob.addEventListener('input', highlight);
+  highlight();
+</script>

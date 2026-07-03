@@ -47,14 +47,16 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
       <h1>Hello, little one!</h1>
       <p class="welcome__sub">
         A daily companion for your baby's and toddler's first years — what to
-        expect today, gentle hints, and little celebrations.
+        expect today, gentle hints, and little celebrations. Sign in with
+        Google to get started.
       </p>
       <div class="welcome__actions">
         <div id="gsi-btn"></div>
         <button class="app-btn" id="welcome-start" type="button">Get started</button>
         <p class="welcome__privacy">
-          Everything stays on this phone — names and birthdays are never sent
-          to us. <a href="/privacy" target="_blank">How we handle privacy</a>
+          Signing in just tells the app it's you. Your baby's name and
+          birthday stay on this phone — they're never sent to us.
+          <a href="/privacy" target="_blank">How we handle privacy</a>
         </p>
       </div>
     </section>
@@ -65,7 +67,6 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
         <span class="wizard__dot" data-dot="0"></span>
         <span class="wizard__dot" data-dot="1"></span>
         <span class="wizard__dot" data-dot="2"></span>
-        <span class="wizard__dot" data-dot="3"></span>
       </div>
 
       <div class="wizard-step" data-step="0" hidden>
@@ -91,18 +92,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
         </form>
       </div>
 
-      <div class="wizard-step" data-step="2" hidden>
-        <h1 id="wizard-sex-title">And they are a…</h1>
-        <p>This just helps us say "she" or "he" — skip it happily.</p>
-        <div class="wizard-choices">
-          <button class="wizard-choice" type="button" data-sex="girl">A girl 🌸</button>
-          <button class="wizard-choice" type="button" data-sex="boy">A boy 🐳</button>
-          <button class="wizard-choice" type="button" data-sex="na">Skip this</button>
-          <button class="wizard__back" type="button" data-back>Back</button>
-        </div>
-      </div>
-
-      <div class="wizard-step celebrate" data-step="3" hidden>
+      <div class="wizard-step celebrate" data-step="2" hidden>
         <div class="confetti" id="wizard-confetti"></div>
         <h1 id="wizard-done-title">Wonderful!</h1>
         <p id="wizard-done-sub"></p>
@@ -198,12 +188,12 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
   // ────────────────────────────────────────────────────────────────────
   // Types & state
   // ────────────────────────────────────────────────────────────────────
-  type Sex = 'girl' | 'boy' | 'na';
   interface Child {
     id: string;
     name: string;
-    sex: Sex;
     birthdate: string; // YYYY-MM-DD
+    /** Legacy field from earlier profiles — no longer collected. */
+    sex?: string;
   }
   interface StageRef {
     id: string;
@@ -233,6 +223,9 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
   const root = document.getElementById('app') as HTMLElement;
   const STAGES: StageRef[] = JSON.parse(root.dataset.stageIndex || '[]');
   const GOOGLE_CLIENT_ID = root.dataset.googleClientId || '';
+  // Sign-in is required once a Google client ID is configured; without one
+  // (local dev, or before setup) the app falls back to the open "Get started".
+  const SIGN_IN_REQUIRED = Boolean(GOOGLE_CLIENT_ID);
 
   const load = (key: string) => {
     try {
@@ -330,18 +323,10 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
     return hits.length ? hits : pool;
   };
 
-  const pronouns = (sex: Sex) =>
-    sex === 'girl'
-      ? { they: 'she', their: 'her' }
-      : sex === 'boy'
-        ? { they: 'he', their: 'his' }
-        : { they: 'they', their: 'their' };
-
   function celebration(child: Child): string | null {
     const days = ageDays(child.birthdate);
     if (days <= 0) return null;
     const name = child.name;
-    const p = pronouns(child.sex);
 
     const birth = new Date(`${child.birthdate}T00:00:00`);
     const now = new Date();
@@ -349,7 +334,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
       (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth());
     const isMonthDay = now.getDate() === birth.getDate() && monthsDiff > 0;
 
-    if (isMonthDay && monthsDiff === 12) return `🎂 Happy FIRST birthday, ${name}! What a year ${p.they} ${p.they === 'they' ? 'have' : 'has'} had.`;
+    if (isMonthDay && monthsDiff === 12) return `🎂 Happy FIRST birthday, ${name}! What a year that was.`;
     if (isMonthDay && monthsDiff === 24) return `🎂 ${name} is TWO today! Happy birthday, little whirlwind.`;
     if (isMonthDay && monthsDiff === 36) return `🎂 Three years of ${name}! Happy birthday!`;
     if (isMonthDay && monthsDiff === 6) return `🌟 Half birthday! ${name} is six months old today.`;
@@ -413,15 +398,37 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
   // ────────────────────────────────────────────────────────────────────
   // Welcome + Google sign-in (client-side only; profile stays on-device)
   // ────────────────────────────────────────────────────────────────────
-  document.getElementById('welcome-start')!.addEventListener('click', () => startWizard(null));
+  const startBtn = document.getElementById('welcome-start') as HTMLButtonElement;
 
-  if (GOOGLE_CLIENT_ID) {
+  const enterApp = () => {
+    if (getChildren().length) {
+      renderToday();
+      show('today');
+    } else {
+      startWizard(null);
+    }
+  };
+
+  startBtn.addEventListener('click', enterApp);
+
+  if (SIGN_IN_REQUIRED) {
+    // Google sign-in is the way in; hide the open button unless Google's
+    // script fails to arrive (offline, blocked), in which case we degrade
+    // gracefully rather than locking a tired parent out.
+    startBtn.hidden = true;
+    const fallbackTimer = window.setTimeout(() => {
+      startBtn.textContent = "Google sign-in isn't reachable — continue for now";
+      startBtn.classList.add('app-btn--ghost');
+      startBtn.hidden = false;
+    }, 5000);
+
     const s = document.createElement('script');
     s.src = 'https://accounts.google.com/gsi/client';
     s.async = true;
     s.onload = () => {
       const g = (window as any).google;
       if (!g?.accounts?.id) return;
+      window.clearTimeout(fallbackTimer);
       g.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: (resp: { credential: string }) => {
@@ -434,9 +441,10 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
               JSON.stringify({ name: payload.given_name || payload.name || '', picture: payload.picture || '' })
             );
           } catch {
-            /* sign-in is a nicety — carry on regardless */
+            /* if the token won't parse we still let them in — the gate is a
+               courtesy, not a vault */
           }
-          startWizard(null);
+          enterApp();
         },
       });
       g.accounts.id.renderButton(document.getElementById('gsi-btn'), {
@@ -445,8 +453,6 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
         shape: 'pill',
         text: 'continue_with',
       });
-      (document.getElementById('welcome-start') as HTMLElement).classList.add('app-btn--ghost');
-      document.getElementById('welcome-start')!.textContent = 'Continue without signing in';
     };
     document.head.appendChild(s);
   }
@@ -494,7 +500,6 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
     err.hidden = true;
     draft.name = name.slice(0, 30);
     (document.getElementById('wizard-dob-title') as HTMLElement).textContent = `When was ${draft.name} born?`;
-    (document.getElementById('wizard-sex-title') as HTMLElement).textContent = `And ${draft.name} is…`;
     wizardGo(1);
   });
 
@@ -516,14 +521,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
     }
     err.hidden = true;
     draft.birthdate = value;
-    wizardGo(2);
-  });
-
-  screens.wizard.querySelectorAll('[data-sex]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      draft.sex = (btn as HTMLElement).dataset.sex as Sex;
-      finishWizard();
-    });
+    finishWizard();
   });
 
   screens.wizard.querySelectorAll('[data-back]').forEach((btn) => {
@@ -544,7 +542,6 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
       const child: Child = {
         id: `c${Date.now().toString(36)}`,
         name: draft.name!,
-        sex: draft.sex ?? 'na',
         birthdate: draft.birthdate!,
       };
       children.push(child);
@@ -560,7 +557,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
         ? 'Born today — congratulations! Your day-by-day companion starts right now.'
         : `${child.name} is ${ageString(days)}. Your day-by-day companion is ready.`;
     burstConfetti(document.getElementById('wizard-confetti') as HTMLElement);
-    wizardGo(3);
+    wizardGo(2);
   }
 
   document.getElementById('wizard-done-btn')!.addEventListener('click', () => {
@@ -846,17 +843,21 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
       ? card(
           'var(--app-lavender)',
           '👋 Signed in',
-          `<p>Hello, <strong>${esc(parent.name)}</strong>! Your sign-in only personalises greetings — nothing is stored anywhere but this device.</p>
+          `<p>Hello, <strong>${esc(parent.name)}</strong>! Your sign-in tells the app it's you — your children's details stay on this device and are never sent to us. Signing out locks the app.</p>
            <button class="danger-link" id="sign-out" type="button">Sign out</button>`
         )
       : card(
           'var(--app-lavender)',
           '👋 Hello',
-          `<p>You're not signed in — and that's completely fine. Everything works the same either way.</p>`
+          `<p>You're not signed in just now. Your children's details stay on this device either way.</p>`
         );
     parentEl.querySelector('#sign-out')?.addEventListener('click', () => {
       remove(PARENT_KEY);
-      renderSettings();
+      if (SIGN_IN_REQUIRED) {
+        show('welcome');
+      } else {
+        renderSettings();
+      }
     });
 
     const childrenEl = document.getElementById('settings-children') as HTMLElement;
@@ -931,7 +932,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
   // ────────────────────────────────────────────────────────────────────
   // Boot
   // ────────────────────────────────────────────────────────────────────
-  if (activeChild()) {
+  if (activeChild() && (!SIGN_IN_REQUIRED || getParent())) {
     renderToday();
     show('today');
   } else {

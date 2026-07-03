@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0}</style>
+</helmet>
+<x-import component-from-global-scope="doc-page" from="./doc-page.js" size="letter" margin="0.75in" hint-size="100%,100%">
+<div style="font-family:'Nunito Sans',system-ui,sans-serif;font-size:14px;line-height:1.6;color:#3A342C">
+
+<h1 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:30px;line-height:1.2;color:#2E2921;margin:0 0 4px">YourKids Redesign — Developer Brief</h1>
+<p style="margin:0 0 20px;color:#6B6357">Direction: <strong>"Warm &amp; Playful" (design 1a)</strong> · 3 July 2026 · Reference build: <a href="demo/yourkids-1a-demo.html" style="color:#D96A47;font-weight:700">demo/yourkids-1a-demo.html</a> (standalone HTML + CSS with all tokens as CSS variables — lift the stylesheet directly)</p>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">1 · Goals — what this redesign fixes</h2>
+<ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px">
+  <li><strong>Clear CTA hierarchy.</strong> One primary action (coral "Get the weekly email" in the header, repeated as the newsletter band), one secondary pair in the hero (teal "Browse by topic", outline "Latest articles"). Currently the homepage has no visual priority between links.</li>
+  <li><strong>No duplicated content.</strong> The current homepage shows the same three articles in both "Latest" and "A Bit of Good News". New structure: one "Featured this week" row (3 cards, deduplicated), then topics, then newsletter. If a Good News section returns later, it must exclude articles already shown above.</li>
+  <li><strong>Working newsletter signup.</strong> Replace both "coming soon" notes with a real email capture (hero header button + full-width teal band, <code>POST /subscribe</code>). This is the site's main retention loop — treat as launch-blocking.</li>
+  <li><strong>Visible search.</strong> Search moves from a nav link to a persistent field in the header.</li>
+  <li><strong>Active nav state.</strong> Pill nav with the current section highlighted (sand background), hover feedback on all links/cards.</li>
+</ul>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">2 · Typography</h2>
+<p style="margin:0 0 8px">Two Google Fonts, loaded with <code>display=swap</code>:</p>
+<table style="border-collapse:collapse;width:100%;font-size:13px">
+  <thead><tr style="background:#F3E9D8"><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Use</th><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Font / weight</th><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Size / line-height</th><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Color</th></tr></thead>
+  <tbody>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">Logo</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Baloo 2 · 700</td><td style="padding:6px 10px;border:1px solid #EDE5D6">24px</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#D96A47 (dot #3A9E8F)</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">H1 (hero)</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Baloo 2 · 600</td><td style="padding:6px 10px;border:1px solid #EDE5D6">46px / 1.12</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#2E2921</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">H2 (section)</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Baloo 2 · 600</td><td style="padding:6px 10px;border:1px solid #EDE5D6">26px</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#2E2921</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">Card title (h3)</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Baloo 2 · 600</td><td style="padding:6px 10px;border:1px solid #EDE5D6">18px / 1.3</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#2E2921</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">Body / hero standfirst</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Nunito Sans · 400</td><td style="padding:6px 10px;border:1px solid #EDE5D6">17px / 1.6</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#6B6357</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">Card excerpt</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Nunito Sans · 400</td><td style="padding:6px 10px;border:1px solid #EDE5D6">13.5px / 1.55</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#6B6357</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">Nav / buttons</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Nunito Sans · 600–700</td><td style="padding:6px 10px;border:1px solid #EDE5D6">14–15px</td><td style="padding:6px 10px;border:1px solid #EDE5D6">nav #6B6357, buttons #fff</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6">Tag chips / badges</td><td style="padding:6px 10px;border:1px solid #EDE5D6">Nunito Sans · 700</td><td style="padding:6px 10px;border:1px solid #EDE5D6">11–13px</td><td style="padding:6px 10px;border:1px solid #EDE5D6">per tint (see §3)</td></tr>
+  </tbody>
+</table>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">3 · Color tokens</h2>
+<p style="margin:0 0 8px">Warm cream base + two accents (coral = primary/action, teal = secondary/trust) + sand neutral. Tints always pair with their matching text color:</p>
+<table style="border-collapse:collapse;width:100%;font-size:13px">
+  <thead><tr style="background:#F3E9D8"><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Token</th><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Hex</th><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Swatch</th><th style="text-align:left;padding:7px 10px;border:1px solid #EDE5D6">Used for</th></tr></thead>
+  <tbody>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--bg</code></td><td style="padding:6px 10px;border:1px solid #EDE5D6">#FBF7EF</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#FBF7EF;border:1px solid #D9CDB6;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Page background</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--surface</code></td><td style="padding:6px 10px;border:1px solid #EDE5D6">#FFFFFF</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#FFFFFF;border:1px solid #D9CDB6;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Article cards</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--border</code></td><td style="padding:6px 10px;border:1px solid #EDE5D6">#EDE5D6</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#EDE5D6;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Header hairline, dividers</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--ink</code> / <code>--ink-body</code> / <code>--ink-soft</code> / <code>--ink-muted</code></td><td style="padding:6px 10px;border:1px solid #EDE5D6">#2E2921 / #3A342C / #6B6357 / #8A8071</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:linear-gradient(90deg,#2E2921 25%,#3A342C 25% 50%,#6B6357 50% 75%,#8A8071 75%);border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Headings / body / secondary / placeholder</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--coral</code> (hover #C55A38)</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#D96A47</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#D96A47;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Primary CTA, "All articles →" links, logo</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--coral-tint</code> · text #B0674C · deep #8F4A32</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#FCE8DF</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#FCE8DF;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Health chips, coral topic tiles, image mats</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--teal</code> (hover #2E8A7C)</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#3A9E8F</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#3A9E8F;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Secondary buttons, focus rings</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--teal-deep</code></td><td style="padding:6px 10px;border:1px solid #EDE5D6">#2E7A6D</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#2E7A6D;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Newsletter band bg (copy on it: #CFE6E0)</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--teal-tint</code> · text #22574D</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#E2F0EC</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#E2F0EC;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">"Good News" chips, hero badge, teal tiles</td></tr>
+    <tr><td style="padding:6px 10px;border:1px solid #EDE5D6"><code>--sand</code> · text #8A7A5C · deep #6E5C36</td><td style="padding:6px 10px;border:1px solid #EDE5D6">#F3E9D8</td><td style="padding:6px 10px;border:1px solid #EDE5D6"><span style="display:inline-block;width:38px;height:16px;background:#F3E9D8;border-radius:4px;vertical-align:middle"></span></td><td style="padding:6px 10px;border:1px solid #EDE5D6">Active/hover nav pill, "Family Life" chips, sand tiles</td></tr>
+  </tbody>
+</table>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">4 · Shape, elevation, layout</h2>
+<ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px">
+  <li><strong>Radii:</strong> pills/buttons/chips/search <code>999px</code> · cards <code>20px</code> · card images <code>14px</code> · topic tiles <code>18px</code> · hero art &amp; newsletter band <code>24px</code>. Rounded everywhere — no square corners.</li>
+  <li><strong>Shadows:</strong> cards <code>0 2px 8px rgba(90,70,40,.07)</code>; hover <code>0 6px 18px rgba(90,70,40,.13)</code> + <code>translateY(-3px)</code>. Warm-toned shadow, never pure black.</li>
+  <li><strong>Page:</strong> content max-width <code>1120px</code>, centered; horizontal gutter <code>40px</code>; sections separated by <code>48px</code> bottom padding.</li>
+  <li><strong>Grids:</strong> hero <code>1fr / 420px</code>, gap 48px, vertically centered · article cards <code>repeat(3, 1fr)</code>, gap 20px · topic tiles <code>repeat(6, 1fr)</code>, gap 14px. All spacing via flex/grid <code>gap</code>, not margins.</li>
+</ul>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">5 · Page structure &amp; components (top to bottom)</h2>
+<ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px">
+  <li><strong>Header</strong> — flex row, 18px vertical padding, 1px bottom border. Order: logo · pill nav (Home, Baby &amp; Toddler, Topics, Articles, Curated Links, Recommended) · right-aligned search field (1.5px #E4D9C4 border) · coral primary button "Get the weekly email" (anchors to newsletter band). "Baby &amp; Toddler" keeps its dropdown (Baby week by week, Feeding, Baby health, Toddler, Open the app); Editorials, Deals, Trusted Sites move to the footer.</li>
+  <li><strong>Hero</strong> — left column: teal-tint badge "Updated every week", H1 (two lines), standfirst (max-width 480px), CTA pair (teal solid + outline). Right column: illustration on 24px-radius mat, height 300px.</li>
+  <li><strong>Featured this week</strong> — section head (H2 + right-aligned coral "All articles →"), then 3 article cards: image on tinted mat (140px, rotate mats coral-tint / teal-tint / sand) → tag chips → Baloo title → 2-line excerpt. Max 3 cards; no duplicates with any other section.</li>
+  <li><strong>Browse by topic</strong> — 6 tiles (name + article count), tint rotation coral → teal → sand. Whole tile is the link.</li>
+  <li><strong>Newsletter band</strong> — full-width teal-deep rounded band: heading "A short, friendly email every Sunday", reassurance line ("No judgement, no spam, unsubscribe anytime"), inline email input (pill, white) + coral "Sign up" button (as in the mock — coral pops against the teal-deep band).</li>
+  <li><strong>Footer</strong> — keep current link structure (Explore column, digest note, © line), restyled on cream with sand hairlines. Not in the demo; follow header/nav styling.</li>
+</ol>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">6 · Interaction states</h2>
+<ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px">
+  <li>Nav pills: hover + active = sand background; active also darkens text to #3A342C.</li>
+  <li>Buttons: coral → #C55A38, teal → #2E8A7C on hover; outline button darkens border. Transitions ~150ms.</li>
+  <li>Cards &amp; tiles: hover lift (translateY −3px / −2px) with the stronger shadow; entire card is one link target.</li>
+  <li>Focus: <code>:focus-visible</code> 3px teal outline, 2px offset, on every interactive element.</li>
+</ul>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">7 · Responsive &amp; accessibility</h2>
+<ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px">
+  <li>≤1000px: hero stacks (illustration above copy, 220px), cards 2-up, tiles 3-up, newsletter stacks centered, nav collapses to a hamburger drawer (drawer not in demo — reuse pill styling vertically).</li>
+  <li>≤640px: cards 1-up, tiles 2-up. Touch targets ≥44px.</li>
+  <li>Contrast: all text/tint pairs in §3 pass WCAG AA at their sizes; re-check if you adjust tints. Chips are supplementary — never the only category indicator on article pages.</li>
+  <li>Semantic HTML as in the demo: <code>nav</code>, <code>article</code>, real <code>form</code> for signup, <code>aria-current="page"</code> on active nav item.</li>
+</ul>
+
+<h2 style="font-family:'Baloo 2',sans-serif;font-weight:600;font-size:20px;color:#2E2921;margin:26px 0 8px">8 · Assets &amp; open items</h2>
+<ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px">
+  <li>Existing illustrations (<code>/illustrations/*.png</code>) are reused on tinted mats — the demo hotlinks them with a graceful fallback. Hero image: Jonathan Borba's mother-and-baby photo (Unsplash), <code>object-fit: cover</code> on the 24px-radius frame, with the required attribution line ("Photo by Jonathan Borba on Unsplash", both linked with Unsplash referral params) at 11px #8A8071 below it — see the demo for exact markup.</li>
+  <li>Newsletter backend: <code>POST /subscribe</code> endpoint + confirmation state (swap form for a "Check your inbox ✓" message inline).</li>
+  <li>Not yet designed: article page, topic page, search results, mobile nav drawer — same tokens apply; request follow-up mocks before building.</li>
+</ul>
+
+</div>
+</x-import>
+
+</x-dc>
+</body>
+</html>

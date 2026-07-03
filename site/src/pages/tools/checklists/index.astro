@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SectionHero from '../../../components/SectionHero.astro';
+import { sectionArt } from '../../../lib/topicArt';
+import { checklists } from '../../../data/tools/checklists';
+
+const art = sectionArt.tools;
+---
+
+<BaseLayout
+  title="Parenting checklists — tick off, then print"
+  description="Free interactive checklists for parents: hospital bag, newborn essentials, travelling with a baby, and starting school. Tick things off on your phone, or print them out."
+>
+  <SectionHero
+    title="Checklists"
+    blurb="The lists everyone ends up making at 11pm — already made. Tick things off here (your progress is saved on your device) or print a copy for the fridge."
+    art={art}
+  />
+
+  <p class="stage-breadcrumb guide-breadcrumb"><a href="/tools">&larr; All tools</a></p>
+
+  <div class="stage-grid stage-grid--wide guide-section" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+    {checklists.map((c) => (
+      <a class="stage-card" href={`/tools/checklists/${c.id}`}>
+        <span class="stage-card__label">{c.title}</span>
+        <span class="stage-card__title">{c.description}</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

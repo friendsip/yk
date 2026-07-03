@@ -6,6 +6,8 @@ const pathname = Astro.url.pathname;
 type NavChild = { href: string; label: string };
 type NavItem = { href: string; label: string; children?: NavChild[] };
 
+// Header nav per the "Warm & Playful" brief: six pill items; Editorials,
+// Games, Deals and Trusted Sites live in the footer; search is a header field.
 const links: NavItem[] = [
   { href: '/', label: 'Home' },
   {
@@ -17,22 +19,13 @@ const links: NavItem[] = [
       { href: '/baby/feeding', label: 'Feeding' },
       { href: '/baby/health', label: 'Baby health' },
       { href: '/toddler', label: 'Toddler' },
+      { href: '/tools', label: 'Tools & calculators' },
     ],
   },
   { href: '/topics', label: 'Topics' },
   { href: '/articles', label: 'Articles' },
   { href: '/curated', label: 'Curated Links' },
-  { href: '/editorial', label: 'Editorials' },
-  {
-    href: '/recommended',
-    label: 'Recommended',
-    children: [
-      { href: '/recommended', label: 'Toys & Books' },
-      { href: '/deals', label: 'Deals' },
-      { href: '/sites', label: 'Trusted Sites' },
-    ],
-  },
-  { href: '/search', label: 'Search' },
+  { href: '/recommended', label: 'Recommended' },
 ];
 
 function isCurrent(href: string): boolean {
@@ -84,6 +77,14 @@ function groupCurrent(children: NavChild[]): boolean {
         )
       )}
     </nav>
+    <div class="header-actions">
+      <form class="header-search" action="/search" method="get" role="search">
+        <span aria-hidden="true">⌕</span>
+        <label class="sr-only" for="header-search-input">Search</label>
+        <input id="header-search-input" type="search" name="q" placeholder="Search topics…" />
+      </form>
+      <a class="nav-cta" href="/#newsletter">Get the weekly email</a>
+    </div>
   </div>
 </header>
 

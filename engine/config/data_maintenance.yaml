@@ -1,0 +1,166 @@
+# Data maintenance register — the apps and tools the engine re-reviews.
+#
+# Each artefact lists: the site data files behind an app/tool, the
+# authoritative sources to re-check, when to check (interval_days = maximum
+# days between reviews; months = calendar checkpoints that force a review,
+# e.g. April rate changes), and what specifically to watch for.
+#
+# The decay checker (engine/src/decay/checker.py) runs weekly: for each due
+# artefact it fetches the sources, asks the LLM to compare them against the
+# published data, and opens a GitHub issue with a ready-to-run update prompt
+# when something has changed. It never edits the data itself — updates stay
+# human-gated, like the weekly content PR.
+
+artefacts:
+  - id: childcare-tool
+    name: "Childcare costs & funding explorer (/tools/childcare)"
+    files:
+      - site/src/data/tools/childcare.ts
+    review:
+      interval_days: 90
+      months: [3, 4, 9] # Coram survey (March), April rate uprating, September entitlement changes
+    watch_for: >
+      Minimum-earnings thresholds (the quarterly NMW-equivalent figures), the
+      £100k adjusted net income cap, Tax-Free Childcare top-up caps, Universal
+      Credit childcare caps, funded-hours rules and starting ages in all four
+      nations (England 30 hours, Scotland 1140 hours, Wales Flying Start and
+      the Childcare Offer, NI subsidy percentage and cap), term dates and
+      application deadlines, and any new edition of the Coram Childcare Survey
+      (regional prices and sufficiency figures).
+    sources:
+      - https://www.gov.uk/free-childcare-if-working
+      - https://www.gov.uk/help-with-childcare-costs
+      - https://www.gov.uk/tax-free-childcare
+      - https://www.coram.org.uk/resource/childcare-survey-2026/
+      - https://www.mygov.scot/childcare-costs-help/funded-early-learning-and-childcare
+      - https://www.gov.wales/childcare-offer-for-wales-campaign
+
+  - id: vaccination-planner
+    name: "Vaccination planner (/tools/vaccinations)"
+    files:
+      - site/src/data/tools/vaccinations.ts
+    review:
+      interval_days: 90
+      months: [1, 7] # UKHSA schedule changes have landed in January and July
+    watch_for: >
+      Any change to the routine childhood immunisation schedule: vaccines
+      added or withdrawn, timing moved between visits, new cohort rules by
+      birth date, changes to the paracetamol-after-MenB advice, and updates to
+      the UKHSA complete routine immunisation schedule publication date.
+    sources:
+      - https://www.nhs.uk/vaccinations/nhs-vaccinations-and-when-to-have-them/
+      - https://www.gov.uk/government/publications/the-complete-routine-immunisation-schedule/complete-routine-immunisation-schedule-from-1-january-2026
+      - https://ukhsa.blog.gov.uk/2025/12/30/changes-to-the-childhood-vaccination-schedule-from-january-2026/
+
+  - id: baby-guides
+    name: "Baby week-by-week and month guides (/baby)"
+    files:
+      - site/src/data/baby/weeks.ts
+      - site/src/data/baby/months.ts
+    review:
+      interval_days: 120
+    watch_for: >
+      Changes to NHS newborn/baby guidance (checks, weight-loss thresholds,
+      jaundice timing), safe-sleep advice from the Lullaby Trust, weaning
+      guidance timing, vitamin D supplementation rules, references to the
+      vaccination schedule embedded in week/month entries, and milestone
+      framing (CDC checklists, NHS reviews).
+    sources:
+      - https://www.nhs.uk/baby/
+      - https://www.lullabytrust.org.uk/baby-safety/safer-sleep-information/safer-sleep-overview/
+      - https://ukhsa.blog.gov.uk/2025/12/30/changes-to-the-childhood-vaccination-schedule-from-january-2026/
+      - https://www.nhs.uk/start-for-life/baby/weaning/
+
+  - id: feeding-guides
+    name: "Feeding guides (/baby/feeding)"
+    files:
+      - site/src/data/baby/feeding.ts
+    review:
+      interval_days: 120
+    watch_for: >
+      Breast-milk storage times (NHS and CDC figures, which differ), safe
+      formula preparation guidance (water temperature, how long made-up
+      bottles keep), vitamin D supplementation rules, mastitis advice, and
+      first-infant-formula equivalence statements.
+    sources:
+      - https://www.nhs.uk/baby/breastfeeding-and-bottle-feeding/expressing-and-storing-breast-milk/
+      - https://www.nhs.uk/baby/breastfeeding-and-bottle-feeding/bottle-feeding/making-up-baby-formula/
+      - https://www.cdc.gov/breastfeeding/breast-milk-preparation-and-storage/handling-breastmilk.html
+      - https://www.firststepsnutrition.org/parents-carers
+
+  - id: baby-health
+    name: "Baby health guides (/baby/health)"
+    files:
+      - site/src/data/baby/health.ts
+    review:
+      interval_days: 120
+    watch_for: >
+      Fever thresholds and medicine age rules (paracetamol/ibuprofen), safe
+      sleep guidance, jaundice check timings, bronchiolitis/RSV guidance
+      (including any new immunisation), the meningitis glass-test framing,
+      teething advice, and childcare exclusion periods for common illnesses.
+    sources:
+      - https://www.nhs.uk/conditions/baby/
+      - https://www.lullabytrust.org.uk/baby-safety/safer-sleep-information/safer-sleep-overview/
+      - https://iconcope.org/
+
+  - id: toddler-guides
+    name: "Toddler stages and guides (/toddler)"
+    files:
+      - site/src/data/toddler/stages.ts
+      - site/src/data/toddler/guides.ts
+    review:
+      interval_days: 180
+    watch_for: >
+      Milestone and referral thresholds (CDC Act Early checklists, NHS
+      reviews, speech-and-language guidance), toilet-training guidance,
+      screen-time positions (AAP and WHO), and the UK 2 to 2½ year review.
+    sources:
+      - https://www.cdc.gov/act-early/milestones/index.html
+      - https://raisingchildren.net.au/toddlers/development/development-tracker-1-3-years/2-3-years
+      - https://eric.org.uk/potty-training/
+
+  - id: wake-windows
+    name: "Naps & wake windows (/tools/nap-schedule)"
+    files:
+      - site/src/data/tools/wakeWindows.ts
+    review:
+      interval_days: 180
+    watch_for: >
+      Changes to total-sleep recommendations (AASM/NHS ranges), nap-transition
+      guidance, and safe-sleep advice referenced in the notes.
+    sources:
+      - https://www.nhs.uk/baby/caring-for-a-newborn/helping-your-baby-to-sleep/
+      - https://aasm.org/advocacy/position-statements/child-sleep-duration-health-advisory/
+
+  - id: checklists
+    name: "Checklists (/tools/checklists)"
+    files:
+      - site/src/data/tools/checklists.ts
+    review:
+      interval_days: 180
+      months: [4] # legal/rate changes tend to land in April
+    watch_for: >
+      UK car-seat law, birth-registration deadlines, child-passport rules and
+      fees, the Lullaby Trust clear-cot list, NHS sun-safety advice for
+      babies, and airport liquid rules for baby milk and food.
+    sources:
+      - https://www.gov.uk/child-car-seats-the-rules
+      - https://www.gov.uk/register-birth
+      - https://www.lullabytrust.org.uk/baby-safety/safer-sleep-information/keeping-a-clear-cot/
+      - https://www.nhs.uk/pregnancy/labour-and-birth/preparing-for-the-birth/pack-your-bag-for-labour/
+
+  - id: app-daily-content
+    name: "App daily content pools (/app)"
+    files:
+      - site/src/data/app/daily.ts
+    review:
+      interval_days: 365
+    watch_for: >
+      Development facts that cite specific figures (brain growth, milestone
+      ages) drifting out of line with current Harvard Center on the Developing
+      Child / Zero to Three / NHS framing, and screen-time or safety hints
+      that no longer match current guidance.
+    sources:
+      - https://developingchild.harvard.edu/science/key-concepts/brain-architecture/
+      - https://www.zerotothree.org/resource-type/parenting-resources/

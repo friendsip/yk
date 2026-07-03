@@ -1,19 +1,14 @@
 ---
+/**
+ * Wordmark logo per the "Warm & Playful" brief: Baloo 2, coral, teal dot.
+ * The paper-boat mark lives on in the favicon and OG image.
+ */
 interface Props {
-  /** Render the wordmark next to the boat mark */
+  /** Kept for call-site compatibility; the wordmark is always shown now. */
   wordmark?: boolean;
 }
-
-const { wordmark = true } = Astro.props;
 ---
 
 <a href="/" class="site-logo" aria-label="YourKids — home">
-  <svg class="site-logo__mark" viewBox="0 0 64 64" aria-hidden="true">
-    <circle cx="46" cy="18" r="8" fill="#e8b84b"/>
-    <path d="M32 12 L32 34 L46 34 Z" fill="#e07856"/>
-    <path d="M32 16 L32 34 L20 34 Z" fill="#c17f2e"/>
-    <path d="M12 38 L52 38 L44 48 L20 48 Z" fill="#5b7a5e"/>
-    <path d="M8 52 Q16 48 24 52 T40 52 T56 52" stroke="#7da8c3" stroke-width="3.5" fill="none" stroke-linecap="round"/>
-  </svg>
-  {wordmark && <span class="site-logo__word">YourKids</span>}
+  <span class="site-logo__word">YourKids<span class="site-logo__dot">.</span></span>
 </a>

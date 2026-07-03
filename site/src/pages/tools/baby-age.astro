@@ -1,0 +1,188 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SectionHero from '../../components/SectionHero.astro';
+import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../lib/topicArt';
+import { babyWeeks } from '../../data/baby/weeks';
+import { babyMonths } from '../../data/baby/months';
+import { toddlerStages } from '../../data/toddler/stages';
+
+const art = sectionArt.tools;
+
+const stageRanges = [
+  ...[...babyWeeks, ...babyMonths].map((s) => ({
+    id: s.id,
+    label: s.label,
+    from: s.ageWeeksFrom,
+    to: s.ageWeeksTo,
+    kind: 'baby',
+  })),
+  ...toddlerStages.map((s) => ({
+    id: s.id,
+    label: s.label,
+    from: s.ageWeeksFrom,
+    to: s.ageWeeksTo,
+    kind: 'toddler',
+  })),
+];
+---
+
+<BaseLayout
+  title="Baby age calculator — weeks, months and corrected age"
+  description="How many weeks old is my baby? Work out your baby's exact age in weeks, months and days — including corrected (adjusted) age for premature babies."
+>
+  <SectionHero
+    title="Baby age calculator"
+    blurb="Weeks? Months? Both at once, somehow? Get your baby's exact age — and their corrected age if they arrived early."
+    art={art}
+  />
+
+  <p class="stage-breadcrumb guide-breadcrumb"><a href="/tools">&larr; All tools</a></p>
+
+  <div
+    class="tool-card"
+    id="age-tool"
+    data-stages={JSON.stringify(stageRanges)}
+    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
+  >
+    <h2>Your baby</h2>
+    <div class="tool-form">
+      <div class="tool-field">
+        <label for="age-dob">Date of birth</label>
+        <input type="date" id="age-dob" />
+      </div>
+      <div class="tool-field--checkbox tool-field">
+        <input type="checkbox" id="age-early" />
+        <label for="age-early">Born earlier than expected (3+ weeks early)</label>
+      </div>
+      <div class="tool-field" id="age-due-field" hidden>
+        <label for="age-due">Original due date</label>
+        <input type="date" id="age-due" />
+      </div>
+    </div>
+  </div>
+
+  <div class="tool-result" id="age-result" hidden style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+    <h2>Right now</h2>
+    <p class="tool-result__big" id="age-headline"></p>
+    <p class="tool-result__sub" id="age-detail"></p>
+    <div id="age-corrected" hidden>
+      <h3>Corrected age</h3>
+      <p class="tool-result__big" id="age-corrected-headline"></p>
+      <p class="tool-result__sub">
+        Corrected (adjusted) age counts from the due date instead of the birth
+        date. For babies born early, milestones usually follow corrected age —
+        health professionals generally use it until around two years old.
+      </p>
+    </div>
+    <p id="age-links"></p>
+  </div>
+
+  <GuideDisclaimer />
+</BaseLayout>
+
+<script>
+  const tool = document.getElementById('age-tool') as HTMLElement;
+  const stages: { id: string; label: string; from: number; to: number; kind: string }[] =
+    JSON.parse(tool.dataset.stages || '[]');
+
+  const dobInput = document.getElementById('age-dob') as HTMLInputElement;
+  const earlyBox = document.getElementById('age-early') as HTMLInputElement;
+  const dueField = document.getElementById('age-due-field') as HTMLElement;
+  const dueInput = document.getElementById('age-due') as HTMLInputElement;
+  const result = document.getElementById('age-result') as HTMLElement;
+
+  const today = new Date().toISOString().slice(0, 10);
+  dobInput.max = today;
+
+  // Reuse the date the guides/app may already know
+  try {
+    const saved = localStorage.getItem('yk-baby-birthdate') || localStorage.getItem('yk-toddler-birthdate');
+    if (saved) dobInput.value = saved;
+  } catch {}
+
+  const daysSince = (iso: string): number =>
+    Math.floor((Date.now() - new Date(`${iso}T00:00:00`).getTime()) / 864e5);
+
+  function breakdown(days: number): string {
+    const weeks = Math.floor(days / 7);
+    const remDays = days % 7;
+    const months = Math.floor(days / 30.44);
+    const parts = [
+      `${days.toLocaleString('en-GB')} days`,
+      remDays ? `${weeks} weeks and ${remDays} day${remDays === 1 ? '' : 's'}` : `${weeks} weeks exactly`,
+    ];
+    if (months >= 1) parts.push(`about ${months} month${months === 1 ? '' : 's'}`);
+    if (months >= 24) parts.push(`${Math.floor(months / 12)} years and ${months % 12} months`);
+    return parts.join(' · ');
+  }
+
+  function headline(days: number): string {
+    if (days === 0) return 'Born today — congratulations!';
+    const weeks = Math.floor(days / 7);
+    if (days < 14) return `${days} day${days === 1 ? '' : 's'} old`;
+    if (weeks < 13) return `${weeks} week${weeks === 1 ? '' : 's'} old`;
+    const months = Math.floor(days / 30.44);
+    if (months < 24) return `${months} month${months === 1 ? '' : 's'} old`;
+    const years = Math.floor(months / 12);
+    return `${years} year${years === 1 ? '' : 's'} and ${months % 12} month${months % 12 === 1 ? '' : 's'} old`;
+  }
+
+  function render() {
+    const dob = dobInput.value;
+    if (!dob) {
+      result.hidden = true;
+      return;
+    }
+    const days = daysSince(dob);
+    if (days < 0) {
+      result.hidden = true;
+      return;
+    }
+
+    (document.getElementById('age-headline') as HTMLElement).textContent = headline(days);
+    (document.getElementById('age-detail') as HTMLElement).textContent = breakdown(days);
+
+    // Corrected age
+    const correctedBlock = document.getElementById('age-corrected') as HTMLElement;
+    let guideDays = days;
+    if (earlyBox.checked && dueInput.value) {
+      const correctedDays = daysSince(dueInput.value);
+      if (correctedDays >= 0 && correctedDays < days) {
+        (document.getElementById('age-corrected-headline') as HTMLElement).textContent =
+          `${headline(correctedDays)} (corrected)`;
+        correctedBlock.hidden = false;
+        guideDays = correctedDays;
+      } else if (correctedDays < 0) {
+        (document.getElementById('age-corrected-headline') as HTMLElement).textContent =
+          "Not due yet — corrected age starts from the due date.";
+        correctedBlock.hidden = false;
+        guideDays = 0;
+      } else {
+        correctedBlock.hidden = true;
+      }
+    } else {
+      correctedBlock.hidden = true;
+    }
+
+    // Link to the right guide (by corrected age where relevant)
+    const weeks = Math.floor(guideDays / 7);
+    const stage = stages.find((s) => weeks >= s.from && weeks <= s.to);
+    const links = document.getElementById('age-links') as HTMLElement;
+    if (stage) {
+      links.innerHTML = `Read what's typical right now in <a href="/${stage.kind === 'baby' ? 'baby' : 'toddler'}/${stage.id}">${stage.label}</a> — or open <a href="/app">the app</a> for a daily companion.`;
+    } else {
+      links.innerHTML = `Our <a href="/topics">guides</a> carry on from here — or open <a href="/app">the app</a>.`;
+    }
+
+    result.hidden = false;
+  }
+
+  earlyBox.addEventListener('change', () => {
+    dueField.hidden = !earlyBox.checked;
+    render();
+  });
+  dobInput.addEventListener('input', render);
+  dueInput.addEventListener('input', render);
+  render();
+</script>

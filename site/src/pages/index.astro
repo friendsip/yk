@@ -2,29 +2,19 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ContentCard from '../components/ContentCard.astro';
-import { artForTag, defaultArt } from '../lib/topicArt';
 
 const allContent = await getCollection('content');
 const sorted = allContent.sort(
   (a, b) => b.data.first_published.valueOf() - a.data.first_published.valueOf()
 );
 
-// Homepage shows featured articles (pinned) + articles published within 60 days.
-// Featured articles always appear first; within each group, newest-first.
-const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
-const homepageItems = sorted.filter(
-  c => c.data.featured || c.data.first_published >= sixtyDaysAgo
-);
-const featuredItems = homepageItems.filter(c => c.data.featured);
-const recentItems = homepageItems.filter(c => !c.data.featured);
-const homepageSorted = [...featuredItems, ...recentItems];
+// "Featured this week": pinned articles first, then newest — exactly three,
+// never duplicated elsewhere on the page (brief §1).
+const featuredItems = sorted.filter(c => c.data.featured);
+const restItems = sorted.filter(c => !c.data.featured);
+const featured = [...featuredItems, ...restItems].slice(0, 3);
 
-const [featured, ...rest] = homepageSorted.length > 0 ? homepageSorted : sorted;
-const latest = rest.slice(0, 6);
-const curatedLinks = sorted.filter(c => c.data.type === 'curated').slice(0, 3);
-const goodNews = sorted.filter(c => c.data.tags.includes('good-news')).slice(0, 3);
-
-// Build tag counts from all content
+// Topic tiles: top six tags by article count, tint rotation coral → teal → sand
 const tagCounts = new Map<string, number>();
 for (const item of allContent) {
   for (const tag of item.data.tags) {
@@ -33,7 +23,10 @@ for (const item of allContent) {
 }
 const topics = [...tagCounts.entries()]
   .sort((a, b) => b[1] - a[1])
+  .slice(0, 6)
   .map(([tag, count]) => ({ tag, count }));
+
+const tints = ['coral', 'teal', 'sand'];
 
 function toDisplayName(tag: string): string {
   return tag.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -49,89 +42,46 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
 }
 ---
 
-<BaseLayout title="Home" description="Parenting is hard. Finding good advice shouldn't be. Every week we gather the most helpful articles, guides, and links we can find — carefully sourced and never judgemental." wide>
-  <section class="home-hero">
-    <div class="home-hero__text">
-      <h1>Parenting is hard. Finding good advice shouldn't be.</h1>
+<BaseLayout title="Home" description="Parenting is hard, but there's plenty of joy to find. Every week we gather the most helpful articles, guides, and links we can find — carefully sourced and never judgemental." wide>
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="hero-badge">Updated every week</span>
+      <h1>Parenting is hard, but there's plenty of joy to find.<br />Let's explore together</h1>
       <p>
-        Every week we gather the most helpful articles, guides, and links we
-        can find — carefully sourced, never judgemental, and honest about the
-        things nobody knows for sure.
+        The most helpful articles, guides, and links we can find — carefully
+        sourced, never judgemental, and honest about the things nobody knows
+        for sure.
       </p>
-      <div class="home-hero__actions">
-        <a href="/topics" class="button button--primary">Browse by topic</a>
-        <a href="/articles" class="button button--ghost">Latest articles</a>
+      <div class="hero-ctas">
+        <a class="btn btn-teal" href="/topics">Browse by topic</a>
+        <a class="btn btn-outline" href="/articles">Latest articles</a>
       </div>
-      <p class="home-hero__newsletter">
-        A friendly weekly email is on its way <span class="coming-soon-pill">Coming soon</span>
-      </p>
     </div>
-    <div class="home-hero__art" aria-hidden="true">
-      <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" fill="none">
-        <!-- sun -->
-        <circle cx="226" cy="44" r="26" fill="#e8b84b"/>
-        <!-- clouds -->
-        <ellipse cx="60" cy="38" rx="28" ry="11" fill="#f5f0ea"/>
-        <ellipse cx="86" cy="46" rx="22" ry="9" fill="#f0ece6"/>
-        <!-- paper boat -->
-        <path d="M140 52 L140 118 L192 118 Z" fill="#e07856"/>
-        <path d="M140 64 L140 118 L104 118 Z" fill="#c17f2e"/>
-        <path d="M76 128 L212 128 L186 158 L102 158 Z" fill="#5b7a5e"/>
-        <!-- waves -->
-        <path d="M28 172 Q48 162 68 172 T108 172 T148 172 T188 172 T228 172 T262 172" stroke="#7da8c3" stroke-width="7" stroke-linecap="round"/>
-        <path d="M48 190 Q68 182 88 190 T128 190 T168 190 T208 190 T244 190" stroke="#a7c4d6" stroke-width="5" stroke-linecap="round"/>
-        <!-- sprout on deck -->
-        <circle cx="144" cy="120" r="6" fill="#e8b84b"/>
-      </svg>
+    <div class="hero-art-wrap">
+      <div class="hero-art">
+        <img
+          src="/images/hero-jonathan-borba.jpg"
+          alt="Smiling mother holding her laughing baby"
+          width="420"
+          height="300"
+          fetchpriority="high"
+        />
+      </div>
+      <p class="photo-credit">
+        Photo by <a href="https://unsplash.com/@jonathanborba?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Jonathan Borba</a>
+        on <a href="https://unsplash.com/photos/smiling-woman-carrying-baby-RWgE9_lKj_Y?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
+      </p>
     </div>
   </section>
 
-  {featured && (
+  {featured.length > 0 && (
     <section class="home-section fade-up">
       <div class="section-heading">
-        <h2>Featured</h2>
-      </div>
-      <ContentCard
-        title={featured.data.title}
-        summary={featured.data.summary}
-        type={featured.data.type}
-        tags={featured.data.tags}
-        date={featured.data.first_published}
-        href={hrefForItem(featured)}
-        featured
-      />
-    </section>
-  )}
-
-  {latest.length > 0 && (
-    <section class="home-section fade-up">
-      <div class="section-heading">
-        <h2>Latest</h2>
+        <h2>Featured this week</h2>
         <a href="/articles">All articles &rarr;</a>
       </div>
       <div class="content-grid">
-        {latest.map((item) => (
-          <ContentCard
-            title={item.data.title}
-            summary={item.data.summary}
-            type={item.data.type}
-            tags={item.data.tags}
-            date={item.data.first_published}
-            href={hrefForItem(item)}
-          />
-        ))}
-      </div>
-    </section>
-  )}
-
-  {goodNews.length > 0 && (
-    <section class="home-section fade-up">
-      <div class="section-heading">
-        <h2>A Bit of Good News</h2>
-        <a href="/topics/good-news">More good news &rarr;</a>
-      </div>
-      <div class="content-grid">
-        {goodNews.map((item) => (
+        {featured.map((item) => (
           <ContentCard
             title={item.data.title}
             summary={item.data.summary}
@@ -148,42 +98,46 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
   {topics.length > 0 && (
     <section class="home-section fade-up">
       <div class="section-heading">
-        <h2>Browse by Topic</h2>
+        <h2>Browse by topic</h2>
         <a href="/topics">All topics &rarr;</a>
       </div>
-      <div class="topic-grid">
-        {topics.map(({ tag, count }) => {
-          const art = artForTag(tag);
-          return (
-            <a href={`/topics/${tag}`} class="topic-card" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
-              <span class="topic-card__art" aria-hidden="true" set:html={art.markup} />
-              <span class="topic-card__name">{toDisplayName(tag)}</span>
-              <span class="topic-card__count">{count} {count === 1 ? 'article' : 'articles'}</span>
-            </a>
-          );
-        })}
-      </div>
-    </section>
-  )}
-
-  {curatedLinks.length > 0 && (
-    <section class="home-section fade-up">
-      <div class="section-heading">
-        <h2>Curated Links</h2>
-        <a href="/curated">All curated links &rarr;</a>
-      </div>
-      <div class="content-grid">
-        {curatedLinks.map((item) => (
-          <ContentCard
-            title={item.data.title}
-            summary={item.data.summary}
-            type={item.data.type}
-            tags={item.data.tags}
-            date={item.data.first_published}
-            href={hrefForItem(item)}
-          />
+      <div class="tile-grid">
+        {topics.map(({ tag, count }, i) => (
+          <a class={`tile tile-${tints[i % 3]}`} href={`/topics/${tag}`}>
+            <b>{toDisplayName(tag)}</b>
+            <span>{count} {count === 1 ? 'article' : 'articles'}</span>
+          </a>
         ))}
       </div>
     </section>
   )}
+
+  <section class="newsletter-band fade-up" id="newsletter">
+    <div class="newsletter-band__copy">
+      <h2>A short, friendly email every Sunday</h2>
+      <p>The week's best new guides and links. No judgement, no spam, unsubscribe anytime.</p>
+    </div>
+    <form class="newsletter-band__form" action="/subscribe" method="post">
+      <label class="sr-only" for="newsletter-email">Email address</label>
+      <input id="newsletter-email" type="email" name="email" placeholder="you@example.com" required />
+      <button class="btn btn-coral" type="submit">Sign up</button>
+    </form>
+    <p class="newsletter-band__soon" hidden>
+      Nearly there — the first weekly email is being prepared, and signups
+      open with it very soon. Thank you for wanting in! 💛
+    </p>
+  </section>
 </BaseLayout>
+
+<script>
+  // The email service isn't wired up yet (see docs/next-tasks.md §6) — be
+  // honest on submit rather than posting into the void.
+  const band = document.getElementById('newsletter');
+  const form = band?.querySelector('form');
+  const soon = band?.querySelector('.newsletter-band__soon') as HTMLElement | null;
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    (form as HTMLElement).hidden = true;
+    if (soon) soon.hidden = false;
+  });
+</script>

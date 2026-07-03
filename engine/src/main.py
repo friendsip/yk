@@ -20,6 +20,7 @@ from src.planner.planner import run_planner
 from src.writer.writer import write_article
 from src.writer.editor import edit_article
 from src.publisher.publisher import stage_content, publish_daily_batch
+from src.decay.checker import run_data_review
 from src.utils.config import load_settings
 
 logger = logging.getLogger("yourkids")
@@ -94,6 +95,8 @@ def run_stage(stage: str, llm_client: LLMClient):
             logger.info("No plans to execute")
     elif stage == "publisher":
         publish_daily_batch()
+    elif stage == "review":
+        run_data_review(llm_client)
     else:
         logger.error(f"Unknown stage: {stage}")
         sys.exit(1)
@@ -148,10 +151,28 @@ def run_continuous(settings: dict, llm_client: LLMClient):
         coalesce=True,
     )
 
+    # Weekly data-maintenance review: re-checks the apps/tools data against
+    # their authoritative sources and raises issues when updates are needed
+    decay_sched = sched.get("decay_checker", {})
+    if decay_sched.get("enabled", True):
+        decay_time = decay_sched.get("run_time", "03:00")
+        decay_hour, decay_minute = map(int, decay_time.split(":"))
+        decay_day = decay_sched.get("run_day", "monday")[:3].lower()
+        scheduler.add_job(
+            lambda: run_data_review(llm_client),
+            CronTrigger(day_of_week=decay_day, hour=decay_hour, minute=decay_minute, timezone=tz),
+            id="data_review",
+            name="Data Maintenance Review",
+            misfire_grace_time=6 * 3600,
+            coalesce=True,
+        )
+
     logger.info("yourkids.com Editorial Engine starting")
     logger.info(f"  Scanner: every {scanner_interval} minutes")
     logger.info(f"  Triage: every {triage_interval} minutes")
     logger.info(f"  Weekly pipeline: {plan_day} {plan_time} {tz}")
+    if decay_sched.get("enabled", True):
+        logger.info(f"  Data review: {decay_sched.get('run_day', 'monday')} {decay_sched.get('run_time', '03:00')} {tz}")
 
     # Run scanner immediately on startup
     scan_rss_sources()
@@ -204,7 +225,7 @@ def main():
     parser.add_argument(
         "--stage",
         type=str,
-        choices=["scanner", "triage", "planner", "writer", "publisher"],
+        choices=["scanner", "triage", "planner", "writer", "publisher", "review"],
         help="Run a specific stage",
     )
     parser.add_argument("--init", action="store_true", help="Initialize database and seed sources")

@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import GuideDisclaimer from '../../../components/GuideDisclaimer.astro';
+import { sectionArt } from '../../../lib/topicArt';
+import { checklists } from '../../../data/tools/checklists';
+import type { Checklist } from '../../../data/tools/checklists';
+
+export function getStaticPaths() {
+  return checklists.map((checklist) => ({
+    params: { id: checklist.id },
+    props: { checklist },
+  }));
+}
+
+interface Props {
+  checklist: Checklist;
+}
+
+const { checklist } = Astro.props;
+const art = sectionArt.tools;
+const totalItems = checklist.sections.reduce((n, s) => n + s.items.length, 0);
+---
+
+<BaseLayout title={checklist.title} description={checklist.description}>
+  <article
+    class="stage-page"
+    id="checklist"
+    data-checklist-id={checklist.id}
+    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
+  >
+    <p class="stage-breadcrumb"><a href="/tools/checklists">&larr; All checklists</a></p>
+
+    <header class="stage-header">
+      <span class="stage-kicker">Checklist</span>
+      <h1>{checklist.title}</h1>
+    </header>
+
+    <section class="stage-section">
+      {checklist.intro.map((p) => <p>{p}</p>)}
+    </section>
+
+    <p class="checklist-progress" id="checklist-progress" data-total={totalItems}></p>
+    <div class="checklist-actions">
+      <button class="checklist-btn" id="checklist-print" type="button">Print this list</button>
+      <button class="checklist-btn" id="checklist-reset" type="button">Untick everything</button>
+    </div>
+
+    {checklist.sections.map((section, si) => (
+      <section class="checklist-section">
+        <h2>{section.heading}</h2>
+        <ul class="checklist-items">
+          {section.items.map((item, ii) => (
+            <li>
+              <label>
+                <input type="checkbox" data-key={`${si}-${ii}`} />
+                <span>
+                  {item.text}
+                  {item.note && <span class="item-note">{item.note}</span>}
+                </span>
+              </label>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <GuideDisclaimer />
+
+    <footer class="stage-sources">
+      <h2>Sources</h2>
+      <ul>
+        {checklist.sources.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>
+            {' '}— {s.org} <span class="stage-sources__region">({s.region})</span>
+          </li>
+        ))}
+      </ul>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  const root = document.getElementById('checklist') as HTMLElement;
+  const storageKey = `yk-checklist-${root.dataset.checklistId}`;
+  const boxes = [...document.querySelectorAll('.checklist-items input')] as HTMLInputElement[];
+  const progress = document.getElementById('checklist-progress') as HTMLElement;
+  const total = Number(progress.dataset.total);
+
+  const loadTicked = (): string[] => {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey) || '[]');
+    } catch {
+      return [];
+    }
+  };
+  const saveTicked = (keys: string[]) => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(keys));
+    } catch {}
+  };
+
+  function updateProgress() {
+    const done = boxes.filter((b) => b.checked).length;
+    progress.textContent =
+      done === 0
+        ? `${total} things on this list`
+        : done === total
+          ? `All ${total} done — you're ready! 🎉`
+          : `${done} of ${total} ticked off`;
+  }
+
+  const ticked = new Set(loadTicked());
+  boxes.forEach((box) => {
+    box.checked = ticked.has(box.dataset.key || '');
+    box.addEventListener('change', () => {
+      const keys = boxes.filter((b) => b.checked).map((b) => b.dataset.key || '');
+      saveTicked(keys);
+      updateProgress();
+    });
+  });
+  updateProgress();
+
+  document.getElementById('checklist-print')?.addEventListener('click', () => window.print());
+  document.getElementById('checklist-reset')?.addEventListener('click', () => {
+    boxes.forEach((b) => (b.checked = false));
+    saveTicked([]);
+    updateProgress();
+  });
+</script>

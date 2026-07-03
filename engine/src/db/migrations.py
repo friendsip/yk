@@ -231,6 +231,11 @@ def migrate(db_path: str = None):
         _run_migration_v4(conn)
         conn.execute("INSERT INTO schema_version (version) VALUES (4)")
 
+    # Migration v5: data maintenance reviews (decay checker)
+    if current < 5:
+        _run_migration_v5(conn)
+        conn.execute("INSERT INTO schema_version (version) VALUES (5)")
+
     conn.commit()
     conn.close()
 
@@ -282,6 +287,25 @@ def _run_migration_v4(conn):
         conn.execute(
             "ALTER TABLE discovered_items ADD COLUMN triage_attempts INTEGER DEFAULT 0"
         )
+
+
+def _run_migration_v5(conn):
+    """Add the data_reviews table for the data maintenance reviewer."""
+    conn.execute(
+        """CREATE TABLE IF NOT EXISTS data_reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            artefact_id TEXT NOT NULL,
+            checked_at TEXT DEFAULT (datetime('now')),
+            status TEXT NOT NULL,
+            summary TEXT,
+            findings TEXT,
+            sources_checked TEXT,
+            issue_url TEXT
+        )"""
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_data_reviews_artefact ON data_reviews(artefact_id, checked_at)"
+    )
 
 
 if __name__ == "__main__":

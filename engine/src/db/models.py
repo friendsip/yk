@@ -314,6 +314,30 @@ class Database:
             (today,),
         )
 
+    # ── Data maintenance reviews ─────────────────────────────
+
+    def insert_data_review(
+        self,
+        artefact_id: str,
+        status: str,
+        summary: str | None,
+        findings: str | None,
+        sources_checked: str | None,
+        issue_url: str | None = None,
+    ) -> int:
+        cur = self._execute(
+            """INSERT INTO data_reviews (artefact_id, status, summary, findings, sources_checked, issue_url)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (artefact_id, status, summary, findings, sources_checked, issue_url),
+        )
+        return cur.lastrowid
+
+    def get_last_data_review(self, artefact_id: str) -> dict | None:
+        return self._fetchone(
+            "SELECT * FROM data_reviews WHERE artefact_id = ? ORDER BY checked_at DESC, id DESC LIMIT 1",
+            (artefact_id,),
+        )
+
     # ── Bible amendments ─────────────────────────────────────
 
     def insert_bible_amendment(

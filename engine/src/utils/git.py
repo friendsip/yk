@@ -71,3 +71,21 @@ def switch_to_main(repo: git.Repo):
     """Switch back to main branch."""
     repo.git.checkout("main")
     logger.info("Switched to main")
+
+
+def create_issue(title: str, body: str) -> str | None:
+    """Create a GitHub issue using the gh CLI. Returns issue URL or None."""
+    try:
+        result = subprocess.run(
+            ["gh", "issue", "create", "--title", title, "--body", body],
+            capture_output=True, text=True, cwd=str(_REPO_ROOT),
+        )
+        if result.returncode == 0:
+            issue_url = result.stdout.strip()
+            logger.info(f"Created issue: {issue_url}")
+            return issue_url
+        logger.error(f"gh issue create failed: {result.stderr}")
+        return None
+    except FileNotFoundError:
+        logger.warning("gh CLI not installed — issue not created")
+        return None
