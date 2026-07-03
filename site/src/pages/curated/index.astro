@@ -23,6 +23,8 @@ const curated = (await getCollection('content'))
           summary={item.data.summary}
           type={item.data.type}
           tags={item.data.tags}
+          image={item.data.image}
+          imageAlt={item.data.image_alt}
           date={item.data.first_published}
           href={`/curated/${item.slug}`}
         />

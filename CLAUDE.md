@@ -84,7 +84,7 @@ npm run preview  # preview production build
 All published content lives **flat** in `site/src/content/content/` as markdown with YAML frontmatter, in a single Astro collection named `content`. Schema is defined in `site/src/content/config.ts`:
 
 - `type: evergreen | curated | editorial` distinguishes content kinds (there are no per-type directories)
-- Required: `title`, `summary`, `type`, `first_published`; optional: `tags`, `sources`, `last_updated`, `external_url` (used by curated link posts)
+- Required: `title`, `summary`, `type`, `first_published`; optional: `tags`, `sources`, `last_updated`, `external_url` (used by curated link posts), `image` + `image_alt` (per-article photo in `site/public/images/` — cards render it in place of the topic-art band; always set `image_alt` with it)
 - `section` is currently always `parenting`
 
 Site pages (`site/src/pages/`) filter the collection by `type` for the `/articles`, `/editorial`, and `/curated` sections, and by tag for `/topics`.

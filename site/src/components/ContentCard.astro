@@ -10,11 +10,14 @@ interface Props {
   tags: string[];
   date: Date;
   href: string;
+  /** Optional photo — replaces the topic-art band when present */
+  image?: string;
+  imageAlt?: string;
   /** Large layout for the homepage featured slot */
   featured?: boolean;
 }
 
-const { title, summary, type, tags, date, href, featured = false } = Astro.props;
+const { title, summary, type, tags, date, href, image, imageAlt = '', featured = false } = Astro.props;
 
 const art = artForTags(tags);
 
@@ -29,7 +32,11 @@ const formattedDate = date.toLocaleDateString('en-GB', {
   class={`content-card${featured ? ' content-card--featured' : ''}`}
   style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}
 >
-  <div class="content-card__art" aria-hidden="true" set:html={art.markup} />
+  {image ? (
+    <img class="content-card__photo" src={image} alt={imageAlt} loading="lazy" decoding="async" />
+  ) : (
+    <div class="content-card__art" aria-hidden="true" set:html={art.markup} />
+  )}
   <div class="content-card__body">
     <div class="content-card__meta">
       <TypeBadge type={type} />

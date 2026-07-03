@@ -14,6 +14,8 @@ const content = defineCollection({
     external_url: z.string().url().optional(),
     /** Optional per-article artwork; cards fall back to topic art when absent */
     image: z.string().optional(),
+    /** Alt text for the image — required in spirit whenever image is set */
+    image_alt: z.string().optional(),
     /** Pin to the homepage indefinitely; overrides the 60-day recency window */
     featured: z.boolean().optional().default(false),
   }),

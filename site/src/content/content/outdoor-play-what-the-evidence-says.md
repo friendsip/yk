@@ -3,6 +3,8 @@ title: "Outdoor Play: What the Evidence Actually Says"
 summary: "Enriched outdoor play spaces — natural elements, loose parts, varied terrain — appear to support children's physical activity and wellbeing. The research is more mixed than enthusiasts sometimes claim, but the direction is encouraging, and the case for getting children outside doesn't rest on any single study."
 type: evergreen
 section: parenting
+image: "/images/outdoor-play-aedrian-salazar.jpg"
+image_alt: "A child playing on a red metal playground climbing frame"
 tags:
   - good-news
   - health

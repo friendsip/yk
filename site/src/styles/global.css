@@ -434,6 +434,14 @@ li {
   padding: var(--space-sm) var(--space-lg) 0;
 }
 
+/* Per-article photo (brief §5: cover image, 140px, rounded) */
+.content-card__photo {
+  display: block;
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
 .content-card__art :is(svg, img) {
   display: block;
   width: 100%;

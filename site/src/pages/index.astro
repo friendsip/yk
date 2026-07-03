@@ -87,6 +87,8 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
             summary={item.data.summary}
             type={item.data.type}
             tags={item.data.tags}
+            image={item.data.image}
+            imageAlt={item.data.image_alt}
             date={item.data.first_published}
             href={hrefForItem(item)}
           />
