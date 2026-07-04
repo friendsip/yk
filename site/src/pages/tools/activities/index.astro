@@ -1,0 +1,667 @@
+---
+/**
+ * "What can we do today?" — the activity wheel.
+ *
+ * A phone-app-style page (same design world as the Baby & Toddler app, not
+ * the editorial site): pick an age, flick inside/outside, spin the wheel,
+ * get an idea. The first result each day is the deterministic "Today's
+ * idea"; respins give fresh non-repeating picks. The full activity list is
+ * server-rendered below the wheel — that's the no-JS fallback AND the
+ * crawlable SEO content. Preferences stay in localStorage.
+ */
+import '../../../styles/app.css';
+import { CATEGORY_META, BANDS } from '../../../data/activities/types';
+import type { ActivityCategory } from '../../../data/activities/types';
+import { toddlerActivities } from '../../../data/activities/toddler';
+import { preschoolActivities } from '../../../data/activities/preschool';
+import { earlySchoolActivities } from '../../../data/activities/early-school';
+import { tweenActivities } from '../../../data/activities/tween';
+import { teenActivities } from '../../../data/activities/teen';
+
+const bandActivities = {
+  toddler: toddlerActivities,
+  preschool: preschoolActivities,
+  'early-school': earlySchoolActivities,
+  tween: tweenActivities,
+  teen: teenActivities,
+} as const;
+
+const totalCount = Object.values(bandActivities).reduce((n, a) => n + a.length, 0);
+
+// Build the wheel: twelve 30° segments, one per category
+const categories = Object.keys(CATEGORY_META) as ActivityCategory[];
+const WHEEL_COLOURS = ['#ff7a59', '#9d7bd8', '#35b8a4', '#ffc247', '#f26d9d', '#6fb5e8'];
+const R = 150;
+const CX = 150;
+const CY = 150;
+
+function polar(angleDeg: number, radius: number) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return { x: CX + radius * Math.cos(rad), y: CY + radius * Math.sin(rad) };
+}
+
+const segments = categories.map((cat, i) => {
+  const start = i * 30 - 90;
+  const end = start + 30;
+  const p1 = polar(start, R);
+  const p2 = polar(end, R);
+  const mid = polar(start + 15, 100);
+  return {
+    cat,
+    d: `M${CX},${CY} L${p1.x.toFixed(2)},${p1.y.toFixed(2)} A${R},${R} 0 0 1 ${p2.x.toFixed(2)},${p2.y.toFixed(2)} Z`,
+    colour: WHEEL_COLOURS[i % WHEEL_COLOURS.length],
+    emoji: CATEGORY_META[cat].emoji,
+    ex: mid.x.toFixed(2),
+    ey: mid.y.toFixed(2),
+  };
+});
+
+const canonical = new URL('/tools/activities/', Astro.site);
+const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activities for toddlers to teenagers — indoors and out, most needing nothing but the people you already have. A new idea every day.`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>What can we do today? — the activity wheel | YourKids</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/app/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#fde7d8" />
+    <meta property="og:title" content="What can we do today? — the activity wheel" />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={new URL('/og-default.png', Astro.site)} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,800;1,400&display=swap"
+    />
+  </head>
+  <body class="app-body">
+    <div id="app" class="play" data-total={totalCount}>
+      <header class="play-head">
+        <a class="play-head__back" href="/tools">&larr; Our free apps</a>
+        <h1>What can we do today?</h1>
+        <p class="play-head__sub">
+          Pick an age, spin the wheel, go play. {totalCount} ideas and counting —
+          a fresh one every day.
+        </p>
+      </header>
+
+      <div class="play-chips" id="band-chips" role="group" aria-label="Child's age">
+        {BANDS.map((band) => (
+          <button class="play-chip" type="button" data-band={band.id}>
+            {band.label} <span class="play-chip__age">{band.ageLabel}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="play-toggle" id="setting-toggle" role="group" aria-label="Where are you?">
+        <button class="play-toggle__btn" type="button" data-setting="inside">🏠 Inside</button>
+        <button class="play-toggle__btn" type="button" data-setting="either">🤷 Don't mind</button>
+        <button class="play-toggle__btn" type="button" data-setting="outside">🌳 Outside</button>
+      </div>
+
+      <div class="wheel-wrap" id="wheel-wrap" hidden>
+        <div class="wheel-pointer" aria-hidden="true"></div>
+        <svg id="wheel" viewBox="0 0 300 300" aria-hidden="true">
+          <g id="wheel-spinner">
+            {segments.map((s) => (
+              <>
+                <path d={s.d} fill={s.colour} stroke="#fff" stroke-width="2" />
+                <text x={s.ex} y={s.ey} font-size="24" text-anchor="middle" dominant-baseline="central">{s.emoji}</text>
+              </>
+            ))}
+            <circle cx="150" cy="150" r="34" fill="#fff" />
+            <text x="150" y="150" font-size="26" text-anchor="middle" dominant-baseline="central">☀️</text>
+          </g>
+        </svg>
+        <button class="app-btn wheel-spin-btn" id="spin-btn" type="button">Spin the wheel!</button>
+      </div>
+
+      <div class="play-result" id="result" hidden>
+        <div class="confetti" id="play-confetti"></div>
+        <div class="play-result__kicker">
+          <span id="result-category"></span>
+          <span class="play-result__today" id="result-today" hidden>☀️ Today's idea</span>
+        </div>
+        <h2 id="result-title"></h2>
+        <ol class="play-result__how" id="result-how"></ol>
+        <p class="play-result__materials" id="result-materials"></p>
+        <p class="play-result__safety" id="result-safety" hidden></p>
+        <div class="play-result__actions">
+          <button class="app-btn app-btn--small" id="again-btn" type="button">Spin again 🎡</button>
+          <button class="app-btn app-btn--ghost app-btn--small" id="share-btn" type="button">Share</button>
+        </div>
+      </div>
+
+      <!-- Server-rendered browse list: the no-JS experience and the SEO content -->
+      <section class="play-browse" id="browse">
+        <h2>Browse every idea</h2>
+        {BANDS.map((band) => (
+          <details class="play-band">
+            <summary>
+              {band.label} ({band.ageLabel}) — {bandActivities[band.id].length} ideas
+            </summary>
+            {categories.map((cat) => {
+              const items = bandActivities[band.id].filter((a) => a.category === cat);
+              return items.length > 0 ? (
+                <div class="play-band__cat">
+                  <h3>{CATEGORY_META[cat].emoji} {CATEGORY_META[cat].label}</h3>
+                  <ul>
+                    {items.map((a) => (
+                      <li>
+                        <strong>{a.title}</strong>
+                        {a.setting !== 'either' && <span class="play-badge">{a.setting}</span>}
+                        <br />
+                        {a.how.join(' ')}
+                        {a.materials !== 'nothing' && ` (You need: ${a.materials}.)`}
+                        {a.safetyNote && <em> Safety: {a.safetyNote}</em>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null;
+            })}
+          </details>
+        ))}
+      </section>
+
+      <p class="play-foot">
+        Free, no account, no ads — from <a href="/">yourkids.com</a>. Your
+        choices stay on this device. <a href="/privacy">Privacy</a>
+      </p>
+    </div>
+
+    <script>
+      import { CATEGORY_META } from '../../../data/activities/types';
+
+      interface Activity {
+        id: string;
+        title: string;
+        how: string[];
+        setting: 'inside' | 'outside' | 'either';
+        category: string;
+        materials: string;
+        parentEnergy: string;
+        safetyNote?: string;
+      }
+
+      const categories = Object.keys(CATEGORY_META);
+      const BAND_KEY = 'yk-activity-band';
+      const SETTING_KEY = 'yk-activity-setting';
+
+      const load = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
+      const save = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
+
+      const hashStr = (s: string): number => {
+        let h = 0;
+        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+        return h;
+      };
+
+      // ── State ──
+      const validBands = ['toddler', 'preschool', 'early-school', 'tween', 'teen'];
+      const paramBand = new URLSearchParams(location.search).get('band');
+
+      function bandFromAppProfile(): string | null {
+        try {
+          const children = JSON.parse(localStorage.getItem('yk-app-children') || '[]');
+          const active = children.find((c: any) => c.id === localStorage.getItem('yk-app-active')) ?? children[0];
+          if (!active?.birthdate) return null;
+          const years = (Date.now() - new Date(`${active.birthdate}T00:00:00`).getTime()) / (365.25 * 864e5);
+          if (years < 3) return 'toddler';
+          if (years < 5) return 'preschool';
+          if (years < 8) return 'early-school';
+          if (years < 13) return 'tween';
+          return 'teen';
+        } catch { return null; }
+      }
+
+      let band = (paramBand && validBands.includes(paramBand) && paramBand)
+        || (load(BAND_KEY) as string)
+        || bandFromAppProfile()
+        || 'toddler';
+      if (!validBands.includes(band)) band = 'toddler';
+      let setting = load(SETTING_KEY) || 'either';
+
+      const pools: Record<string, Activity[]> = {};
+      const seen = new Set<string>();
+      let current: Activity | null = null;
+      let spinning = false;
+      let rotation = 0;
+      let dailyShown = false;
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // ── Elements ──
+      const wheelWrap = document.getElementById('wheel-wrap')!;
+      const spinner = document.getElementById('wheel-spinner')!;
+      const result = document.getElementById('result')!;
+
+      wheelWrap.hidden = false; // JS is running — show the wheel
+
+      async function pool(): Promise<Activity[]> {
+        if (!pools[band]) {
+          pools[band] = await fetch(`/tools/activities/data/${band}.json`).then((r) => r.json());
+        }
+        const all = pools[band];
+        if (setting === 'either') return all;
+        return all.filter((a) => a.setting === setting || a.setting === 'either');
+      }
+
+      function todayPick(filtered: Activity[]): Activity {
+        const day = new Date().toISOString().slice(0, 10);
+        return filtered[hashStr(`${day}|${band}|${setting}`) % filtered.length];
+      }
+
+      function nextPick(filtered: Activity[]): Activity {
+        if (!dailyShown) {
+          dailyShown = true;
+          const pick = todayPick(filtered);
+          seen.add(pick.id);
+          return pick;
+        }
+        const fresh = filtered.filter((a) => !seen.has(a.id));
+        const from = fresh.length ? fresh : filtered; // pool exhausted — start over
+        if (!fresh.length) seen.clear();
+        const pick = from[Math.floor(Math.random() * from.length)];
+        seen.add(pick.id);
+        return pick;
+      }
+
+      function burstConfetti(el: HTMLElement) {
+        if (reducedMotion) return;
+        const colours = ['#ff7a59', '#9d7bd8', '#35b8a4', '#ffc247', '#f26d9d', '#6fb5e8'];
+        el.innerHTML = '';
+        for (let i = 0; i < 18; i++) {
+          const bit = document.createElement('span');
+          bit.style.left = `${Math.random() * 100}%`;
+          bit.style.background = colours[i % colours.length];
+          bit.style.animationDelay = `${Math.random() * 0.4}s`;
+          el.appendChild(bit);
+        }
+      }
+
+      function renderResult(pick: Activity, isToday: boolean) {
+        const meta = (CATEGORY_META as any)[pick.category];
+        (document.getElementById('result-category') as HTMLElement).textContent =
+          `${meta.emoji} ${meta.label}`;
+        (document.getElementById('result-today') as HTMLElement).hidden = !isToday;
+        (document.getElementById('result-title') as HTMLElement).textContent = pick.title;
+        (document.getElementById('result-how') as HTMLElement).innerHTML = pick.how
+          .map((step) => `<li>${step.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</li>`)
+          .join('');
+        (document.getElementById('result-materials') as HTMLElement).textContent =
+          pick.materials === 'nothing' ? 'You need: nothing at all 🎉' : `You need: ${pick.materials}`;
+        const safety = document.getElementById('result-safety') as HTMLElement;
+        safety.hidden = !pick.safetyNote;
+        if (pick.safetyNote) safety.textContent = `⚠️ ${pick.safetyNote}`;
+        result.hidden = false;
+        burstConfetti(document.getElementById('play-confetti') as HTMLElement);
+        result.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'nearest' });
+      }
+
+      async function spin() {
+        if (spinning) return;
+        spinning = true;
+        const filtered = await pool();
+        if (!filtered.length) { spinning = false; return; }
+        const isToday = !dailyShown;
+        const pick = nextPick(filtered);
+        current = pick;
+
+        const idx = Math.max(0, categories.indexOf(pick.category));
+        // land segment idx's centre under the pointer (top)
+        const target = -(idx * 30 + 15);
+        const turns = 4 * 360;
+        rotation = Math.ceil(rotation / 360) * 360 + turns + target;
+
+        if (reducedMotion) {
+          spinner.style.transition = 'none';
+          spinner.style.transform = `rotate(${rotation}deg)`;
+          renderResult(pick, isToday);
+          spinning = false;
+          return;
+        }
+
+        result.hidden = true;
+        spinner.style.transition = 'transform 3s cubic-bezier(0.15, 0.7, 0.1, 1)';
+        spinner.style.transform = `rotate(${rotation}deg)`;
+        window.setTimeout(() => {
+          renderResult(pick, isToday);
+          spinning = false;
+        }, 3100);
+      }
+
+      // ── Chips & toggle ──
+      function paint() {
+        document.querySelectorAll('#band-chips .play-chip').forEach((c) => {
+          c.classList.toggle('is-active', (c as HTMLElement).dataset.band === band);
+        });
+        document.querySelectorAll('#setting-toggle .play-toggle__btn').forEach((b) => {
+          b.classList.toggle('is-active', (b as HTMLElement).dataset.setting === setting);
+        });
+      }
+
+      document.querySelectorAll('#band-chips .play-chip').forEach((chip) =>
+        chip.addEventListener('click', () => {
+          band = (chip as HTMLElement).dataset.band!;
+          save(BAND_KEY, band);
+          dailyShown = false;
+          seen.clear();
+          paint();
+          spin();
+        })
+      );
+
+      document.querySelectorAll('#setting-toggle .play-toggle__btn').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          setting = (btn as HTMLElement).dataset.setting!;
+          save(SETTING_KEY, setting);
+          dailyShown = false;
+          seen.clear();
+          paint();
+          spin();
+        })
+      );
+
+      document.getElementById('spin-btn')!.addEventListener('click', spin);
+      document.getElementById('again-btn')!.addEventListener('click', spin);
+      document.getElementById('wheel')!.addEventListener('click', spin);
+
+      document.getElementById('share-btn')!.addEventListener('click', async () => {
+        if (!current) return;
+        const text = `${current.title} — ${current.how[0]} (from yourkids.com)`;
+        const url = 'https://www.yourkids.com/tools/activities/';
+        try {
+          if (navigator.share) {
+            await navigator.share({ title: current.title, text, url });
+          } else {
+            await navigator.clipboard.writeText(`${text} ${url}`);
+            const btn = document.getElementById('share-btn')!;
+            btn.textContent = 'Copied!';
+            window.setTimeout(() => (btn.textContent = 'Share'), 1500);
+          }
+        } catch { /* user cancelled the share sheet — no drama */ }
+      });
+
+      paint();
+    </script>
+
+    <style is:global>
+      .play {
+        max-width: 520px;
+        margin: 0 auto;
+        padding: max(env(safe-area-inset-top), 14px) 18px calc(24px + env(safe-area-inset-bottom));
+      }
+
+      .play-head {
+        text-align: center;
+        padding: 0.4rem 0 1rem;
+      }
+
+      .play-head__back {
+        display: block;
+        text-align: left;
+        font-size: 0.85rem;
+        color: var(--app-ink-faint);
+        text-decoration: none;
+        margin-bottom: 0.6rem;
+      }
+
+      .play-head h1 {
+        font-size: 1.9rem;
+        line-height: 1.15;
+      }
+
+      .play-head__sub {
+        color: var(--app-ink-soft);
+        font-size: 0.95rem;
+        max-width: 34ch;
+        margin: 0.3rem auto 0;
+      }
+
+      .play-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        justify-content: center;
+        margin-bottom: 0.7rem;
+      }
+
+      .play-chip {
+        font-family: var(--app-font-display);
+        font-weight: 700;
+        font-size: 0.95rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        border: 2px solid rgba(58, 49, 83, 0.12);
+        background: #fff;
+        color: var(--app-ink);
+        cursor: pointer;
+      }
+
+      .play-chip__age {
+        font-family: var(--app-font-body);
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--app-ink-faint);
+      }
+
+      .play-chip.is-active {
+        background: var(--app-coral);
+        border-color: var(--app-coral);
+        color: #fff;
+      }
+
+      .play-chip.is-active .play-chip__age {
+        color: #ffe3d8;
+      }
+
+      .play-toggle {
+        display: flex;
+        gap: 0.4rem;
+        justify-content: center;
+        margin-bottom: 1.1rem;
+      }
+
+      .play-toggle__btn {
+        font: inherit;
+        font-weight: 700;
+        font-size: 0.85rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 999px;
+        border: 2px solid rgba(58, 49, 83, 0.12);
+        background: rgba(255, 255, 255, 0.75);
+        color: var(--app-ink-soft);
+        cursor: pointer;
+      }
+
+      .play-toggle__btn.is-active {
+        background: var(--app-teal);
+        border-color: var(--app-teal);
+        color: #fff;
+      }
+
+      .wheel-wrap {
+        position: relative;
+        text-align: center;
+        margin-bottom: 1.1rem;
+      }
+
+      .wheel-pointer {
+        position: absolute;
+        top: -4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 14px solid transparent;
+        border-right: 14px solid transparent;
+        border-top: 22px solid var(--app-ink);
+        z-index: 2;
+        filter: drop-shadow(0 2px 2px rgba(58, 49, 83, 0.3));
+      }
+
+      #wheel {
+        width: min(78vw, 320px);
+        height: auto;
+        cursor: pointer;
+        filter: drop-shadow(0 8px 22px rgba(88, 69, 128, 0.25));
+      }
+
+      #wheel-spinner {
+        transform-origin: 150px 150px;
+      }
+
+      .wheel-spin-btn {
+        max-width: 240px;
+        margin: 0.9rem auto 0;
+        display: block;
+      }
+
+      .play-result {
+        position: relative;
+        background: var(--app-card);
+        border-radius: var(--app-radius);
+        box-shadow: var(--app-shadow);
+        padding: 1.2rem 1.3rem;
+        margin-bottom: 1.2rem;
+        border-top: 5px solid var(--app-coral);
+        overflow: hidden;
+      }
+
+      .play-result__kicker {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--app-coral);
+        margin-bottom: 0.4rem;
+      }
+
+      .play-result__today {
+        background: linear-gradient(135deg, var(--app-sunshine), var(--app-rose));
+        color: #fff;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .play-result h2 {
+        font-size: 1.45rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .play-result__how {
+        padding-left: 1.3rem;
+        color: var(--app-ink-soft);
+        margin-bottom: 0.7rem;
+      }
+
+      .play-result__how li {
+        margin-bottom: 0.4rem;
+        line-height: 1.55;
+      }
+
+      .play-result__materials {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--app-teal);
+        margin-bottom: 0.5rem;
+      }
+
+      .play-result__safety {
+        font-size: 0.85rem;
+        color: var(--app-rose);
+        margin-bottom: 0.5rem;
+      }
+
+      .play-result__actions {
+        display: flex;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+      }
+
+      .play-browse {
+        margin-top: 1.6rem;
+      }
+
+      .play-browse > h2 {
+        font-size: 1.3rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .play-band {
+        background: rgba(255, 255, 255, 0.82);
+        border-radius: 18px;
+        margin-bottom: 0.7rem;
+        padding: 0;
+      }
+
+      .play-band summary {
+        cursor: pointer;
+        font-family: var(--app-font-display);
+        font-weight: 700;
+        font-size: 1.05rem;
+        padding: 0.9rem 1.1rem;
+      }
+
+      .play-band__cat {
+        padding: 0 1.1rem 0.8rem;
+      }
+
+      .play-band__cat h3 {
+        font-size: 0.95rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .play-band__cat ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .play-band__cat li {
+        font-size: 0.88rem;
+        color: var(--app-ink-soft);
+        margin-bottom: 0.6rem;
+        line-height: 1.5;
+      }
+
+      .play-band__cat li strong {
+        color: var(--app-ink);
+      }
+
+      .play-badge {
+        display: inline-block;
+        margin-left: 0.4rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.05rem 0.45rem;
+        border-radius: 999px;
+        background: rgba(53, 184, 164, 0.15);
+        color: var(--app-teal);
+      }
+
+      .play-foot {
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--app-ink-faint);
+        margin-top: 1.4rem;
+      }
+    </style>
+  </body>
+</html>

@@ -150,6 +150,26 @@ artefacts:
       - https://www.lullabytrust.org.uk/baby-safety/safer-sleep-information/keeping-a-clear-cot/
       - https://www.nhs.uk/pregnancy/labour-and-birth/preparing-for-the-birth/pack-your-bag-for-labour/
 
+  - id: activity-generator
+    name: "Activity wheel content (/tools/activities)"
+    files:
+      - site/src/data/activities/toddler.ts
+      - site/src/data/activities/preschool.ts
+      - site/src/data/activities/early-school.ts
+      - site/src/data/activities/tween.ts
+      - site/src/data/activities/teen.ts
+    review:
+      interval_days: 365
+    watch_for: >
+      Safety guidance drift in the activity notes: choking-size advice for
+      under-3s, water-play supervision wording, kitchen safety for children,
+      and sun-safety framing for outdoor activities. The activities themselves
+      are evergreen.
+    sources:
+      - https://www.lullabytrust.org.uk/baby-safety/safer-sleep-information/safer-sleep-overview/
+      - https://www.rospa.com/home-safety/advice/child-safety
+      - https://www.nhs.uk/live-well/seasonal-health/sunscreen-and-sun-safety/
+
   - id: app-daily-content
     name: "App daily content pools (/app)"
     files:

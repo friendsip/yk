@@ -7,9 +7,9 @@ const art = sectionArt.tools;
 
 const tools = [
   {
-    href: '/tools/baby-age',
-    label: 'Baby age calculator',
-    blurb: 'How many weeks (or months, or days) old is my baby? Includes corrected age for premature babies.',
+    href: '/tools/activities',
+    label: '🎡 What can we do today?',
+    blurb: 'Stuck for ideas? Spin the wheel: hundreds of free activities for toddlers to teens, indoors and out — a new one every day.',
   },
   {
     href: '/tools/childcare',
@@ -22,6 +22,11 @@ const tools = [
     blurb: "Your baby's NHS vaccination timeline, with real dates from their date of birth — and a calendar file to download.",
   },
   {
+    href: '/tools/baby-age',
+    label: 'Baby age calculator',
+    blurb: 'How many weeks (or months, or days) old is my baby? Includes corrected age for premature babies.',
+  },
+  {
     href: '/tools/nap-schedule',
     label: 'Naps & wake windows',
     blurb: 'Typical wake windows, naps and total sleep by age, from birth to three — ranges, not rules.',
@@ -31,18 +36,43 @@ const tools = [
     label: 'Checklists',
     blurb: 'Hospital bag, newborn essentials, travelling with a baby, starting school — tick things off, then print them.',
   },
+  {
+    href: '/baby',
+    label: 'Baby week by week',
+    blurb: "What to expect from your baby, week by week from birth — what's normal, what's worth checking, and honest feeding help.",
+  },
+  {
+    href: '/toddler',
+    label: 'Toddler guide',
+    blurb: 'One to three, stage by stage — what to expect, how to help them grow, and games that won’t wear you out.',
+  },
+  {
+    href: '/games',
+    label: 'Educational games',
+    blurb: 'Original games for classrooms, playgroups and family gatherings — coming soon.',
+  },
 ];
 ---
 
 <BaseLayout
-  title="Tools & calculators for parents"
-  description="Free, friendly tools for parents — childcare costs and funding, baby age and corrected age, NHS vaccination planner, nap guides and printable checklists. No accounts, no ads."
+  title="Our free apps"
+  description="Every free app and tool on yourkids.com — the Baby & Toddler daily companion, childcare costs and funding, NHS vaccination planner, week-by-week guides, checklists and more. No accounts, no ads, no cost."
 >
   <SectionHero
-    title="Tools & calculators"
-    blurb="Small, genuinely free tools for the practical bits of parenting. No accounts, no ads, and anything you enter stays on your device."
+    title="Our free apps"
+    blurb="Everything here is genuinely free — no accounts to make, no ads, no paywalls, and anything you enter stays on your device. Built for tired parents, with love."
     art={art}
   />
+
+  <a class="app-promo" href="/app">
+    <img src="/app/icon.svg" alt="" width="52" height="52" />
+    <span class="app-promo__text">
+      <strong>The Baby & Toddler app</strong> — a loving daily companion for
+      your baby's and toddler's first years. What to expect today, gentle
+      hints, little celebrations.
+    </span>
+    <span class="app-promo__cta">Open &rarr;</span>
+  </a>
 
   <div class="stage-grid stage-grid--wide guide-section" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
     {tools.map((t) => (
@@ -52,14 +82,4 @@ const tools = [
       </a>
     ))}
   </div>
-
-  <a class="app-promo" href="/app">
-    <img src="/app/icon.svg" alt="" width="52" height="52" />
-    <span class="app-promo__text">
-      <strong>Meet the app</strong> — a loving daily companion for your baby's
-      and toddler's first years. What to expect today, gentle hints, little
-      celebrations.
-    </span>
-    <span class="app-promo__cta">Open &rarr;</span>
-  </a>
 </BaseLayout>

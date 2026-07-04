@@ -6,20 +6,26 @@ const pathname = Astro.url.pathname;
 type NavChild = { href: string; label: string };
 type NavItem = { href: string; label: string; children?: NavChild[] };
 
-// Header nav per the "Warm & Playful" brief: six pill items; Editorials,
-// Games, Deals and Trusted Sites live in the footer; search is a header field.
+// Header nav per the "Warm & Playful" brief (six pill items; Editorials,
+// Deals and Trusted Sites live in the footer; search is a header field),
+// with one deliberate change (July 2026): the dropdown is "Our Free Apps",
+// listing every app and tool — the apps are the headline offering.
 const links: NavItem[] = [
   { href: '/', label: 'Home' },
   {
-    href: '/baby',
-    label: 'Baby & Toddler',
+    href: '/tools',
+    label: 'Our Free Apps',
     children: [
-      { href: '/app', label: '✨ Open the app' },
+      { href: '/app', label: '✨ Baby & Toddler app' },
+      { href: '/tools/activities', label: '🎡 What can we do today?' },
       { href: '/baby', label: 'Baby week by week' },
-      { href: '/baby/feeding', label: 'Feeding' },
-      { href: '/baby/health', label: 'Baby health' },
-      { href: '/toddler', label: 'Toddler' },
-      { href: '/tools', label: 'Tools & calculators' },
+      { href: '/toddler', label: 'Toddler guide' },
+      { href: '/tools/childcare', label: 'Childcare costs & funding' },
+      { href: '/tools/vaccinations', label: 'Vaccination planner' },
+      { href: '/tools/baby-age', label: 'Baby age calculator' },
+      { href: '/tools/nap-schedule', label: 'Naps & wake windows' },
+      { href: '/tools/checklists', label: 'Checklists' },
+      { href: '/games', label: 'Educational games' },
     ],
   },
   { href: '/topics', label: 'Topics' },
@@ -55,7 +61,7 @@ function groupCurrent(children: NavChild[]): boolean {
             <a
               href={item.href}
               class="nav-group__label"
-              aria-current={isCurrent(item.href) ? 'page' : undefined}
+              aria-current={pathname === item.href ? 'page' : undefined}
               aria-haspopup="true"
               aria-expanded="false"
             >

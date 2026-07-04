@@ -270,10 +270,17 @@ App follow-ups:
   footer). Announced: circle-time games, quiz packs, co-operative mixed-age
   games, printable game cards. The actual games are revitalization-plan
   Phases 4–5; see the note there about classroom use vs the subscription gate.
+- [x] **"What can we do today?" activity wheel (July 2026)** —
+  `/tools/activities`: phone-app-style spinning wheel, 344 original
+  activities across five age bands (1–3 to teens) and twelve categories,
+  inside/outside toggle, deterministic daily pick + respins, share button,
+  SEO/no-JS browse list. In the "Our Free Apps" nav menu and hub; in the
+  data-maintenance register. See `docs/activity-generator-plan.md` for v2
+  ideas (favourites, energy filters, per-band SEO pages, sibling mode).
 - [ ] **More tools** — remaining ideas in `docs/app-ideas-research.md`:
-  "what can we do today?" activity generator, on-device feed/sleep logger,
-  printable visual routine builder, first-foods lookup (needs clinical
-  review), growth tracker (UK-WHO charts), due-date calculator.
+  on-device feed/sleep logger, printable visual routine builder, first-foods
+  lookup (needs clinical review), growth tracker (UK-WHO charts), due-date
+  calculator.
 
 ---
 
