@@ -1,85 +1,102 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
-import { sectionArt } from '../../lib/topicArt';
+/**
+ * "Our free apps" — the launcher. A phone-home-screen-style grid of every
+ * app and tool. Linked from the main site nav; each app opens in the same
+ * design world (see ToolAppLayout).
+ */
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
 
-const art = sectionArt.tools;
-
-const tools = [
+const tiles = [
+  {
+    href: '/app',
+    name: 'Baby & Toddler',
+    sub: 'daily companion',
+    emoji: null, // uses the app icon image
+    bg: '#ffffff',
+  },
   {
     href: '/tools/activities',
-    label: '🎡 What can we do today?',
-    blurb: 'Stuck for ideas? Spin the wheel: hundreds of free activities for toddlers to teens, indoors and out — a new one every day.',
+    name: 'What can we do today?',
+    sub: 'spin the wheel',
+    emoji: '🎡',
+    bg: 'linear-gradient(135deg, #fce4d8, #f6d9f0)',
   },
   {
     href: '/tools/childcare',
-    label: 'Childcare costs & funding',
-    blurb: "What childcare costs near you, what government help you can get, and exactly when it starts — worked out from your child's birthday.",
+    name: 'Childcare costs',
+    sub: 'funding & prices',
+    emoji: '💷',
+    bg: 'linear-gradient(135deg, #dff3ee, #d8ecfb)',
   },
   {
     href: '/tools/vaccinations',
-    label: 'Vaccination planner',
-    blurb: "Your baby's NHS vaccination timeline, with real dates from their date of birth — and a calendar file to download.",
+    name: 'Vaccination planner',
+    sub: 'dates & reminders',
+    emoji: '💉',
+    bg: 'linear-gradient(135deg, #e6e0f7, #d8ecfb)',
   },
   {
     href: '/tools/baby-age',
-    label: 'Baby age calculator',
-    blurb: 'How many weeks (or months, or days) old is my baby? Includes corrected age for premature babies.',
+    name: 'Baby age',
+    sub: 'weeks & corrected age',
+    emoji: '🎂',
+    bg: 'linear-gradient(135deg, #fff3d9, #fce4d8)',
   },
   {
     href: '/tools/nap-schedule',
-    label: 'Naps & wake windows',
-    blurb: 'Typical wake windows, naps and total sleep by age, from birth to three — ranges, not rules.',
+    name: 'Naps & wake windows',
+    sub: 'birth to three',
+    emoji: '😴',
+    bg: 'linear-gradient(135deg, #d8ecfb, #e6e0f7)',
   },
   {
     href: '/tools/checklists',
-    label: 'Checklists',
-    blurb: 'Hospital bag, newborn essentials, travelling with a baby, starting school — tick things off, then print them.',
+    name: 'Checklists',
+    sub: 'tick off & print',
+    emoji: '✅',
+    bg: 'linear-gradient(135deg, #dff3ee, #fff3d9)',
   },
   {
     href: '/baby',
-    label: 'Baby week by week',
-    blurb: "What to expect from your baby, week by week from birth — what's normal, what's worth checking, and honest feeding help.",
+    name: 'Baby week by week',
+    sub: 'the full guide',
+    emoji: '👶',
+    bg: 'linear-gradient(135deg, #fce4d8, #fff3d9)',
   },
   {
     href: '/toddler',
-    label: 'Toddler guide',
-    blurb: 'One to three, stage by stage — what to expect, how to help them grow, and games that won’t wear you out.',
+    name: 'Toddler guide',
+    sub: 'one to three',
+    emoji: '🧒',
+    bg: 'linear-gradient(135deg, #f6d9f0, #fce4d8)',
   },
   {
     href: '/games',
-    label: 'Educational games',
-    blurb: 'Original games for classrooms, playgroups and family gatherings — coming soon.',
+    name: 'Educational games',
+    sub: 'coming soon',
+    emoji: '🎲',
+    bg: 'linear-gradient(135deg, #e6e0f7, #dff3ee)',
   },
 ];
 ---
 
-<BaseLayout
+<ToolAppLayout
   title="Our free apps"
-  description="Every free app and tool on yourkids.com — the Baby & Toddler daily companion, childcare costs and funding, NHS vaccination planner, week-by-week guides, checklists and more. No accounts, no ads, no cost."
+  description="Every free app and tool on yourkids.com — the Baby & Toddler daily companion, the activity wheel, childcare costs and funding, NHS vaccination planner, guides, checklists and more. No accounts, no ads, no cost."
+  heading="Our free apps"
+  sub="Everything here is genuinely free — no accounts, no ads, no paywalls. Built for tired parents, with love."
+  backHref="/"
+  backLabel="yourkids.com"
 >
-  <SectionHero
-    title="Our free apps"
-    blurb="Everything here is genuinely free — no accounts to make, no ads, no paywalls, and anything you enter stays on your device. Built for tired parents, with love."
-    art={art}
-  />
-
-  <a class="app-promo" href="/app">
-    <img src="/app/icon.svg" alt="" width="52" height="52" />
-    <span class="app-promo__text">
-      <strong>The Baby & Toddler app</strong> — a loving daily companion for
-      your baby's and toddler's first years. What to expect today, gentle
-      hints, little celebrations.
-    </span>
-    <span class="app-promo__cta">Open &rarr;</span>
-  </a>
-
-  <div class="stage-grid stage-grid--wide guide-section" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
-    {tools.map((t) => (
-      <a class="stage-card" href={t.href}>
-        <span class="stage-card__label">{t.label}</span>
-        <span class="stage-card__title">{t.blurb}</span>
+  <div class="launcher">
+    {tiles.map((tile) => (
+      <a class="launcher-tile" href={tile.href}>
+        <span class="launcher-tile__icon" style={`--tile-bg: ${tile.bg};`}>
+          {tile.emoji ? tile.emoji : <img src="/app/icon.svg" alt="" width="76" height="76" />}
+        </span>
+        <span class="launcher-tile__name">{tile.name}</span>
+        <span class="launcher-tile__sub">{tile.sub}</span>
       </a>
     ))}
   </div>
-</BaseLayout>
+</ToolAppLayout>

@@ -5,7 +5,7 @@ import logging
 from collections import Counter
 
 from src.db import get_db
-from src.llm.client import LLMClient
+from src.llm.client import LLMClient, daily_cost_exceeded
 from src.llm.fencing import UNTRUSTED_CONTENT_NOTICE, sanitise_untrusted
 from src.utils.clock import utc_today
 
@@ -74,8 +74,23 @@ def run_planner(llm_client: LLMClient = None, max_daily: int = 5) -> int | None:
     if llm_client is None:
         llm_client = LLMClient()
 
-    # Get triaged items not yet planned
-    triaged = db.get_triaged_items_for_planning(min_score=5.5)
+    settings = getattr(llm_client, "settings", None) or {}
+    planner_cfg = settings.get("planner", {}) or {}
+    ttl_days = planner_cfg.get("triaged_item_ttl_days", 21)
+    max_candidates = planner_cfg.get("max_candidate_items", 40)
+
+    # Keep the candidate pool bounded: retire triaged items nobody ever planned.
+    expired = db.expire_stale_triaged_items(ttl_days)
+    if expired:
+        logger.info(f"Expired {expired} stale triaged item(s) unplanned for over {ttl_days} days")
+
+    # Refuse to spend if today's LLM bill has already hit the cap.
+    if daily_cost_exceeded(db, settings):
+        logger.warning("Skipping planner: daily cost cap reached")
+        return None
+
+    # Get triaged items not yet planned (best score first, bounded)
+    triaged = db.get_triaged_items_for_planning(min_score=5.5, limit=max_candidates)
     if not triaged:
         logger.info("No triaged items awaiting planning")
         return None

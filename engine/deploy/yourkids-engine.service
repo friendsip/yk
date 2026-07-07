@@ -1,0 +1,38 @@
+[Unit]
+Description=yourkids.com editorial engine (continuous scanner/triage/weekly pipeline)
+Documentation=file:///opt/yourkids/engine/deploy/DEPLOY.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=yourkids
+Group=yourkids
+
+# Absolute paths — adjust if you clone somewhere other than /opt/yourkids.
+WorkingDirectory=/opt/yourkids/engine
+
+# engine/.env holds ANTHROPIC_API_KEY, GITHUB_TOKEN and the alerting secrets.
+# python-dotenv also loads this file at import time, so this line is belt-and-
+# braces; it requires plain KEY=value lines (no `export`, no inline comments).
+EnvironmentFile=/opt/yourkids/engine/.env
+
+# Use the project virtualenv's interpreter so the installed deps are on path.
+ExecStart=/opt/yourkids/engine/.venv/bin/python -m src.main
+
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=30
+
+# Log to journald: `journalctl -u yourkids-engine -f`
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=yourkids-engine
+
+# Light hardening — the engine only needs its own tree plus outbound network.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

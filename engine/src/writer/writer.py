@@ -54,8 +54,16 @@ Requirements:
     - https://source-url-2.com/article
   first_published: {today_date}
   featured: true
+  image_search: "two to four words for a warm photo, or none"
   ---
   For curated links, also include: external_url: "https://primary-source-url.com/article"
+- image_search: give two to four plain words describing a warm, general,
+  non-identifying photo that suits the article (e.g. "family cooking kitchen",
+  "toddler outdoor play", "parent reading child"). Set it to exactly "none"
+  when a stock photo would be inappropriate or insensitive — anything about
+  bereavement, illness, safeguarding, abuse, self-harm, or acute distress
+  should use "none" and keep the gentle illustration instead. Never describe a
+  specific real child.
 - For full articles (type: evergreen), include a "## Key takeaways" section
   immediately after the opening paragraph: 3-5 short bullet points summarising
   the practical advice. The site renders this section as a highlighted box.
@@ -154,6 +162,15 @@ def write_article(plan_action: dict, llm_client: LLMClient = None) -> str | None
     if not _validate_article(markdown, content_settings):
         logger.warning(f"Article validation failed for action {plan_action.get('id')}")
         return None
+
+    # Resolve the writer's image_search hint into an attributed Unsplash photo
+    # (or strip it). Fail-safe: never blocks publishing if media lookup fails.
+    try:
+        from src.media.illustrate import add_article_image
+
+        markdown = add_article_image(markdown, topic_tags, settings)
+    except Exception as e:
+        logger.warning(f"Image resolution failed (continuing without a photo): {e}")
 
     return markdown
 

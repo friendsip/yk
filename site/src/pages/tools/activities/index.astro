@@ -9,7 +9,7 @@
  * server-rendered below the wheel — that's the no-JS fallback AND the
  * crawlable SEO content. Preferences stay in localStorage.
  */
-import '../../../styles/app.css';
+import ToolAppLayout from '../../../layouts/ToolAppLayout.astro';
 import { CATEGORY_META, BANDS } from '../../../data/activities/types';
 import type { ActivityCategory } from '../../../data/activities/types';
 import { toddlerActivities } from '../../../data/activities/toddler';
@@ -56,42 +56,15 @@ const segments = categories.map((cat, i) => {
   };
 });
 
-const canonical = new URL('/tools/activities/', Astro.site);
 const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activities for toddlers to teenagers — indoors and out, most needing nothing but the people you already have. A new idea every day.`;
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>What can we do today? — the activity wheel | YourKids</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/app/icon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#fde7d8" />
-    <meta property="og:title" content="What can we do today? — the activity wheel" />
-    <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
-    <meta property="og:image" content={new URL('/og-default.png', Astro.site)} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,800;1,400&display=swap"
-    />
-  </head>
-  <body class="app-body">
-    <div id="app" class="play" data-total={totalCount}>
-      <header class="play-head">
-        <a class="play-head__back" href="/tools">&larr; Our free apps</a>
-        <h1>What can we do today?</h1>
-        <p class="play-head__sub">
-          Pick an age, spin the wheel, go play. {totalCount} ideas and counting —
-          a fresh one every day.
-        </p>
-      </header>
-
+<ToolAppLayout
+  title="What can we do today? — the activity wheel"
+  description={description}
+  heading="What can we do today?"
+  sub={`Pick an age, spin the wheel, go play. ${totalCount} ideas and counting — a fresh one every day.`}
+>
       <div class="play-chips" id="band-chips" role="group" aria-label="Child's age">
         {BANDS.map((band) => (
           <button class="play-chip" type="button" data-band={band.id}>
@@ -171,63 +144,49 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
         ))}
       </section>
 
-      <p class="play-foot">
-        Free, no account, no ads — from <a href="/">yourkids.com</a>. Your
-        choices stay on this device. <a href="/privacy">Privacy</a>
-      </p>
-    </div>
+</ToolAppLayout>
 
     <script>
       import { CATEGORY_META } from '../../../data/activities/types';
-
-      interface Activity {
-        id: string;
-        title: string;
-        how: string[];
-        setting: 'inside' | 'outside' | 'either';
-        category: string;
-        materials: string;
-        parentEnergy: string;
-        safetyNote?: string;
-      }
+      import {
+        filterBySetting,
+        todayPick,
+        nextPick,
+        bandForBirthdate,
+        isActivityBand,
+        type Activity,
+      } from '../../../lib/activities';
+      import {
+        loadStored,
+        saveStored,
+        ACTIVITY_BAND_KEY,
+        ACTIVITY_SETTING_KEY,
+        APP_CHILDREN_KEY,
+        APP_ACTIVE_KEY,
+      } from '../../../lib/storage';
 
       const categories = Object.keys(CATEGORY_META);
-      const BAND_KEY = 'yk-activity-band';
-      const SETTING_KEY = 'yk-activity-setting';
-
-      const load = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
-      const save = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch {} };
-
-      const hashStr = (s: string): number => {
-        let h = 0;
-        for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-        return h;
-      };
 
       // ── State ──
-      const validBands = ['toddler', 'preschool', 'early-school', 'tween', 'teen'];
       const paramBand = new URLSearchParams(location.search).get('band');
 
-      function bandFromAppProfile(): string | null {
+      function bandFromProfile(): string | null {
         try {
-          const children = JSON.parse(localStorage.getItem('yk-app-children') || '[]');
-          const active = children.find((c: any) => c.id === localStorage.getItem('yk-app-active')) ?? children[0];
-          if (!active?.birthdate) return null;
-          const years = (Date.now() - new Date(`${active.birthdate}T00:00:00`).getTime()) / (365.25 * 864e5);
-          if (years < 3) return 'toddler';
-          if (years < 5) return 'preschool';
-          if (years < 8) return 'early-school';
-          if (years < 13) return 'tween';
-          return 'teen';
-        } catch { return null; }
+          const children = JSON.parse(loadStored(APP_CHILDREN_KEY) || '[]');
+          const active = children.find((c: any) => c.id === loadStored(APP_ACTIVE_KEY)) ?? children[0];
+          return active?.birthdate ? bandForBirthdate(active.birthdate) : null;
+        } catch {
+          return null;
+        }
       }
 
-      let band = (paramBand && validBands.includes(paramBand) && paramBand)
-        || (load(BAND_KEY) as string)
-        || bandFromAppProfile()
-        || 'toddler';
-      if (!validBands.includes(band)) band = 'toddler';
-      let setting = load(SETTING_KEY) || 'either';
+      let band: string =
+        (isActivityBand(paramBand) && paramBand) ||
+        loadStored(ACTIVITY_BAND_KEY) ||
+        bandFromProfile() ||
+        'toddler';
+      if (!isActivityBand(band)) band = 'toddler';
+      let setting = loadStored(ACTIVITY_SETTING_KEY) || 'either';
 
       const pools: Record<string, Activity[]> = {};
       const seen = new Set<string>();
@@ -247,31 +206,21 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
 
       async function pool(): Promise<Activity[]> {
         if (!pools[band]) {
-          pools[band] = await fetch(`/tools/activities/data/${band}.json`).then((r) => r.json());
+          const res = await fetch(`/tools/activities/data/${band}.json`);
+          if (!res.ok) throw new Error(`activities ${band}: HTTP ${res.status}`);
+          pools[band] = await res.json();
         }
-        const all = pools[band];
-        if (setting === 'either') return all;
-        return all.filter((a) => a.setting === setting || a.setting === 'either');
+        return filterBySetting(pools[band], setting);
       }
 
-      function todayPick(filtered: Activity[]): Activity {
-        const day = new Date().toISOString().slice(0, 10);
-        return filtered[hashStr(`${day}|${band}|${setting}`) % filtered.length];
-      }
-
-      function nextPick(filtered: Activity[]): Activity {
+      function pickFor(filtered: Activity[]): { pick: Activity; isToday: boolean } {
         if (!dailyShown) {
           dailyShown = true;
-          const pick = todayPick(filtered);
+          const pick = todayPick(filtered, band, setting)!;
           seen.add(pick.id);
-          return pick;
+          return { pick, isToday: true };
         }
-        const fresh = filtered.filter((a) => !seen.has(a.id));
-        const from = fresh.length ? fresh : filtered; // pool exhausted — start over
-        if (!fresh.length) seen.clear();
-        const pick = from[Math.floor(Math.random() * from.length)];
-        seen.add(pick.id);
-        return pick;
+        return { pick: nextPick(filtered, seen)!, isToday: false };
       }
 
       function burstConfetti(el: HTMLElement) {
@@ -309,10 +258,30 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
       async function spin() {
         if (spinning) return;
         spinning = true;
-        const filtered = await pool();
-        if (!filtered.length) { spinning = false; return; }
-        const isToday = !dailyShown;
-        const pick = nextPick(filtered);
+
+        let filtered: Activity[];
+        try {
+          filtered = await pool();
+        } catch (err) {
+          // A failed fetch must not dead-end the wheel: reset and tell the parent.
+          spinning = false;
+          const cat = document.getElementById('result-category') as HTMLElement;
+          const title = document.getElementById('result-title') as HTMLElement;
+          const how = document.getElementById('result-how') as HTMLElement;
+          cat.textContent = '';
+          title.textContent = "Couldn't load ideas just now";
+          how.innerHTML = '<li>Check your connection and give the wheel another spin.</li>';
+          (document.getElementById('result-materials') as HTMLElement).textContent = '';
+          (document.getElementById('result-today') as HTMLElement).hidden = true;
+          result.hidden = false;
+          return;
+        }
+        if (!filtered.length) {
+          spinning = false;
+          return;
+        }
+
+        const { pick, isToday } = pickFor(filtered);
         current = pick;
 
         const idx = Math.max(0, categories.indexOf(pick.category));
@@ -351,7 +320,7 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
       document.querySelectorAll('#band-chips .play-chip').forEach((chip) =>
         chip.addEventListener('click', () => {
           band = (chip as HTMLElement).dataset.band!;
-          save(BAND_KEY, band);
+          saveStored(ACTIVITY_BAND_KEY, band);
           dailyShown = false;
           seen.clear();
           paint();
@@ -362,7 +331,7 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
       document.querySelectorAll('#setting-toggle .play-toggle__btn').forEach((btn) =>
         btn.addEventListener('click', () => {
           setting = (btn as HTMLElement).dataset.setting!;
-          save(SETTING_KEY, setting);
+          saveStored(ACTIVITY_SETTING_KEY, setting);
           dailyShown = false;
           seen.clear();
           paint();
@@ -394,38 +363,6 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
     </script>
 
     <style is:global>
-      .play {
-        max-width: 520px;
-        margin: 0 auto;
-        padding: max(env(safe-area-inset-top), 14px) 18px calc(24px + env(safe-area-inset-bottom));
-      }
-
-      .play-head {
-        text-align: center;
-        padding: 0.4rem 0 1rem;
-      }
-
-      .play-head__back {
-        display: block;
-        text-align: left;
-        font-size: 0.85rem;
-        color: var(--app-ink-faint);
-        text-decoration: none;
-        margin-bottom: 0.6rem;
-      }
-
-      .play-head h1 {
-        font-size: 1.9rem;
-        line-height: 1.15;
-      }
-
-      .play-head__sub {
-        color: var(--app-ink-soft);
-        font-size: 0.95rem;
-        max-width: 34ch;
-        margin: 0.3rem auto 0;
-      }
-
       .play-chips {
         display: flex;
         flex-wrap: wrap;
@@ -656,12 +593,4 @@ const description = `Stuck for ideas? Spin the wheel: ${totalCount}+ free activi
         color: var(--app-teal);
       }
 
-      .play-foot {
-        text-align: center;
-        font-size: 0.8rem;
-        color: var(--app-ink-faint);
-        margin-top: 1.4rem;
-      }
     </style>
-  </body>
-</html>

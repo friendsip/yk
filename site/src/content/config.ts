@@ -16,6 +16,11 @@ const content = defineCollection({
     image: z.string().optional(),
     /** Alt text for the image — required in spirit whenever image is set */
     image_alt: z.string().optional(),
+    /** Attribution for Unsplash (or other credited) photos. Required by the
+     *  Unsplash API Guidelines wherever the photo appears. */
+    image_credit_name: z.string().optional(),
+    image_credit_url: z.string().url().optional(),
+    image_source_url: z.string().url().optional(),
     /** Pin to the homepage indefinitely; overrides the 60-day recency window */
     featured: z.boolean().optional().default(false),
   }),

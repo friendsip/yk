@@ -1,9 +1,5 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
-import { sectionArt } from '../../lib/topicArt';
-
-const art = sectionArt.games;
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
 
 const planned = [
   {
@@ -25,17 +21,13 @@ const planned = [
 ];
 ---
 
-<BaseLayout
+<ToolAppLayout
   title="Educational games — coming soon"
   description="Original educational games for classrooms, playgroups and family gatherings are coming to yourkids.com — free to play, designed for groups, made with care."
+  heading="Educational games 🎲"
+  sub="Original games for classrooms, playgroups and rainy-day gatherings — designed for groups, genuinely educational, free to play."
 >
-  <SectionHero
-    title="Educational games"
-    blurb="Original games for classrooms, playgroups, childminders and rainy-day gatherings — designed for groups, built to be genuinely educational, and free to play."
-    art={art}
-  />
-
-  <section class="guide-section" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+  <section class="guide-section">
     <h2>What's coming <span class="coming-soon-pill">Coming soon</span></h2>
     <p class="guide-section__lede">
       We're building a small collection of original games with teachers, group
@@ -43,7 +35,7 @@ const planned = [
       explain, with natural stopping points — and quietly educational rather
       than flashy. No ads, no in-app purchases, ever.
     </p>
-    <div class="stage-grid stage-grid--wide">
+    <div class="stage-grid">
       {planned.map((p) => (
         <div class="stage-card">
           <span class="stage-card__label">{p.title}</span>
@@ -69,4 +61,4 @@ const planned = [
       learning through play.
     </p>
   </section>
-</BaseLayout>
+</ToolAppLayout>

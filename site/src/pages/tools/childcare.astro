@@ -1,8 +1,6 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
 import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
-import { sectionArt } from '../../lib/topicArt';
 import {
   fundingSchemes,
   regionCosts,
@@ -11,8 +9,6 @@ import {
   childcareSources,
 } from '../../data/tools/childcare';
 
-const art = sectionArt.tools;
-
 const clientData = {
   schemes: fundingSchemes,
   costs: regionCosts,
@@ -20,19 +16,13 @@ const clientData = {
 };
 ---
 
-<BaseLayout
+<ToolAppLayout
   title="Childcare costs & funding explorer (UK)"
   description="What childcare really costs in your part of the UK, what government funding you can get — funded hours, Tax-Free Childcare — and exactly when each starts, worked out from your child's birthday."
+  heading="Childcare costs 💷"
+  sub="What childcare costs near you, what help you can get, and exactly when it starts — worked out from your child's birthday."
 >
-  <SectionHero
-    title="Childcare costs & funding"
-    blurb="What childcare costs near you, what help the government gives, and — the part everyone finds baffling — exactly when it starts for your child. Worked out from their birthday."
-    art={art}
-  />
-
-  <p class="stage-breadcrumb guide-breadcrumb"><a href="/tools">&larr; All tools</a></p>
-
-  <div class="stage-page" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+  <div class="stage-page">
     <div class="tool-card">
       <h2>About your child &amp; childcare</h2>
       <p class="tool-card__hint">
@@ -134,28 +124,19 @@ const clientData = {
       </ul>
     </footer>
   </div>
-</BaseLayout>
+</ToolAppLayout>
 
 <script is:inline type="application/json" id="cc-data" set:html={JSON.stringify(clientData)} />
 
 <script>
-  interface Scheme {
-    id: string;
-    nation: string;
-    name: string;
-    summary: string[];
-    eligibility: string[];
-    ageFromMonths: number | null;
-    termAfter: boolean;
-    hoursPerWeek: number | null;
-    weeksPerYear: number | null;
-    applyNotes: string[];
-    requiresWork?: boolean;
-  }
-  interface RegionCost {
-    region: string;
-    [key: string]: string | number | null;
-  }
+  import {
+    computeEntitlements,
+    estimateCost,
+    type Scheme,
+    type RegionCost,
+  } from '../../lib/childcare';
+  import { parseLocalDate as parseDate } from '../../lib/dates';
+  import { loadFirst, BABY_BIRTH_KEY, TODDLER_BIRTH_KEY } from '../../lib/storage';
 
   const data = JSON.parse(document.getElementById('cc-data')!.textContent || '{}') as {
     schemes: Scheme[];
@@ -172,37 +153,10 @@ const clientData = {
   const working = $('cc-working');
   const tfc = $('cc-tfc');
 
-  const requiresWork = (s: Scheme) => s.requiresWork === true;
-
-  const esc = (t: string) =>
-    t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
+  const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const fmtDate = (d: Date) =>
     d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   const money = (n: number) => `£${Math.round(n).toLocaleString('en-GB')}`;
-
-  function addMonths(date: Date, months: number): Date {
-    const r = new Date(date);
-    const day = r.getDate();
-    r.setMonth(r.getMonth() + months);
-    if (r.getDate() < day) r.setDate(0);
-    return r;
-  }
-
-  // English funded-hours terms start 1 September, 1 January and 1 April.
-  function termStartAfter(date: Date): Date {
-    const y = date.getFullYear();
-    const boundaries = [
-      new Date(y, 0, 1),
-      new Date(y, 3, 1),
-      new Date(y, 8, 1),
-      new Date(y + 1, 0, 1),
-    ];
-    for (const b of boundaries) {
-      if (b > date) return b;
-    }
-    return boundaries[3];
-  }
 
   function populateRegions() {
     const isEngland = nation.value === 'england';
@@ -220,56 +174,25 @@ const clientData = {
     (document.getElementById('cc-region-field') as HTMLElement).hidden = options.length <= 1;
   }
 
-  interface Entitlement {
-    scheme: Scheme;
-    start: Date | null; // null = not age-based / already applies
-    label: string;
-  }
-
-  function entitlements(birth: Date): Entitlement[] {
-    const relevant = data.schemes.filter(
-      (s) => (s.nation === nation.value || s.nation === 'uk-wide') && (!requiresWork(s) || working.checked)
-    );
-    return relevant.map((scheme) => {
-      if (scheme.ageFromMonths === null) {
-        return { scheme, start: null, label: 'Available now (if eligible)' };
-      }
-      const qualifying = addMonths(birth, scheme.ageFromMonths);
-      const start = scheme.termAfter ? termStartAfter(qualifying) : qualifying;
-      const label =
-        start.getTime() <= Date.now()
-          ? `Already available (since ${fmtDate(start)})`
-          : `Starts ${fmtDate(start)}`;
-      return { scheme, start, label };
-    });
-  }
-
   function renderTimeline(birth: Date) {
-    const list = entitlements(birth).sort(
+    const list = computeEntitlements(data.schemes, birth, nation.value, working.checked).sort(
       (a, b) => (a.start?.getTime() ?? 0) - (b.start?.getTime() ?? 0)
     );
-    const el = document.getElementById('cc-timeline') as HTMLElement;
-    el.innerHTML = list
-      .map(({ scheme, start, label }) => {
-        const past = !start || start.getTime() <= Date.now();
-        return `<li class="${past ? 'tool-timeline__past' : ''}">
+    (document.getElementById('cc-timeline') as HTMLElement).innerHTML = list
+      .map(
+        ({ scheme, started, label }) => `<li class="${started ? 'tool-timeline__past' : ''}">
           <p class="tool-timeline__when">${esc(scheme.name)} — ${esc(label)}</p>
           <div class="tool-timeline__what">
             ${scheme.summary.map((p) => `<p>${esc(p)}</p>`).join('')}
             <ul>${scheme.applyNotes.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
           </div>
-        </li>`;
-      })
+        </li>`
+      )
       .join('');
     (document.getElementById('cc-timeline-note') as HTMLElement).textContent = working.checked
       ? ''
       : "You've told us you don't meet the working-parent tests, so we've only shown support that doesn't depend on them.";
     (document.getElementById('cc-timeline-result') as HTMLElement).hidden = list.length === 0;
-  }
-
-  function costKey(ageBand: string): string {
-    if (provider.value === 'childminder') return 'childminderUnder2';
-    return ageBand === 'under2' ? 'nurseryUnder2' : 'nurseryTwo';
   }
 
   function renderCosts(birth: Date) {
@@ -283,125 +206,78 @@ const clientData = {
       return;
     }
 
-    const ageMonths = Math.max(
-      0,
-      (new Date().getFullYear() - birth.getFullYear()) * 12 + (new Date().getMonth() - birth.getMonth())
-    );
-    const ageBand = ageMonths < 24 ? 'under2' : 'two';
-    const wantHours = Number(hours.value);
-    const base = costKey(ageBand);
-    const partTime = row[`${base}PartTime`] as number | null;
-    const fullTime = row[`${base}FullTime`] as number | null;
+    const wantHours = Number(hours.value) as 25 | 50;
+    const entitlements = computeEntitlements(data.schemes, birth, nation.value, working.checked);
+    const est = estimateCost({
+      row,
+      birthIso: dob.value,
+      nation: nation.value,
+      provider: provider.value as 'nursery' | 'childminder',
+      wantHours,
+      working: working.checked,
+      tfc: tfc.checked,
+      entitlements,
+    });
 
-    if (partTime == null && fullTime == null) {
+    if (!est.ok) {
       holder.innerHTML =
         "<p>The survey doesn't publish a typical price for that combination in your region — your council's Family Information Service can tell you local rates.</p>";
       resultBox.hidden = false;
       return;
     }
 
-    // Survey basis differs by nation (see data file): England full-time
-    // figures already have 30 funded hours deducted; part-time figures (and
-    // all Scotland/Wales figures) are full price.
-    const isEnglandFT = nation.value === 'england' && wantHours === 50;
-    const hourly = partTime != null ? partTime / 25 : (fullTime as number) / 50;
-
-    let gross: number;
-    let grossLabel: string;
-    if (isEnglandFT && fullTime != null && partTime != null) {
-      gross = fullTime + 30 * (38 / 52) * hourly;
-      grossLabel = `roughly ${money(gross)}/week full price — the survey quotes full-time prices after 30 funded hours (${money(fullTime)}/week), so we've added their value back for comparison`;
-    } else {
-      gross = ((wantHours === 50 ? fullTime : partTime) ?? (partTime as number) * 2) as number;
-      grossLabel = `${money(gross)}/week before any help (${money(gross * 52)}/year)`;
-    }
-
-    const stretched = (s: Scheme) => (s.hoursPerWeek! * (s.weeksPerYear ?? 38)) / 52;
-    const applyTfc = (cost: number) =>
-      tfc.checked && working.checked ? cost - Math.min(cost * 0.2, 2000 / 52) : cost;
-
-    const estimate = (fundedScheme: Scheme | null) => {
-      // England eligible-for-30h full-timers: the survey figure IS the
-      // after-funding price, so use it directly rather than re-deducting.
-      if (isEnglandFT && fundedScheme?.hoursPerWeek === 30 && fullTime != null) {
-        return { net: applyTfc(fullTime), funded: 30 };
-      }
-      // Otherwise start from the same gross shown above and deduct funded
-      // hours at the marginal (part-time) hourly rate.
-      const funded = fundedScheme ? Math.min(stretched(fundedScheme), wantHours) : 0;
-      const cost = Math.max(0, gross - funded * hourly);
-      return { net: applyTfc(cost), funded: fundedScheme?.hoursPerWeek ?? 0 };
-    };
-
-    const withHours = entitlements(birth).filter((e) => e.scheme.hoursPerWeek);
-    const nowEnt =
-      withHours
-        .filter((e) => !e.start || e.start.getTime() <= Date.now())
-        .sort((a, b) => b.scheme.hoursPerWeek! - a.scheme.hoursPerWeek!)[0] ?? null;
-    const nextEnt =
-      withHours
-        .filter(
-          (e) =>
-            e.start &&
-            e.start.getTime() > Date.now() &&
-            e.scheme.hoursPerWeek! > (nowEnt?.scheme.hoursPerWeek ?? 0)
-        )
-        .sort((a, b) => a.start!.getTime() - b.start!.getTime())[0] ?? null;
-
-    const nowEst = estimate(nowEnt?.scheme ?? null);
-    const childminderNote =
-      ageBand === 'two' && provider.value === 'childminder'
-        ? " (under-2 rate — age-2 childminder prices aren't published separately)"
-        : '';
+    const grossLabel = est.englandFtBasis
+      ? `roughly ${money(est.grossWeekly)}/week full price — the survey quotes full-time prices after 30 funded hours (${money(est.surveyFullTimeWeekly!)}/week), so we've added their value back for comparison`
+      : `${money(est.grossWeekly)}/week before any help (${money(est.grossWeekly * 52)}/year)`;
+    const childminderNote = est.childminderAgeTwo
+      ? " (under-2 rate — age-2 childminder prices aren't published separately)"
+      : '';
+    const tfcNote = tfc.checked && working.checked
+      ? ' Includes the Tax-Free Childcare 20% top-up (capped at £2,000/year per child).'
+      : '';
 
     let html = `
       <p class="tool-result__sub">Typical ${esc(provider.value)} price in ${esc(region.value)} for ${wantHours} hours/week${childminderNote}:</p>
-      <p class="tool-result__big">${isEnglandFT ? '' : money(gross) + '/week '}<span class="tool-result__sub">${esc(grossLabel)}</span></p>
+      <p class="tool-result__big">${est.englandFtBasis ? '' : money(est.grossWeekly) + '/week '}<span class="tool-result__sub">${esc(grossLabel)}</span></p>
       <h3>Your estimated cost now</h3>
-      <p class="tool-result__big">${money(nowEst.net)}/week <span class="tool-result__sub">(about ${money(nowEst.net * 52)}/year)</span></p>
-      <p class="tool-result__sub">${nowEst.funded > 0 ? `Includes ${nowEst.funded} funded hours/week (term-time, spread across the year).` : 'No funded hours yet at this age.'}${tfc.checked && working.checked ? ' Includes the Tax-Free Childcare 20% top-up (capped at £2,000/year per child).' : ''}</p>
+      <p class="tool-result__big">${money(est.nowNetWeekly)}/week <span class="tool-result__sub">(about ${money(est.nowNetWeekly * 52)}/year)</span></p>
+      <p class="tool-result__sub">${est.nowFundedHours > 0 ? `Includes ${est.nowFundedHours} funded hours/week (term-time, spread across the year).` : 'No funded hours yet at this age.'}${tfcNote}</p>
     `;
 
-    if (nextEnt) {
-      const futureEst = estimate(nextEnt.scheme);
+    if (est.future) {
       html += `
-        <h3>From ${fmtDate(nextEnt.start!)}</h3>
-        <p class="tool-result__big">${money(futureEst.net)}/week <span class="tool-result__sub">(about ${money(futureEst.net * 52)}/year)</span></p>
-        <p class="tool-result__sub">When ${esc(nextEnt.scheme.name)} kicks in (${nextEnt.scheme.hoursPerWeek} funded hours/week over ${nextEnt.scheme.weeksPerYear ?? 38} weeks).</p>
+        <h3>From ${fmtDate(est.future.start)}</h3>
+        <p class="tool-result__big">${money(est.future.netWeekly)}/week <span class="tool-result__sub">(about ${money(est.future.netWeekly * 52)}/year)</span></p>
+        <p class="tool-result__sub">When ${esc(est.future.schemeName)} kicks in (${est.future.fundedHours} funded hours/week over ${est.future.weeksPerYear} weeks).</p>
       `;
     }
 
-    if (row.sufficiencyNote) {
-      html += `<p class="tool-result__sub" style="margin-top:1rem;"><strong>Availability where you are:</strong> ${esc(String(row.sufficiencyNote))}</p>`;
+    if (est.sufficiencyNote) {
+      html += `<p class="tool-result__sub" style="margin-top:1rem;"><strong>Availability where you are:</strong> ${esc(est.sufficiencyNote)}</p>`;
     }
     holder.innerHTML = html;
     resultBox.hidden = false;
   }
 
   function render() {
-    if (!dob.value) {
+    const birth = parseDate(dob.value);
+    if (!birth) {
       (document.getElementById('cc-timeline-result') as HTMLElement).hidden = true;
       (document.getElementById('cc-cost-result') as HTMLElement).hidden = true;
       return;
     }
-    const birth = new Date(`${dob.value}T00:00:00`);
-    if (Number.isNaN(birth.getTime())) return;
     renderTimeline(birth);
     renderCosts(birth);
   }
 
-  try {
-    const saved = localStorage.getItem('yk-baby-birthdate') || localStorage.getItem('yk-toddler-birthdate');
-    if (saved) dob.value = saved;
-  } catch {}
+  const saved = loadFirst(BABY_BIRTH_KEY, TODDLER_BIRTH_KEY);
+  if (saved) dob.value = saved;
 
   nation.addEventListener('change', () => {
     populateRegions();
     render();
   });
-  [dob, region, provider, hours, working, tfc].forEach((el) =>
-    el.addEventListener('input', render)
-  );
+  [dob, region, provider, hours, working, tfc].forEach((el) => el.addEventListener('input', render));
   populateRegions();
   render();
 </script>

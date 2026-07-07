@@ -1,13 +1,9 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
 import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
-import { sectionArt } from '../../lib/topicArt';
 import { babyWeeks } from '../../data/baby/weeks';
 import { babyMonths } from '../../data/baby/months';
 import { toddlerStages } from '../../data/toddler/stages';
-
-const art = sectionArt.tools;
 
 const stageRanges = [
   ...[...babyWeeks, ...babyMonths].map((s) => ({
@@ -27,23 +23,16 @@ const stageRanges = [
 ];
 ---
 
-<BaseLayout
+<ToolAppLayout
   title="Baby age calculator — weeks, months and corrected age"
   description="How many weeks old is my baby? Work out your baby's exact age in weeks, months and days — including corrected (adjusted) age for premature babies."
+  heading="Baby age 🎂"
+  sub="Weeks? Months? Both at once, somehow? Get their exact age — and corrected age if they arrived early."
 >
-  <SectionHero
-    title="Baby age calculator"
-    blurb="Weeks? Months? Both at once, somehow? Get your baby's exact age — and their corrected age if they arrived early."
-    art={art}
-  />
-
-  <p class="stage-breadcrumb guide-breadcrumb"><a href="/tools">&larr; All tools</a></p>
-
   <div
     class="tool-card"
     id="age-tool"
     data-stages={JSON.stringify(stageRanges)}
-    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
   >
     <h2>Your baby</h2>
     <div class="tool-form">
@@ -62,7 +51,7 @@ const stageRanges = [
     </div>
   </div>
 
-  <div class="tool-result" id="age-result" hidden style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+  <div class="tool-result" id="age-result" hidden>
     <h2>Right now</h2>
     <p class="tool-result__big" id="age-headline"></p>
     <p class="tool-result__sub" id="age-detail"></p>
@@ -79,9 +68,12 @@ const stageRanges = [
   </div>
 
   <GuideDisclaimer />
-</BaseLayout>
+</ToolAppLayout>
 
 <script>
+  import { daysSince, ageHeadline, ageBreakdown, todayLocalISO } from '../../lib/dates';
+  import { loadFirst, BABY_BIRTH_KEY, TODDLER_BIRTH_KEY } from '../../lib/storage';
+
   const tool = document.getElementById('age-tool') as HTMLElement;
   const stages: { id: string; label: string; from: number; to: number; kind: string }[] =
     JSON.parse(tool.dataset.stages || '[]');
@@ -92,68 +84,33 @@ const stageRanges = [
   const dueInput = document.getElementById('age-due') as HTMLInputElement;
   const result = document.getElementById('age-result') as HTMLElement;
 
-  const today = new Date().toISOString().slice(0, 10);
-  dobInput.max = today;
+  dobInput.max = todayLocalISO();
 
   // Reuse the date the guides/app may already know
-  try {
-    const saved = localStorage.getItem('yk-baby-birthdate') || localStorage.getItem('yk-toddler-birthdate');
-    if (saved) dobInput.value = saved;
-  } catch {}
-
-  const daysSince = (iso: string): number =>
-    Math.floor((Date.now() - new Date(`${iso}T00:00:00`).getTime()) / 864e5);
-
-  function breakdown(days: number): string {
-    const weeks = Math.floor(days / 7);
-    const remDays = days % 7;
-    const months = Math.floor(days / 30.44);
-    const parts = [
-      `${days.toLocaleString('en-GB')} days`,
-      remDays ? `${weeks} weeks and ${remDays} day${remDays === 1 ? '' : 's'}` : `${weeks} weeks exactly`,
-    ];
-    if (months >= 1) parts.push(`about ${months} month${months === 1 ? '' : 's'}`);
-    if (months >= 24) parts.push(`${Math.floor(months / 12)} years and ${months % 12} months`);
-    return parts.join(' · ');
-  }
-
-  function headline(days: number): string {
-    if (days === 0) return 'Born today — congratulations!';
-    const weeks = Math.floor(days / 7);
-    if (days < 14) return `${days} day${days === 1 ? '' : 's'} old`;
-    if (weeks < 13) return `${weeks} week${weeks === 1 ? '' : 's'} old`;
-    const months = Math.floor(days / 30.44);
-    if (months < 24) return `${months} month${months === 1 ? '' : 's'} old`;
-    const years = Math.floor(months / 12);
-    return `${years} year${years === 1 ? '' : 's'} and ${months % 12} month${months % 12 === 1 ? '' : 's'} old`;
-  }
+  const saved = loadFirst(BABY_BIRTH_KEY, TODDLER_BIRTH_KEY);
+  if (saved) dobInput.value = saved;
 
   function render() {
-    const dob = dobInput.value;
-    if (!dob) {
-      result.hidden = true;
-      return;
-    }
-    const days = daysSince(dob);
-    if (days < 0) {
+    const days = daysSince(dobInput.value);
+    if (days === null) {
       result.hidden = true;
       return;
     }
 
-    (document.getElementById('age-headline') as HTMLElement).textContent = headline(days);
-    (document.getElementById('age-detail') as HTMLElement).textContent = breakdown(days);
+    (document.getElementById('age-headline') as HTMLElement).textContent = ageHeadline(days);
+    (document.getElementById('age-detail') as HTMLElement).textContent = ageBreakdown(days);
 
     // Corrected age
     const correctedBlock = document.getElementById('age-corrected') as HTMLElement;
     let guideDays = days;
     if (earlyBox.checked && dueInput.value) {
-      const correctedDays = daysSince(dueInput.value);
-      if (correctedDays >= 0 && correctedDays < days) {
+      const correctedDays = daysSince(dueInput.value); // null = due date not yet reached
+      if (correctedDays !== null && correctedDays < days) {
         (document.getElementById('age-corrected-headline') as HTMLElement).textContent =
-          `${headline(correctedDays)} (corrected)`;
+          `${ageHeadline(correctedDays)} (corrected)`;
         correctedBlock.hidden = false;
         guideDays = correctedDays;
-      } else if (correctedDays < 0) {
+      } else if (correctedDays === null) {
         (document.getElementById('age-corrected-headline') as HTMLElement).textContent =
           "Not due yet — corrected age starts from the due date.";
         correctedBlock.hidden = false;

@@ -40,6 +40,42 @@ triage:
   min_reliability: 6
   min_overall_score: 5.5
 
+# Planner bounds — keep the weekly planner prompt (and token bill) finite.
+# Without these the candidate pool grows every week until the prompt truncates
+# and the plan fails to parse.
+planner:
+  # Most candidate items handed to the planner in one run (best score first).
+  max_candidate_items: 40
+  # Triaged items not planned within this many days are marked 'expired' so
+  # they leave the candidate pool rather than accumulating forever.
+  triaged_item_ttl_days: 21
+
+# Spend guardrails. The cap is deliberately generous: a normal week costs a
+# few dollars, so hitting this means something has gone wrong (e.g. a runaway
+# retry loop or an unbounded prompt). LLM work is skipped and an alert fires.
+limits:
+  daily_cost_usd_cap: 20.0
+
+# Operational alerting. Off by default and safe-by-default: a broken alerting
+# setup only logs, it never crashes the pipeline it is meant to watch.
+#   channel: "email" (SMTP) or "webhook" (Slack/Discord/generic POST)
+#   Credentials and the webhook URL come from environment variables, never
+#   this file — set the names below and put the secrets in engine/.env.
+alerting:
+  enabled: false
+  channel: "email"
+  min_level: "warning"        # info | warning | error — quieter than this only logs
+  # Email (SMTP)
+  smtp_host: ""
+  smtp_port: 587
+  smtp_starttls: true
+  smtp_user_env: "ALERT_SMTP_USER"
+  smtp_password_env: "ALERT_SMTP_PASSWORD"
+  from: ""
+  to: ""                      # comma-separated for more than one recipient
+  # Webhook (Slack / Discord / any JSON POST endpoint)
+  webhook_url_env: "ALERT_WEBHOOK_URL"
+
 models:
   scanner: null
   triage: "claude-sonnet-4-6"
@@ -83,3 +119,23 @@ content:
   max_word_count: 1500
   min_word_count: 300
   require_source_links: true
+
+# Article photography via the Unsplash API. Off until an app is registered at
+# unsplash.com/oauth/applications and UNSPLASH_ACCESS_KEY is set in engine/.env.
+# We hotlink the Unsplash CDN (their compliance requirement) and the site
+# renders the required "Photo by … on Unsplash" attribution automatically.
+# app_name MUST match the registered application name (used in the attribution
+# UTM links). skip_tags never get an auto-photo — the gentle illustration
+# stays — even if the writer suggests one.
+media:
+  enabled: false
+  provider: "unsplash"
+  app_name: "yourkids"
+  orientation: "landscape"
+  content_filter: "high"      # ask Unsplash to exclude potentially unsafe imagery
+  timeout_seconds: 15
+  skip_tags:
+    - "special-needs"
+    - "safeguarding"
+    - "bereavement"
+    - "mental-health"

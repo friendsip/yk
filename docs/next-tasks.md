@@ -33,8 +33,9 @@ The engine is designed for continuous operation but is currently only run manual
 
 - [x] **Pre-deployment hardening (July 2026)** — LLM-supplied `target_path` is sanitised to a flat filename (`src/utils/paths.py` — no traversal or absolute-path reads/writes from planner output); publish is git-first (DB records and staging cleanup happen only after a successful push/PR, so a failed batch retries next run instead of the DB claiming it shipped); triage tracks per-item attempts and marks items `triage_failed` after 3 tries so one bad batch can't wedge the queue; all Python-side timestamps are UTC in SQLite's format (`src/utils/clock.py` — fixes stale-action detection, which previously mis-fired on every same-day action); editor output is validated before staging (a refusal can no longer overwrite a live article); content commits use `git commit --only` so unrelated staged changes aren't swept into content commits. `publishing.mode` switched to `pr` — a human merges the weekly content PR — until prompt-injection mitigation for scraped content exists (the remaining precondition for `auto`).
 - [x] **Pre-deployment hardening, round 2 (July 2026)** — prompt-injection fencing: all scraped fields (titles, URLs, content) are sanitised via `src/llm/fencing.py` before entering triage/planner/writer/editor prompts (angle brackets become lookalikes so scraped text can't break its prompt frame), and every prompt carrying scraped material includes a standing treat-as-data-not-instructions notice. Planner is crash-safe: malformed LLM actions are skipped rather than aborting the run mid-write, and `item_ids` are constrained to the triaged set. Scanner: URL-level dedup *before* fetching (hourly scans no longer re-fetch every entry, and page churn no longer re-inserts known URLs) plus a 30s timeout on feed fetches. Missed-Sunday catch-up: the weekly cron gets a 6-hour misfire grace window, and on startup the engine detects a missed weekly run from the plans table and runs it. Note: returning to `auto` publish mode would still warrant an output-side guardrail review pass — fencing is input-side mitigation, and the weekly PR remains the human gate.
-- [ ] **Provision VPS** — Set up Python 3.12+, Git, SSH keys, and GitHub access on the Hetzner box.
-- [ ] **Systemd service** — Create a service file for the engine process with auto-restart and log rotation.
+- [x] **Pre-deployment hardening, round 3 (5 July 2026)** — the P0 engine items from `docs/state-of-yourkids-2026-07-04.md`: the weekly pipeline is stage-isolated so one LLM failure no longer skips the whole week (publish always runs; startup catch-up also fires on leftover staging); LLM retry now covers overloaded/5xx (`APIStatusError`/`InternalServerError`); the planner is bounded (`planner.max_candidate_items`, `triaged_item_ttl_days` expiry) with a `limits.daily_cost_usd_cap`; a file lock (`src/utils/lock.py`) prevents a second instance double-publishing; and **alerting** (`src/utils/notify.py`, email/webhook, off-by-default) fires on stage/publish/source failures. Engine tests 86 → 120.
+- [x] **Deploy artefacts prepared** — `engine/deploy/`: `yourkids-engine.service` (systemd, auto-restart, journald), `healthcheck.py` (cron-friendly staleness check), `backup.sh` (WAL-safe DB backup + retention), and `DEPLOY.md` (the full provisioning runbook). **Provisioning itself is Mark's to run** — follow `engine/deploy/DEPLOY.md`.
+- [ ] **Provision VPS (Mark)** — follow `engine/deploy/DEPLOY.md`: Python 3.11+, git, `gh auth login`, `engine/.env` (API keys + alerting secrets), enable the systemd service, add the healthcheck + backup crons, set `alerting.enabled: true` and a channel.
 - [ ] **Environment variables** — Deploy `.env` with `ANTHROPIC_API_KEY` and `GITHUB_TOKEN`.
 - [ ] **Database persistence** — Ensure `engine/data/yourkids.db` survives restarts and is backed up regularly (cron job copying to a separate location or cloud storage).
 - [ ] **Log management** — Configure journald or file-based logging with rotation. The engine already logs to stdout.
@@ -50,9 +51,9 @@ No visibility into whether the engine is working, failing, or overspending.
 
 **Tasks:**
 
-- [ ] **Pipeline status monitoring** — Track last successful run of each stage. Alert if scanner hasn't run in 2+ hours, or if Sunday pipeline didn't produce any content.
+- [x] **Pipeline status monitoring** — `engine/deploy/healthcheck.py` checks last-run staleness (scanner >2h, no plan >8d) and exits non-zero + `notify()`s; run it from cron every 15 min per `DEPLOY.md`.
 - [ ] **Token cost tracking** — The engine already logs token usage to the database. Build a simple report (daily/weekly cost summary) and alert if daily cost exceeds a threshold.
-- [ ] **Error alerting** — Send notifications on repeated failures. Options: simple email via SMTP, or a webhook to Slack/Discord.
+- [x] **Error alerting** — `src/utils/notify.py` (SMTP email or Slack/Discord webhook, config-driven, safe-by-default) fires on weekly-pipeline stage failures, publish failures, the cost cap, and repeated source failures. Enable via the `alerting:` block in settings.yaml + secrets in `.env`.
 - [ ] **Source health** — Alert when a source hits 3+ consecutive failures (the engine tracks this but doesn't notify).
 
 **Effort:** Small to medium. Could start with a cron script that queries the database and sends email.
@@ -206,6 +207,31 @@ Lower-priority improvements to the site itself.
 - [ ] **Dark mode** — Optional. The CSS variables make this straightforward to add.
 
 ---
+
+## 12. Article Photography (Unsplash) — built July 2026, needs an API key
+
+The engine can now auto-illustrate articles with relevant, attributed Unsplash
+photos: the writer emits an `image_search` hint, `src/media/illustrate.py`
+resolves it via `src/media/unsplash.py`, and the site renders a photo hero with
+the required "Photo by … on Unsplash" credit. Hotlinked (not re-hosted),
+download-tracked, `content_filter=high`, and skipped on sensitive tags. **Off
+until Mark enables it:**
+
+- [ ] **Register an Unsplash application (Mark)** at
+  https://unsplash.com/oauth/applications → copy the **Access Key**. Demo mode
+  allows 50 requests/hour (plenty for a weekly batch of ≤5 articles); apply for
+  production only if volume grows. Set the app's name to match
+  `media.app_name` in settings.yaml (`yourkids`) — it's used in the required
+  attribution UTM links.
+- [ ] **Set `UNSPLASH_ACCESS_KEY` in `engine/.env`** and flip
+  `media.enabled: true` in `engine/config/settings.yaml`, then redeploy the
+  engine. Until both are done the feature is inert (articles keep their
+  illustrations).
+- [ ] **Review the first batch** — the weekly content PR will now include
+  chosen photos + attribution; check tone/appropriateness before merging (the
+  human PR gate is the safety net for auto-selected imagery).
+- [ ] Optional later: extend to the tools/apps or curated cards; consider a
+  self-hosted fallback if Unsplash CDN dependence ever becomes a concern.
 
 ## 11. Baby & Toddler Guides
 

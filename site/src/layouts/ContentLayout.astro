@@ -14,6 +14,12 @@ interface Props {
   first_published: Date;
   last_updated?: Date;
   external_url?: string;
+  /** Optional photo hero (replaces the illustration band) + its attribution */
+  image?: string;
+  imageAlt?: string;
+  imageCreditName?: string;
+  imageCreditUrl?: string;
+  imageSourceUrl?: string;
   /** Raw markdown body, used for reading time */
   body?: string;
 }
@@ -27,6 +33,11 @@ const {
   first_published,
   last_updated,
   external_url,
+  image,
+  imageAlt = '',
+  imageCreditName,
+  imageCreditUrl,
+  imageSourceUrl,
   body = '',
 } = Astro.props;
 
@@ -75,9 +86,23 @@ const jsonLd = {
 
   <article data-pagefind-body>
     <header class="content-header" style={`--accent: ${art.accent}; --accent-tint: ${art.tint};`}>
-      <div class="content-header__band" aria-hidden="true">
-        <div class="content-header__art" set:html={art.markup} />
-      </div>
+      {image ? (
+        <figure class="content-header__photo">
+          <img src={image} alt={imageAlt} loading="eager" decoding="async" />
+          {imageCreditName && (
+            <figcaption class="content-header__credit">
+              Photo by{' '}
+              <a href={imageCreditUrl} target="_blank" rel="noopener noreferrer">{imageCreditName}</a>
+              {' '}on{' '}
+              <a href={imageSourceUrl ?? 'https://unsplash.com'} target="_blank" rel="noopener noreferrer">Unsplash</a>
+            </figcaption>
+          )}
+        </figure>
+      ) : (
+        <div class="content-header__band" aria-hidden="true">
+          <div class="content-header__art" set:html={art.markup} />
+        </div>
+      )}
       {type === 'editorial' && (
         <div class="editorial-banner">Editor's Perspective</div>
       )}

@@ -286,6 +286,16 @@ def run_data_review(llm_client: LLMClient = None, register: list[dict] | None = 
                         title=f"Data review: {artefact['name']} needs updating",
                         body=_issue_body(artefact, verdict, checked, now),
                     )
+                    if issue_url:
+                        from src.utils.notify import notify
+
+                        notify(
+                            f"Data review opened an issue: {artefact['name']}",
+                            f"The data-maintenance reviewer found {artefact['name']} out of "
+                            f"date and opened {issue_url}\n\n{verdict.get('summary', '')}",
+                            level="info",
+                            settings=settings,
+                        )
                 elif recently_raised:
                     issue_url = last.get("issue_url")
                     logger.info(f"Issue already open for {artefact_id} — not duplicating")

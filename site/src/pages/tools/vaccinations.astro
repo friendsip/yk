@@ -1,11 +1,8 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import SectionHero from '../../components/SectionHero.astro';
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
 import GuideDisclaimer from '../../components/GuideDisclaimer.astro';
-import { sectionArt } from '../../lib/topicArt';
 import { ukSchedule, scheduleMeta, vaccinationSources } from '../../data/tools/vaccinations';
 
-const art = sectionArt.tools;
 const clientData = ukSchedule.map((e) => ({
   id: e.id,
   ageLabel: e.ageLabel,
@@ -14,19 +11,13 @@ const clientData = ukSchedule.map((e) => ({
 }));
 ---
 
-<BaseLayout
+<ToolAppLayout
   title="Baby vaccination planner — your NHS schedule with real dates"
   description="Enter your baby's date of birth and see their NHS childhood vaccination timeline with actual dates — plus a calendar file to download. Based on the current UK schedule."
+  heading="Vaccination planner 💉"
+  sub="Your surgery will invite you to every appointment — this just shows what's coming, with real dates from your baby's birthday."
 >
-  <SectionHero
-    title="Vaccination planner"
-    blurb="Your GP surgery will invite you to every appointment — this planner just helps you see what's coming, with real dates worked out from your baby's birthday."
-    art={art}
-  />
-
-  <p class="stage-breadcrumb guide-breadcrumb"><a href="/tools">&larr; All tools</a></p>
-
-  <div class="stage-page" style={`--accent:${art.accent}; --accent-tint:${art.tint};`}>
+  <div class="stage-page">
     <div class="tool-card" id="vax-tool">
       <h2>Your baby</h2>
       <div class="tool-form">
@@ -91,79 +82,44 @@ const clientData = ukSchedule.map((e) => ({
       </ul>
     </footer>
   </div>
-</BaseLayout>
+</ToolAppLayout>
 
 <script is:inline type="application/json" id="vax-data" set:html={JSON.stringify(clientData)} />
 
 <script>
-  interface VaxEvent {
-    id: string;
-    ageLabel: string;
-    dueOffsetDays: number;
-    vaccines: string[];
-  }
+  import { vaccinationDueDate, buildVaccinationICS, type VaxEvent } from '../../lib/ics';
+  import { loadStored, BABY_BIRTH_KEY } from '../../lib/storage';
 
   const events: VaxEvent[] = JSON.parse(document.getElementById('vax-data')!.textContent || '[]');
   const dob = document.getElementById('vax-dob') as HTMLInputElement;
   const icsBtn = document.getElementById('vax-ics') as HTMLButtonElement;
 
-  try {
-    const saved = localStorage.getItem('yk-baby-birthdate');
-    if (saved) dob.value = saved;
-  } catch {}
+  const saved = loadStored(BABY_BIRTH_KEY);
+  if (saved) dob.value = saved;
 
   const fmt = (d: Date) =>
     d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
 
-  function dueDate(offsetDays: number): Date | null {
-    if (!dob.value) return null;
-    const birth = new Date(`${dob.value}T00:00:00`);
-    if (Number.isNaN(birth.getTime())) return null;
-    return new Date(birth.getTime() + offsetDays * 864e5);
-  }
-
   function render() {
-    const has = Boolean(dob.value);
-    icsBtn.disabled = !has;
+    icsBtn.disabled = !dob.value;
     events.forEach((event) => {
       const el = document.querySelector(`[data-date-for="${event.id}"]`) as HTMLElement | null;
       const li = document.querySelector(`[data-event="${event.id}"]`) as HTMLElement | null;
       if (!el || !li) return;
-      const due = dueDate(event.dueOffsetDays);
+      const due = vaccinationDueDate(dob.value, event.dueOffsetDays);
       if (!due) {
         el.textContent = '';
         li.classList.remove('tool-timeline__past');
         return;
       }
-      const past = due.getTime() < Date.now();
       el.textContent = `— from ${fmt(due)}`;
-      li.classList.toggle('tool-timeline__past', past);
+      li.classList.toggle('tool-timeline__past', due.getTime() < Date.now());
     });
-  }
-
-  function icsEscape(text: string): string {
-    return text.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
   }
 
   icsBtn.addEventListener('click', () => {
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z';
-    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//yourkids.com//vaccination-planner//EN'];
-    events.forEach((event) => {
-      const due = dueDate(event.dueOffsetDays);
-      if (!due) return;
-      const date = due.toISOString().slice(0, 10).replace(/-/g, '');
-      lines.push(
-        'BEGIN:VEVENT',
-        `UID:${event.id}-${date}@yourkids.com`,
-        `DTSTAMP:${stamp}`,
-        `DTSTART;VALUE=DATE:${date}`,
-        `SUMMARY:${icsEscape(`Baby vaccinations due (${event.ageLabel})`)}`,
-        `DESCRIPTION:${icsEscape(`${event.vaccines.join(', ')}. Your GP surgery will send the actual appointment — this is the age these are due from. From yourkids.com/tools/vaccinations`)}`,
-        'END:VEVENT'
-      );
-    });
-    lines.push('END:VCALENDAR');
-    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+    if (!dob.value) return;
+    const blob = new Blob([buildVaccinationICS(events, dob.value)], { type: 'text/calendar' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'yourkids-vaccination-planner.ics';

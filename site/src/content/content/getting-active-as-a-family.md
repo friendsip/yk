@@ -5,6 +5,9 @@ type: evergreen
 section: parenting
 image: "/images/active-family-alberto-casetta.jpg"
 image_alt: "A family walking together along a forest path"
+image_credit_name: "Alberto Casetta"
+image_credit_url: "https://unsplash.com/photos/REKXJ7JhwiI?utm_source=yourkids&utm_medium=referral"
+image_source_url: "https://unsplash.com/photos/REKXJ7JhwiI?utm_source=yourkids&utm_medium=referral"
 tags:
   - good-news
   - health

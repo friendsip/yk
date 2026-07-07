@@ -5,6 +5,9 @@ type: evergreen
 section: parenting
 image: "/images/cooking-jimmy-dean.jpg"
 image_alt: "A couple cooking together at a kitchen counter"
+image_credit_name: "Jimmy Dean"
+image_credit_url: "https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&utm_medium=referral"
+image_source_url: "https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&utm_medium=referral"
 tags:
   - good-news
   - family-life

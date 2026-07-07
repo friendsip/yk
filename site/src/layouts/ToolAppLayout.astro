@@ -1,0 +1,74 @@
+---
+/**
+ * Phone-app layout for the tools & games pages — the Baby & Toddler app's
+ * design world (app.css) with an app-skin for the tools' existing markup
+ * (app-tools.css). Pages using this layout keep their class names and client
+ * scripts unchanged; only the shell and skin differ from the editorial site.
+ *
+ * Unlike AppLayout these pages ARE indexable — they're the SEO surface.
+ */
+import '../styles/app.css';
+import '../styles/app-tools.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Warm on-page heading (the H1); defaults to title */
+  heading?: string;
+  /** One-line sub under the heading */
+  sub?: string;
+  backHref?: string;
+  backLabel?: string;
+}
+
+const {
+  title,
+  description,
+  heading,
+  sub,
+  backHref = '/tools',
+  backLabel = 'Our free apps',
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title} | YourKids</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <link rel="icon" href="/app/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#fde7d8" />
+    <meta property="og:site_name" content="YourKids" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={new URL('/og-default.png', Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:ital,wght@0,400;0,600;0,800;1,400&display=swap"
+    />
+  </head>
+  <body class="app-body">
+    <div id="app" class="play">
+      <header class="play-head">
+        <a class="play-head__back" href={backHref}>&larr; {backLabel}</a>
+        <h1>{heading ?? title}</h1>
+        {sub && <p class="play-head__sub">{sub}</p>}
+      </header>
+      <slot />
+      <p class="play-foot">
+        Free, no account, no ads — from <a href="/">yourkids.com</a>. Anything
+        you enter stays on this device. <a href="/privacy">Privacy</a>
+      </p>
+    </div>
+  </body>
+</html>

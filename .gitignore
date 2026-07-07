@@ -20,3 +20,8 @@ site/.astro/
 
 # OS
 .DS_Store
+
+# Site test output
+site/test-results/
+site/playwright-report/
+.playwright-mcp/

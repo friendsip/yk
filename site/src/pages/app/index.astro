@@ -185,6 +185,8 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
 </AppLayout>
 
 <script>
+  import { todayLocalISO } from '../../lib/dates';
+
   // ────────────────────────────────────────────────────────────────────
   // Types & state
   // ────────────────────────────────────────────────────────────────────
@@ -311,7 +313,12 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
     return h;
   };
 
-  const dayNumber = () => Math.floor(Date.now() / 864e5);
+  // Local day number so the daily rotation flips at local midnight (matching
+  // the header date), not at UTC midnight.
+  const dayNumber = () => {
+    const n = new Date();
+    return Math.floor(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) / 864e5);
+  };
 
   function pickDaily<T>(pool: T[], salt: number): T | null {
     if (!pool.length) return null;
@@ -481,7 +488,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
     nameInput.value = child?.name ?? '';
     // Prefill from the guide pages' stored dates if a first-time visitor
     dobInput.value = child?.birthdate ?? load('yk-baby-birthdate') ?? load('yk-toddler-birthdate') ?? '';
-    dobInput.max = new Date().toISOString().slice(0, 10);
+    dobInput.max = todayLocalISO();
     show('wizard');
     wizardGo(0);
     nameInput.focus();

@@ -1,0 +1,614 @@
+/* ── App skin for the tools & games pages ──
+   These pages share the Baby & Toddler app's design world (app.css) but keep
+   their original markup/class names so the verified client logic is
+   untouched. This sheet restyles those class names in the app language.
+   Only ever loaded alongside app.css — never with global.css. */
+
+/* App shell */
+.play {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: max(env(safe-area-inset-top), 14px) 18px calc(24px + env(safe-area-inset-bottom));
+}
+
+.play-head {
+  text-align: center;
+  padding: 0.4rem 0 1rem;
+}
+
+.play-head__back {
+  display: block;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--app-ink-faint);
+  text-decoration: none;
+  margin-bottom: 0.6rem;
+}
+
+.play-head h1 {
+  font-size: 1.9rem;
+  line-height: 1.15;
+}
+
+.play-head__sub {
+  color: var(--app-ink-soft);
+  font-size: 0.95rem;
+  max-width: 36ch;
+  margin: 0.3rem auto 0;
+}
+
+.play-foot {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--app-ink-faint);
+  margin-top: 1.4rem;
+}
+
+/* Containers */
+.stage-page {
+  max-width: none;
+  margin: 0;
+}
+
+.stage-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.stage-kicker {
+  display: inline-block;
+  background: rgba(157, 123, 216, 0.16);
+  color: var(--app-lavender);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  margin-bottom: 0.4rem;
+}
+
+.stage-header h1 {
+  font-size: 1.7rem;
+  line-height: 1.15;
+}
+
+.stage-summary {
+  color: var(--app-ink-soft);
+  font-size: 0.95rem;
+}
+
+.stage-section {
+  background: var(--app-card);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.stage-section h2,
+.stage-section h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.4rem;
+}
+
+.stage-section h3 {
+  font-size: 1rem;
+  margin-top: 0.8rem;
+}
+
+.stage-section p {
+  color: var(--app-ink-soft);
+  margin-bottom: 0.6rem;
+  line-height: 1.6;
+}
+
+.stage-section ul {
+  padding-left: 1.2rem;
+  color: var(--app-ink-soft);
+}
+
+.stage-section li {
+  margin-bottom: 0.45rem;
+  line-height: 1.55;
+}
+
+/* Input cards */
+.tool-card {
+  background: var(--app-card);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  border-top: 5px solid var(--app-lavender);
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.tool-card h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.tool-card__hint {
+  font-size: 0.88rem;
+  color: var(--app-ink-soft);
+  margin-bottom: 0.8rem;
+}
+
+.tool-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.tool-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 150px;
+  flex: 1;
+}
+
+.tool-field label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--app-ink-faint);
+}
+
+.tool-field input,
+.tool-field select {
+  font: inherit;
+  font-size: 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 2px solid rgba(58, 49, 83, 0.12);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--app-ink);
+  min-height: 44px;
+}
+
+.tool-field input:focus,
+.tool-field select:focus {
+  outline: none;
+  border-color: var(--app-lavender);
+}
+
+.tool-field--checkbox {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-width: 100%;
+}
+
+.tool-field--checkbox label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.tool-field--checkbox input {
+  width: 1.35rem;
+  height: 1.35rem;
+  min-height: 0;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  accent-color: var(--app-coral);
+}
+
+/* Results */
+.tool-result {
+  background: linear-gradient(135deg, #fff7ec, #eef8f4);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  border-top: 5px solid var(--app-teal);
+  padding: 1.2rem 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.tool-result h2,
+.tool-result h3 {
+  font-size: 1.1rem;
+  margin: 0.3rem 0 0.4rem;
+}
+
+.tool-result__big {
+  font-family: var(--app-font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--app-ink);
+  margin: 0.2rem 0;
+}
+
+.tool-result__sub {
+  color: var(--app-ink-soft);
+  font-size: 0.9rem;
+}
+
+.tool-note {
+  font-size: 0.82rem;
+  color: var(--app-ink-faint);
+  margin-top: 0.6rem;
+}
+
+/* Timelines (childcare funding, vaccinations) */
+.tool-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0;
+  border-left: 3px solid var(--app-coral);
+}
+
+.tool-timeline li {
+  position: relative;
+  padding: 0 0 1.1rem 1.1rem;
+  margin: 0;
+}
+
+.tool-timeline li::before {
+  content: '';
+  position: absolute;
+  left: -8.5px;
+  top: 0.3rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--app-coral);
+  border: 3px solid #fff;
+}
+
+.tool-timeline__when {
+  font-family: var(--app-font-display);
+  font-weight: 700;
+  color: var(--app-ink);
+  margin-bottom: 0.15rem;
+}
+
+.tool-timeline__past .tool-timeline__when {
+  color: var(--app-ink-faint);
+}
+
+.tool-timeline__past::before {
+  background: var(--app-ink-faint);
+}
+
+.tool-timeline__what {
+  color: var(--app-ink-soft);
+  font-size: 0.9rem;
+}
+
+.tool-timeline__what p {
+  margin-bottom: 0.4rem;
+}
+
+.tool-timeline__what ul {
+  padding-left: 1.1rem;
+  margin: 0.3rem 0;
+}
+
+.tool-timeline__what li {
+  padding: 0;
+  margin-bottom: 0.3rem;
+}
+
+.tool-timeline__what li::before {
+  display: none;
+}
+
+/* Table (nap schedule) */
+.tool-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: var(--app-card);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  overflow: hidden;
+  margin: 0 0 1rem;
+}
+
+.tool-table th,
+.tool-table td {
+  text-align: left;
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid rgba(58, 49, 83, 0.08);
+  vertical-align: top;
+}
+
+.tool-table th {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--app-ink-faint);
+}
+
+.tool-table tr.is-current {
+  background: linear-gradient(135deg, #fff3df, #ffe9f1);
+}
+
+.tool-table tr.is-current td:first-child {
+  font-weight: 800;
+  color: var(--app-coral);
+}
+
+/* Cards grid (checklist index, games) */
+.stage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 460px) {
+  .stage-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.stage-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--app-card);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  border-top: 5px solid var(--card-accent, var(--app-coral));
+  padding: 1rem 1.1rem;
+  text-decoration: none;
+  color: var(--app-ink);
+}
+
+.stage-card__label {
+  font-family: var(--app-font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.stage-card__title {
+  font-size: 0.85rem;
+  color: var(--app-ink-soft);
+  line-height: 1.45;
+}
+
+.guide-section {
+  margin-bottom: 1.2rem;
+}
+
+.guide-section h2 {
+  font-size: 1.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.guide-section__lede {
+  color: var(--app-ink-soft);
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+}
+
+.coming-soon-pill {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--app-sunshine), var(--app-rose));
+  color: #fff;
+  vertical-align: middle;
+}
+
+/* Checklists */
+.checklist-progress {
+  font-family: var(--app-font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-align: center;
+  margin-bottom: 0.6rem;
+}
+
+.checklist-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.checklist-btn {
+  font: inherit;
+  font-family: var(--app-font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.5rem 1.1rem;
+  border: 2px solid rgba(58, 49, 83, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--app-ink);
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.checklist-section {
+  background: var(--app-card);
+  border-radius: var(--app-radius);
+  box-shadow: var(--app-shadow);
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.9rem;
+}
+
+.checklist-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.4rem;
+}
+
+.checklist-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.checklist-items li {
+  margin: 0;
+}
+
+.checklist-items label {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(58, 49, 83, 0.07);
+  cursor: pointer;
+}
+
+.checklist-items li:last-child label {
+  border-bottom: none;
+}
+
+.checklist-items input {
+  width: 1.35rem;
+  height: 1.35rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  accent-color: var(--app-teal);
+}
+
+.checklist-items input:checked + span {
+  text-decoration: line-through;
+  color: var(--app-ink-faint);
+}
+
+.checklist-items .item-note {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--app-ink-faint);
+  text-decoration: none !important;
+}
+
+/* Sources & disclaimer */
+.stage-sources {
+  font-size: 0.78rem;
+  color: var(--app-ink-faint);
+  padding: 0 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.stage-sources h2 {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.stage-sources ul {
+  list-style: none;
+  padding: 0;
+}
+
+.stage-sources li {
+  margin-bottom: 0.25rem;
+}
+
+.stage-sources a {
+  color: var(--app-ink-soft);
+}
+
+.stage-sources__region {
+  color: var(--app-ink-faint);
+}
+
+.guide-disclaimer {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: var(--app-radius);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.guide-disclaimer p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--app-ink-soft);
+  line-height: 1.55;
+}
+
+/* Launcher (the Our Free Apps hub) */
+.launcher {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+@media (min-width: 460px) {
+  .launcher {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.launcher-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  text-align: center;
+  color: var(--app-ink);
+}
+
+.launcher-tile__icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  background: var(--tile-bg, #fff);
+  box-shadow: var(--app-shadow);
+  transition: transform 0.12s ease;
+}
+
+.launcher-tile:active .launcher-tile__icon {
+  transform: scale(0.94);
+}
+
+.launcher-tile__icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+}
+
+.launcher-tile__name {
+  font-family: var(--app-font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.launcher-tile__sub {
+  font-size: 0.7rem;
+  color: var(--app-ink-faint);
+  margin-top: -0.3rem;
+}
+
+/* Print (checklists) */
+@media print {
+  .app-body {
+    background: #fff !important;
+  }
+  .play-head__back,
+  .checklist-actions,
+  .play-foot,
+  .guide-disclaimer {
+    display: none !important;
+  }
+  .checklist-section {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    break-inside: avoid;
+  }
+  .checklist-items input:checked + span {
+    text-decoration: none;
+    color: inherit;
+  }
+}

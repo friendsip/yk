@@ -136,6 +136,7 @@ const feedingBlurbs: Record<string, string> = {
     completedWeeks,
     formatAge,
     stageForWeeks,
+    todayLocalISO,
     type StageRange,
   } from '../../lib/childAge';
 
@@ -146,7 +147,7 @@ const feedingBlurbs: Record<string, string> = {
     const input = card.querySelector('input[type="date"]') as HTMLInputElement;
     const result = card.querySelector('.birth-card__result') as HTMLElement;
 
-    input.max = new Date().toISOString().slice(0, 10);
+    input.max = todayLocalISO();
 
     const render = (iso: string) => {
       const weeks = completedWeeks(iso);

@@ -1,7 +1,6 @@
 ---
-import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ToolAppLayout from '../../../layouts/ToolAppLayout.astro';
 import GuideDisclaimer from '../../../components/GuideDisclaimer.astro';
-import { sectionArt } from '../../../lib/topicArt';
 import { checklists } from '../../../data/tools/checklists';
 import type { Checklist } from '../../../data/tools/checklists';
 
@@ -17,24 +16,17 @@ interface Props {
 }
 
 const { checklist } = Astro.props;
-const art = sectionArt.tools;
 const totalItems = checklist.sections.reduce((n, s) => n + s.items.length, 0);
 ---
 
-<BaseLayout title={checklist.title} description={checklist.description}>
-  <article
-    class="stage-page"
-    id="checklist"
-    data-checklist-id={checklist.id}
-    style={`--accent:${art.accent}; --accent-tint:${art.tint};`}
-  >
-    <p class="stage-breadcrumb"><a href="/tools/checklists">&larr; All checklists</a></p>
-
-    <header class="stage-header">
-      <span class="stage-kicker">Checklist</span>
-      <h1>{checklist.title}</h1>
-    </header>
-
+<ToolAppLayout
+  title={checklist.title}
+  description={checklist.description}
+  heading={checklist.title}
+  backHref="/tools/checklists"
+  backLabel="All checklists"
+>
+  <article class="stage-page" id="checklist" data-checklist-id={checklist.id}>
     <section class="stage-section">
       {checklist.intro.map((p) => <p>{p}</p>)}
     </section>
@@ -78,7 +70,7 @@ const totalItems = checklist.sections.reduce((n, s) => n + s.items.length, 0);
       </ul>
     </footer>
   </article>
-</BaseLayout>
+</ToolAppLayout>
 
 <script>
   const root = document.getElementById('checklist') as HTMLElement;

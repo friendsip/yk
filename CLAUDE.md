@@ -60,7 +60,20 @@ npm install
 npm run dev      # development server
 npm run build    # production build
 npm run preview  # preview production build
+
+npm test         # vitest unit tests (src/lib/*.test.ts)
+npm run test:e2e # Playwright smoke suite (tests/e2e/, needs `npx playwright install chromium` once)
 ```
+
+**Testable logic lives in `site/src/lib/`** (July 2026): `dates.ts` (all
+timezone-safe date/age maths — do date work here, never inline `toISOString`
+for local dates), `ics.ts` (vaccination calendar), `childcare.ts` (entitlement
++ cost engine), `activities.ts` (wheel selection), `storage.ts` (localStorage
+keys + helpers — import keys from here, don't hardcode `yk-*` strings).
+`childAge.ts` is a back-compat barrel re-exporting from those. **When adding or
+changing client logic, put the pure part in a `src/lib` module with a
+`.test.ts` beside it** — the `.astro` script blocks should be DOM glue that
+calls tested functions.
 
 ## Key Configuration Files
 
@@ -101,7 +114,9 @@ Free, mobile-first guides at `/baby` and `/toddler` — static Astro pages rende
 
 ## Site Design System
 
-- **"Warm & Playful" (design 1a, July 2026)**: the site follows the developer brief in `Website redesign suggestions/` (brief + reference demo — treat as the design source of truth). Tokens: warm cream `#FBF7EF` base; coral `#D96A47` primary (CTAs, "more" links, logo); teal `#3A9E8F` secondary (buttons, focus rings, newsletter band `#2E7A6D`); sand `#F3E9D8` neutral (active nav pills, chips). Fonts: Baloo 2 (display) + Nunito Sans (body). Pill radii everywhere, warm shadows, hover lifts. The legacy `--color-*` variable names in `global.css` are kept but remapped to the new palette; the redesign layer lives at the end of `global.css`. Header: wordmark logo (coral + teal dot), pill nav (6 items), inline search field (GET `/search?q=`), coral "Get the weekly email" CTA anchoring to the homepage newsletter band (form shows an honest coming-soon state until the email provider is wired). The dropdown is **"Our Free Apps"** (Mark's decision, July 2026 — supersedes the brief's "Baby & Toddler" grouping): it lists every app/tool (PWA app, guides, each tool, games) and its parent link goes to `/tools`, retitled "Our free apps" as the hub for all of them. **Add new apps/tools to that dropdown and hub.** Editorials/Deals/Trusted Sites live in the footer.
+- **"Warm & Playful" (design 1a, July 2026)**: the site follows the developer brief in `Website redesign suggestions/` (brief + reference demo — treat as the design source of truth). Tokens: warm cream `#FBF7EF` base; coral `#D96A47` primary (CTAs, "more" links, logo); teal `#3A9E8F` secondary (buttons, focus rings, newsletter band `#2E7A6D`); sand `#F3E9D8` neutral (active nav pills, chips). Fonts: Baloo 2 (display) + Nunito Sans (body). Pill radii everywhere, warm shadows, hover lifts. The legacy `--color-*` variable names in `global.css` are kept but remapped to the new palette; the redesign layer lives at the end of `global.css`. Header: wordmark logo (coral + teal dot), pill nav (6 items), inline search field (GET `/search?q=`), coral "Get the weekly email" CTA anchoring to the homepage newsletter band (form shows an honest coming-soon state until the email provider is wired). The dropdown is **"Our Free Apps"** (Mark's decision, July 2026 — supersedes the brief's "Baby & Toddler" grouping), deliberately slim: the PWA app, the activity wheel, the two guides, and "All our free apps →". The full directory is the **launcher** at `/tools` — a phone-home-screen grid of icon tiles. **Add new apps/tools to the launcher (and the dropdown only if headline-worthy).** Editorials/Deals/Trusted Sites live in the footer.
+
+**Tools & games pages are app-styled** (Mark's decision, July 2026): every page under `/tools/*` and `/games` uses `ToolAppLayout.astro` — the Baby & Toddler app's design world (`app.css`) plus `app-tools.css`, an "app skin" that restyles the tools' original class names so their verified client logic stays untouched. These pages have no site chrome (back-link to the launcher instead) but ARE indexable — they're the SEO surface. Never load `global.css` and `app-tools.css` together. The guides (`/baby`, `/toddler`) and editorial pages stay in the site design.
 - **Voice everywhere** (Site Bible §2): warm, friendly, humble — applies to interface copy (headings, buttons, empty states, error pages) as much as articles. "The most helpful things we can find", never "the best"; admit uncertainty; never sneer.
 - **International audience** (Site Bible §1 and §5): English-speaking parents worldwide, UK roots. Lead with what's universal; label jurisdiction-specific guidance ("In England…", "for UK readers"); point to national equivalents (NHS/AAP/Raising Children Network/WHO) where they exist. British English spelling throughout.
 - **Illustration layer**: `site/src/lib/topicArt.ts` maps topic tags and sections to flat SVG illustrations + accent colours (sage/amber/plum + coral/sky/sunshine). Cards, topic pages, section heroes, and article headers pull from it automatically, so engine-published content gets artwork with no engine changes. Current SVGs are in-house placeholders, swappable 1:1 for commissioned art (see `docs/illustration-brief.md`). Style rules live in Site Bible §13: no stock photos, no photorealistic AI images of children, illustrations are decorative only.
@@ -124,6 +139,10 @@ All LLM calls go through `LLMClient` in `engine/src/llm/client.py`, which:
 4. Retries on rate-limit/connection errors, then logs token usage and estimated cost to the DB
 
 Individual modules never load the Bible or construct an Anthropic client directly — they call `llm_client.call(stage, user_prompt)`, which returns `(response_text, metadata)`.
+
+## Article Photography (Unsplash)
+
+The writer emits an `image_search` frontmatter field (2–4 words, or `none` for sensitive topics). After validation, `write_article` calls `src/media/illustrate.py:add_article_image`, which resolves that hint via the Unsplash API (`src/media/unsplash.py`) into `image` + `image_alt` + `image_credit_*` frontmatter, or strips it (falling back to the topic illustration). It is **off by default** (`media.enabled` in settings.yaml) and inert without `UNSPLASH_ACCESS_KEY` in `engine/.env` — so it needs a registered Unsplash app before it does anything. Compliance is built in and non-negotiable: images are **hotlinked** from the Unsplash CDN (never re-hosted — keeps the repo light), each use triggers the photo's download endpoint, and the site renders the required "Photo by … on Unsplash" attribution (`ContentLayout.astro`, schema fields `image_credit_name/url` + `image_source_url`). `media.skip_tags` topics never get an auto-photo. This reversed the old Site Bible §13 "no stock photography" rule (updated July 2026 — photos now allowed, attributed, tasteful, never depicting a specific real child).
 
 Prompts that embed scraped web content (triage, planner, writer, editor) sanitise it with `src/llm/fencing.py` — `sanitise_untrusted()` neutralises angle brackets so scraped text can't break its prompt frame, and `UNTRUSTED_CONTENT_NOTICE` is included in the prompt. Any new prompt that carries scraped material must do the same.
 

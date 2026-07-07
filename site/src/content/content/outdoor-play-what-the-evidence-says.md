@@ -5,6 +5,9 @@ type: evergreen
 section: parenting
 image: "/images/outdoor-play-aedrian-salazar.jpg"
 image_alt: "A child playing on a red metal playground climbing frame"
+image_credit_name: "Aedrian Salazar"
+image_credit_url: "https://unsplash.com/photos/EZcffLueI28?utm_source=yourkids&utm_medium=referral"
+image_source_url: "https://unsplash.com/photos/EZcffLueI28?utm_source=yourkids&utm_medium=referral"
 tags:
   - good-news
   - health

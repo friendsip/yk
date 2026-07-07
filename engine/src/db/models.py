@@ -168,16 +168,42 @@ class Database:
         )
         return cur.lastrowid
 
-    def get_triaged_items_for_planning(self, min_score: float = 5.5) -> list[dict]:
+    def get_triaged_items_for_planning(
+        self, min_score: float = 5.5, limit: int = 40
+    ) -> list[dict]:
+        """Return the best triaged candidates for the planner.
+
+        Bounded by `limit` (best score first) so the planner prompt cannot grow
+        without limit as items accumulate — an unbounded prompt eventually
+        truncates, the plan fails to parse, and the backlog then grows further.
+        """
         return self._fetchall(
             """SELECT di.*, tr.overall_score, tr.suggested_action, tr.triage_reasoning,
                       tr.suggested_section
                FROM discovered_items di
                JOIN triage_results tr ON tr.item_id = di.id
                WHERE di.status = 'triaged' AND tr.overall_score >= ?
-               ORDER BY tr.overall_score DESC""",
-            (min_score,),
+               ORDER BY tr.overall_score DESC
+               LIMIT ?""",
+            (min_score, limit),
         )
+
+    def expire_stale_triaged_items(self, ttl_days: int = 21) -> int:
+        """Mark long-unplanned triaged items 'expired' so they leave the pool.
+
+        Triaged items sit as 'triaged' until the planner picks them up. Ones
+        never chosen would otherwise accumulate forever and bloat the candidate
+        pool; after `ttl_days` since triage they move to a terminal 'expired'
+        status. Returns the number expired.
+        """
+        cutoff = to_sqlite(utcnow() - timedelta(days=ttl_days))
+        cur = self._execute(
+            """UPDATE discovered_items SET status = 'expired'
+               WHERE status = 'triaged'
+                 AND id IN (SELECT item_id FROM triage_results WHERE triaged_at < ?)""",
+            (cutoff,),
+        )
+        return cur.rowcount
 
     # ── Plans ────────────────────────────────────────────────
 

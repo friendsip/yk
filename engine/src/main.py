@@ -37,6 +37,8 @@ def setup_logging(verbose: bool = False):
 
 def run_writer_for_plan(plan_id: int, llm_client: LLMClient):
     """Execute all pending actions for a plan."""
+    from src.llm.client import daily_cost_exceeded
+
     db = get_db()
     actions = db.get_pending_actions(plan_id)
 
@@ -44,7 +46,14 @@ def run_writer_for_plan(plan_id: int, llm_client: LLMClient):
         logger.info(f"No pending actions for plan {plan_id}")
         return
 
+    settings = getattr(llm_client, "settings", None) or {}
+
     for action in actions:
+        # Stop mid-batch if the writer has pushed the day's spend over the cap.
+        if daily_cost_exceeded(db, settings):
+            logger.warning(f"Daily cost cap reached — stopping writer before action {action['id']}")
+            break
+
         db.update_action_status(action["id"], "in_progress")
 
         try:
@@ -68,14 +77,54 @@ def run_writer_for_plan(plan_id: int, llm_client: LLMClient):
 
 
 def run_daily_pipeline(llm_client: LLMClient):
-    """Run the full daily pipeline: plan → write → publish."""
+    """Run the full weekly pipeline: plan → write → publish.
+
+    Each stage is error-isolated. A planner or writer failure is logged and
+    alerted but must NOT skip the publish step: any content staged from an
+    earlier interrupted run needs a chance to ship, and a single LLM hiccup at
+    Sunday 05:00 should never silently cost the whole week.
+    """
+    from src.utils.notify import notify
+
     llm_client.reload_bible()
+    settings = getattr(llm_client, "settings", None) or {}
 
-    plan_id = run_planner(llm_client)
+    plan_id = None
+    try:
+        plan_id = run_planner(llm_client)
+    except Exception as e:
+        logger.error(f"Planner stage failed: {e}", exc_info=True)
+        notify(
+            "Weekly pipeline: planner failed",
+            f"The planner raised an exception and produced no plan this week:\n\n{e}",
+            level="error",
+            settings=settings,
+        )
+
     if plan_id:
-        run_writer_for_plan(plan_id, llm_client)
+        try:
+            run_writer_for_plan(plan_id, llm_client)
+        except Exception as e:
+            logger.error(f"Writer stage failed for plan {plan_id}: {e}", exc_info=True)
+            notify(
+                "Weekly pipeline: writer failed",
+                f"The writer raised an exception for plan {plan_id}:\n\n{e}",
+                level="error",
+                settings=settings,
+            )
 
-    publish_daily_batch()
+    # Publish always runs — even if planner/writer failed — so stranded staging
+    # from a previous week can recover.
+    try:
+        publish_daily_batch()
+    except Exception as e:
+        logger.error(f"Publish stage failed: {e}", exc_info=True)
+        notify(
+            "Weekly pipeline: publish failed",
+            f"publish_daily_batch() raised an exception; staged content was NOT published:\n\n{e}",
+            level="error",
+            settings=settings,
+        )
 
 
 def run_stage(stage: str, llm_client: LLMClient):
@@ -110,6 +159,24 @@ def run_continuous(settings: dict, llm_client: LLMClient):
     - Triage: runs periodically to evaluate content as it arrives
     - Pipeline (planner + writer + publisher): runs weekly on Sunday morning
     """
+    from src.utils.lock import ProcessLock
+
+    # Single-instance guard: two continuous engines would double-publish.
+    lock = ProcessLock()
+    if not lock.acquire():
+        logger.error(
+            f"Another engine instance already holds {lock.lock_path} — exiting. "
+            "The advisory lock releases automatically when that process stops."
+        )
+        sys.exit(1)
+
+    try:
+        _run_scheduler(settings, llm_client)
+    finally:
+        lock.release()
+
+
+def _run_scheduler(settings: dict, llm_client: LLMClient):
     from apscheduler.schedulers.blocking import BlockingScheduler
     from apscheduler.triggers.cron import CronTrigger
     from apscheduler.triggers.interval import IntervalTrigger
@@ -188,13 +255,36 @@ def run_continuous(settings: dict, llm_client: LLMClient):
 
 
 def catch_up_missed_pipeline(settings: dict, llm_client: LLMClient):
-    """Run the weekly pipeline now if the last scheduled run was missed.
+    """Recover missed weekly work on startup.
 
-    A fresh install (no plans yet) waits for its first scheduled run rather
-    than publishing whatever happens to be triaged at deploy time.
+    Two independent signals, because they fail differently:
+    - Unpublished staging on disk means a plan was written but publish never
+      finished (crash/error between staging and git). This is invisible to the
+      plan-time check below, so recover it first — publish is idempotent.
+    - The plan-time check handles a whole weekly run the scheduler slept
+      through. A fresh install (no plans yet) waits for its first scheduled run
+      rather than publishing whatever happens to be triaged at deploy time.
     """
     from src.utils.clock import utcnow
     from src.utils.schedule import last_scheduled_run
+    from src.publisher.publisher import STAGING_DIR
+
+    # Stranded staging: attempt publish regardless of plan time.
+    if STAGING_DIR.exists() and any(STAGING_DIR.rglob("*.md")):
+        logger.warning("Found unpublished staged content on startup — attempting publish")
+        try:
+            publish_daily_batch()
+        except Exception as e:
+            logger.error(f"Startup publish of stranded staging failed: {e}", exc_info=True)
+            from src.utils.notify import notify
+
+            notify(
+                "Startup: stranded staging failed to publish",
+                f"Unpublished content was found on disk at startup but publishing it "
+                f"raised an exception:\n\n{e}",
+                level="error",
+                settings=getattr(llm_client, "settings", None) or {},
+            )
 
     db = get_db()
     plans = db.get_recent_plans(limit=1)

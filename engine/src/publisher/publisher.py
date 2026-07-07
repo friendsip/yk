@@ -89,6 +89,16 @@ def publish_daily_batch():
             "Git operations failed — batch NOT recorded as published. "
             "Staged files are preserved and the batch will retry on the next publish run."
         )
+        from src.utils.notify import notify
+
+        notify(
+            "Publish failed: git operations",
+            f"The weekly publish prepared {len(batch)} item(s) but git operations "
+            f"({mode} mode) failed. Nothing was recorded as published and the staged "
+            "files are preserved for the next publish run. Check gh auth and the remote.",
+            level="error",
+            settings=settings,
+        )
         return
 
     # Record the batch in the DB and clean up staging

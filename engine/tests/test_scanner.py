@@ -82,6 +82,37 @@ def test_scan_rss_with_mock(test_db, sample_rss_xml):
     assert feed.entries[0]["title"] == "New Research on Child Sleep Patterns"
 
 
+def test_repeated_source_failure_alerts_once(test_db, monkeypatch):
+    """Crossing the 3rd consecutive failure fires exactly one alert."""
+    from src.scanner import rss
+
+    source_id = test_db.upsert_source(
+        name="Flaky Feed", url="https://example.com/flaky.xml",
+        source_type="rss", category="parenting",
+        reliability_score=0.8, check_interval=60,
+    )
+
+    monkeypatch.setattr(rss, "get_db", lambda: test_db)
+    monkeypatch.setattr(rss, "_scan_single_feed", lambda db, s: (_ for _ in ()).throw(RuntimeError("boom")))
+
+    alerts = []
+    monkeypatch.setattr("src.utils.notify.notify", lambda *a, **k: alerts.append(a))
+
+    # Two scans: failures 1 and 2 — no alert yet
+    rss.scan_rss_sources()
+    rss.scan_rss_sources()
+    assert alerts == []
+
+    # Third scan crosses the threshold — one alert
+    rss.scan_rss_sources()
+    assert len(alerts) == 1
+    assert "Source repeatedly failing" in alerts[0][0]
+
+    # Fourth scan: already alerted, no duplicate
+    rss.scan_rss_sources()
+    assert len(alerts) == 1
+
+
 def test_scan_skips_known_urls_before_fetching(test_db, sample_rss_xml, monkeypatch):
     """A second scan neither re-fetches nor re-inserts already-known URLs."""
     import feedparser

@@ -241,6 +241,38 @@ def test_planner_skips_malformed_actions(test_db, mock_llm_client, monkeypatch):
     assert test_db.get_item_by_id(item_id)["status"] == "planned"
 
 
+def test_planner_skips_when_cost_cap_reached(test_db, mock_llm_client, monkeypatch):
+    """When the daily cost cap is hit, the planner short-circuits before any LLM call."""
+    monkeypatch.setattr("src.planner.planner.get_db", lambda: test_db)
+    monkeypatch.setattr("src.planner.planner.daily_cost_exceeded", lambda db, settings: True)
+    _seed_triaged_item(test_db, "https://example.com/cap", "cap1")
+
+    result = run_planner(llm_client=mock_llm_client)
+
+    assert result is None
+    mock_llm_client.call.assert_not_called()
+
+
+def test_planner_expires_stale_items_before_planning(test_db, mock_llm_client, sample_plan_response, monkeypatch):
+    """Stale triaged items are expired at planner start and excluded from the plan."""
+    monkeypatch.setattr("src.planner.planner.get_db", lambda: test_db)
+
+    stale = _seed_triaged_item(test_db, "https://example.com/stale", "stale_plan1")
+    test_db._execute(
+        "UPDATE triage_results SET triaged_at = datetime('now', '-40 days') WHERE item_id = ?",
+        (stale,),
+    )
+
+    mock_llm_client.call.return_value = (
+        sample_plan_response,
+        {"model": "test", "input_tokens": 200, "output_tokens": 100, "cost_usd": 0.002},
+    )
+
+    run_planner(llm_client=mock_llm_client)
+
+    assert test_db.get_item_by_id(stale)["status"] == "expired"
+
+
 def test_planner_filters_item_ids_outside_triaged_set(test_db, mock_llm_client, monkeypatch):
     """LLM-returned item_ids not in the triaged set are dropped."""
     monkeypatch.setattr("src.planner.planner.get_db", lambda: test_db)

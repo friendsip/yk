@@ -21,6 +21,57 @@ _DEFAULT_PRICING = {"input": 3.0, "output": 15.0}
 MAX_RETRIES = 3
 RETRY_DELAYS = [1, 2, 4]
 
+# Transient HTTP statuses worth retrying. 529 is Anthropic's "overloaded".
+# 400/401/403/404 and other client errors are NOT here — retrying them wastes
+# tokens and time because they will fail identically.
+_RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504, 529}
+
+
+def _is_retryable(err: Exception) -> bool:
+    """True for transient API failures (rate limit, connection, overloaded, 5xx)."""
+    if isinstance(err, (anthropic.APIConnectionError, anthropic.RateLimitError,
+                        anthropic.InternalServerError)):
+        return True
+    if isinstance(err, anthropic.APIStatusError):
+        return getattr(err, "status_code", None) in _RETRYABLE_STATUS
+    return False
+
+
+def daily_cost_exceeded(db, settings: dict | None) -> bool:
+    """True if today's estimated LLM spend has reached the configured cap.
+
+    Reads the token_usage table (via ``get_daily_token_usage``) rather than
+    trusting an in-memory tally, so the cap survives restarts. On the first
+    breach it fires an alert. Safe-by-default: a missing or non-positive cap
+    never blocks work, and a read failure is logged and treated as "under cap".
+    """
+    cap = ((settings or {}).get("limits", {}) or {}).get("daily_cost_usd_cap", 20.0)
+    if not cap or cap <= 0:
+        return False
+    try:
+        rows = db.get_daily_token_usage()
+        spent = sum((r.get("total_cost") or 0.0) for r in rows)
+    except Exception as e:
+        logger.warning(f"Cost cap check could not read token usage: {e}")
+        return False
+    if spent < cap:
+        return False
+
+    logger.warning(
+        f"Daily LLM cost cap reached: ${spent:.2f} spent >= ${cap:.2f} cap — skipping LLM work"
+    )
+    from src.utils.notify import notify
+
+    notify(
+        "Engine daily cost cap reached",
+        f"Today's estimated LLM spend is ${spent:.2f}, at or above the ${cap:.2f} cap. "
+        "Planner/writer LLM work is being skipped to avoid a runaway bill — check the "
+        "logs for an unbounded prompt or a retry loop.",
+        level="warning",
+        settings=settings,
+    )
+    return True
+
 
 class LLMClient:
     def __init__(self, bible_manager: BibleManager = None, settings: dict = None):
@@ -75,7 +126,10 @@ class LLMClient:
                     temperature=temperature,
                 )
                 break
-            except (anthropic.RateLimitError, anthropic.APIConnectionError) as e:
+            except anthropic.APIError as e:
+                # Only retry transient failures; re-raise client errors immediately.
+                if not _is_retryable(e):
+                    raise
                 last_error = e
                 if attempt < MAX_RETRIES - 1:
                     delay = RETRY_DELAYS[attempt]

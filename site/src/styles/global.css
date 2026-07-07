@@ -763,6 +763,31 @@ li {
   padding: var(--space-md) var(--space-xl);
 }
 
+/* Photo hero (Unsplash or per-article image) with required attribution */
+.content-header__photo {
+  margin: 0 0 var(--space-lg);
+}
+
+.content-header__photo img {
+  display: block;
+  width: 100%;
+  max-height: 380px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.content-header__credit {
+  margin-top: var(--space-xs);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  text-align: right;
+}
+
+.content-header__credit a {
+  color: var(--color-ink-faint);
+  text-decoration: underline;
+}
+
 .content-header__art :is(svg, img) {
   display: block;
   width: 160px;

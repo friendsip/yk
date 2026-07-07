@@ -4,10 +4,8 @@
  * Engine-published content gets art automatically: cards and topic pages look
  * up the first tag here and fall back to `defaultArt`. Each slot is a
  * commissioned raster illustration (600×400, 3:2) in `site/public/illustrations/`,
- * wired up with `photo()`. The full-res masters live in
- * `site/public/illustrations/larger/` for future use (section headers, blog
- * heroes). `art()` (inline flat SVG) is kept as a fallback for any future slot
- * that doesn't yet have commissioned artwork.
+ * wired up with `photo()`. `art()` (inline flat SVG) is kept as a fallback for
+ * any future slot that doesn't yet have commissioned artwork.
  */
 
 export interface TopicArt {

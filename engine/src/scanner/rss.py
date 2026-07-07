@@ -42,6 +42,17 @@ def scan_rss_sources():
                 logger.warning(
                     f"Source '{source['name']}' has failed {failures} consecutive times"
                 )
+                # Alert once when it first crosses the threshold, not every scan.
+                if failures == 3:
+                    from src.utils.notify import notify
+
+                    notify(
+                        "Source repeatedly failing",
+                        f"Source '{source['name']}' ({source['url']}) has failed "
+                        f"{failures} consecutive scans and may need attention or "
+                        f"deactivation. Last error: {e}",
+                        level="warning",
+                    )
 
     logger.info(f"Scanner complete: {total_new} new items from {len(sources)} sources")
 
