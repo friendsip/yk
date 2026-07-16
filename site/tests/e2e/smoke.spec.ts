@@ -34,6 +34,18 @@ test('vaccination planner: entering a DOB fills the timeline and enables the cal
   await expect(page.locator('#vax-ics')).toBeEnabled();
 });
 
+test('newsletter band: signing up always gets an honest answer', async ({ page }) => {
+  // Under `astro preview` the /api/subscribe function doesn't exist, so the
+  // form should land on the friendly "signups open soon" fallback — the point
+  // is that submitting never dead-ends silently.
+  await page.goto('/');
+  await page.fill('#newsletter-email', 'smoke-test@example.com');
+  await page.getByRole('button', { name: 'Sign up' }).click();
+  const status = page.locator('.newsletter-band__status');
+  await expect(status).toBeVisible();
+  await expect(status).not.toBeEmpty();
+});
+
 test('baby age tool: corrected age shows for a premature baby', async ({ page }) => {
   await page.goto('/tools/baby-age/');
   await page.fill('#age-dob', '2026-05-01');

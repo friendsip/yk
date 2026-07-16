@@ -30,6 +30,7 @@ const feedingModes = allModes.filter((m) => (entry.feedingNotes[m] ?? []).length
 <BaseLayout title={`${entry.label} — ${entry.title}`} description={entry.summary}>
   <article
     class="stage-page"
+    data-pagefind-body
     data-kind="baby"
     data-stage-from={entry.ageWeeksFrom}
     data-stage-to={entry.ageWeeksTo}

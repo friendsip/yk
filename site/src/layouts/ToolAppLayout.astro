@@ -31,6 +31,22 @@ const {
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Structured data so the free tools are legible to search engines as what
+// they are: free web apps. (These pages have no site nav, so the JSON-LD also
+// gives crawlers explicit publisher/context signals.)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: title,
+  description,
+  url: canonicalURL.toString(),
+  applicationCategory: 'HealthApplication',
+  operatingSystem: 'Any (web browser)',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'GBP' },
+  publisher: { '@type': 'Organization', name: 'YourKids', url: Astro.site?.toString() },
+};
 ---
 
 <!doctype html>
@@ -50,6 +66,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={new URL('/og-default.png', Astro.site)} />
     <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

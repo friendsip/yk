@@ -3,9 +3,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 // NOTE FOR MARK:
 //  • Update the "Last reviewed" date whenever the policy changes.
-//  • When the newsletter or analytics go live, un-comment / adjust those
-//    sections so they describe what's actually running.
-const lastReviewed = '3 July 2026';
+//  • If analytics are ever added, adjust section 3 so it describes what's
+//    actually running.
+const lastReviewed = '15 July 2026';
 ---
 
 <BaseLayout
@@ -100,12 +100,23 @@ const lastReviewed = '3 July 2026';
 
     <h2>5. Our weekly email</h2>
     <p>
-      Our weekly digest isn't live yet. When it launches, signing up will be
-      entirely optional, and we'll only ask for your email address so we can send
-      you the email you asked for. We'll explain exactly how it works — including
-      how to unsubscribe in one click — at the point you sign up, and we'll update
-      this page to name the email provider we use. We will never sell your email
-      address or use it for anything other than the digest you opted into.
+      You can sign up for our weekly digest on the
+      <a href="/#newsletter">homepage</a>. It's entirely optional, and we ask for
+      your email address only — nothing else. We use <strong>double opt-in</strong>:
+      after you sign up we send you a confirmation email, and you're only added to
+      the list once you click the link in it. If you don't confirm, you won't hear
+      from us.
+    </p>
+    <p>
+      The list is held for us by our email provider,
+      <strong>Buttondown</strong>, which stores your address on our behalf and
+      sends the emails (its privacy policy is at
+      <a href="https://buttondown.com/legal/privacy" target="_blank" rel="noopener noreferrer">buttondown.com/legal/privacy</a>).
+      Buttondown is a US company, so your email address may be processed in the
+      United States, with the safeguards described in section 7. Every email we
+      send includes a one-click unsubscribe link, and you can also email us at any
+      time to be removed. We will never sell your email address or use it for
+      anything other than the digest you asked for.
     </p>
 
     <h2>6. Children's privacy</h2>
@@ -140,14 +151,15 @@ const lastReviewed = '3 July 2026';
     <h2>9. Keeping information</h2>
     <p>
       We keep personal information only for as long as we need it. Technical
-      hosting logs are short-lived. If you join our email list in future, we'll
-      keep your address until you unsubscribe or ask us to remove it.
+      hosting logs are short-lived. If you join our email list, we keep your
+      address until you unsubscribe or ask us to remove it — and if you never
+      confirm your signup, you simply stay off the list.
     </p>
 
     <h2>10. Changes to this policy</h2>
     <p>
-      As the site grows — for example when the email digest or any analytics go
-      live — we'll update this page and change the "last reviewed" date at the top.
+      As the site grows — for example if we ever add analytics — we'll update
+      this page and change the "last reviewed" date at the top.
       Significant changes will be flagged clearly.
     </p>
 

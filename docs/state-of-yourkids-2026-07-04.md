@@ -21,10 +21,18 @@
 >   healthcheck, backup, and `DEPLOY.md` runbook). The actual provisioning is
 >   Mark's to run — see that runbook.
 >
-> Remaining from below (not yet done): CSP header (P2 #12), the two self-XSS
-> tidy-ups (M6), SEO/crawl gaps on the app-styled tools (L2), and the engine's
-> self-defeating scanner failure counter is now addressed via alerting but the
-> counter logic itself (F6) is unchanged. The engine is now ready to deploy.
+> **P2 done (7 July):** a Content-Security-Policy + security headers
+> (`site/vercel.json`) — strict `script-src 'self' 'wasm-unsafe-eval'` (all
+> inline scripts externalised; empirically verified that Pagefind/search,
+> fonts and the tools still work under it, with Google sign-in and Unsplash
+> origins pre-allowed for when they're enabled); the two self-XSS interpolations
+> (M6) now escaped; and the SEO/crawl gaps (L1/L2) closed — `/app` removed from
+> the sitemap, `WebApplication` JSON-LD added to every tool page, and Pagefind
+> now indexes the guides too (**20 → 56 pages**).
+>
+> Remaining (not yet done): the engine's self-defeating scanner failure counter
+> — now surfaced via alerting, but the counter logic itself (F6) is unchanged.
+> The engine is ready to deploy.
 
 **Date:** 4 July 2026
 **Scope:** the Astro site + PWA/tools, and the Python editorial engine (content

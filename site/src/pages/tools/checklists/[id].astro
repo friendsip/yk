@@ -73,6 +73,8 @@ const totalItems = checklist.sections.reduce((n, s) => n + s.items.length, 0);
 </ToolAppLayout>
 
 <script>
+  import { loadStored, saveStored } from '../../../lib/storage';
+
   const root = document.getElementById('checklist') as HTMLElement;
   const storageKey = `yk-checklist-${root.dataset.checklistId}`;
   const boxes = [...document.querySelectorAll('.checklist-items input')] as HTMLInputElement[];
@@ -81,16 +83,12 @@ const totalItems = checklist.sections.reduce((n, s) => n + s.items.length, 0);
 
   const loadTicked = (): string[] => {
     try {
-      return JSON.parse(localStorage.getItem(storageKey) || '[]');
+      return JSON.parse(loadStored(storageKey) || '[]');
     } catch {
       return [];
     }
   };
-  const saveTicked = (keys: string[]) => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(keys));
-    } catch {}
-  };
+  const saveTicked = (keys: string[]) => saveStored(storageKey, JSON.stringify(keys));
 
   function updateProgress() {
     const done = boxes.filter((b) => b.checked).length;

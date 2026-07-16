@@ -26,26 +26,5 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </div>
 
   <script is:inline src="/pagefind/pagefind-ui.js"></script>
-  <script is:inline>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (window.PagefindUI) {
-        new window.PagefindUI({
-          element: '#search',
-          showSubResults: true,
-          showImages: false,
-          resetStyles: false,
-        });
-
-        // Support ?q= from the header search field
-        const q = new URLSearchParams(window.location.search).get('q');
-        if (q) {
-          const input = document.querySelector('#search input');
-          if (input) {
-            input.value = q;
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-        }
-      }
-    });
-  </script>
+  <script is:inline src="/pagefind-init.js"></script>
 </BaseLayout>

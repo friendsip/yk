@@ -676,7 +676,7 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
       if (tip) {
         html += card(
           'var(--app-sky)',
-          `🍼 Feeding<span class="mode-chip">${FEEDING_LABELS[mode] ?? mode}</span>`,
+          `🍼 Feeding<span class="mode-chip">${esc(FEEDING_LABELS[mode] ?? mode)}</span>`,
           `<p>${esc(tip)}</p><a class="app-card__link" href="#" data-open-settings>Feeding differently? Change it &rarr;</a>`
         );
       }
@@ -880,10 +880,10 @@ const googleClientId = import.meta.env.PUBLIC_GOOGLE_CLIENT_ID ?? '';
               <strong>${esc(c.name)}</strong>
               <span>${ageString(ageDays(c.birthdate))}${isActive ? ' · showing now' : ''}</span>
             </div>
-            ${isActive ? '' : `<button class="app-btn app-btn--ghost app-btn--small" data-switch="${c.id}" type="button">Show</button>`}
-            <button class="app-btn app-btn--ghost app-btn--small" data-edit="${c.id}" type="button">Edit</button>
+            ${isActive ? '' : `<button class="app-btn app-btn--ghost app-btn--small" data-switch="${esc(c.id)}" type="button">Show</button>`}
+            <button class="app-btn app-btn--ghost app-btn--small" data-edit="${esc(c.id)}" type="button">Edit</button>
           </div>
-          <button class="danger-link" data-remove="${c.id}" type="button" style="margin-top:0.6rem;">Remove ${esc(c.name)}'s profile</button>
+          <button class="danger-link" data-remove="${esc(c.id)}" type="button" style="margin-top:0.6rem;">Remove ${esc(c.name)}'s profile</button>
         </div>`;
       })
       .join('');

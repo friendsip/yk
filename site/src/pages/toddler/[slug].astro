@@ -43,6 +43,7 @@ const sources = kind === 'stage' ? stage!.sources : guide!.sources;
 <BaseLayout title={title} description={description}>
   <article
     class="stage-page"
+    data-pagefind-body
     data-kind="toddler"
     data-stage-from={kind === 'stage' ? stage!.ageWeeksFrom : undefined}
     data-stage-to={kind === 'stage' ? stage!.ageWeeksTo : undefined}

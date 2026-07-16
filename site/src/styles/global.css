@@ -2712,6 +2712,7 @@ select:focus-visible {
   background: var(--teal-deep);
   padding: 36px 40px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 40px;
   margin: 0 0 var(--space-xl);
@@ -2759,11 +2760,21 @@ select:focus-visible {
   color: var(--color-ink-faint);
 }
 
-.newsletter-band__soon {
+/* Signup outcome message — its own full-width row under the form */
+.newsletter-band__status {
+  flex-basis: 100%;
   margin: 0;
   color: #fff;
   font-weight: 600;
-  max-width: 340px;
+}
+
+/* Honeypot field: parked off-screen (not display:none — more bots fall for it) */
+.newsletter-band__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 /* Card polish: warm shadows, hover lift, rounded */

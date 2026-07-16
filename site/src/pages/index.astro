@@ -119,27 +119,63 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
       <h2>A short, friendly email every Sunday</h2>
       <p>The week's best new guides and links. No judgement, no spam, unsubscribe anytime.</p>
     </div>
-    <form class="newsletter-band__form" action="/subscribe" method="post">
+    <form class="newsletter-band__form" action="/api/subscribe" method="post">
       <label class="sr-only" for="newsletter-email">Email address</label>
       <input id="newsletter-email" type="email" name="email" placeholder="you@example.com" required />
+      <div class="newsletter-band__hp" aria-hidden="true">
+        <label for="newsletter-website">Leave this field empty</label>
+        <input id="newsletter-website" type="text" name="website" tabindex="-1" autocomplete="off" />
+      </div>
       <button class="btn btn-coral" type="submit">Sign up</button>
     </form>
-    <p class="newsletter-band__soon" hidden>
-      Nearly there — the first weekly email is being prepared, and signups
-      open with it very soon. Thank you for wanting in! 💛
-    </p>
+    <p class="newsletter-band__status" role="status" hidden></p>
   </section>
 </BaseLayout>
 
 <script>
-  // The email service isn't wired up yet (see docs/next-tasks.md §6) — be
-  // honest on submit rather than posting into the void.
-  const band = document.getElementById('newsletter');
-  const form = band?.querySelector('form');
-  const soon = band?.querySelector('.newsletter-band__soon') as HTMLElement | null;
-  form?.addEventListener('submit', (e) => {
+  import { subscribeMessage, SUBSCRIBE_STATES, type SubscribeState } from '../lib/newsletter';
+
+  // Progressive enhancement over the plain form POST to /api/subscribe:
+  // submit in-page and show the outcome in the band. Where the function
+  // doesn't exist (dev/preview) or has no API key yet, this degrades to the
+  // honest "signups open very soon" message.
+  const band = document.getElementById('newsletter')!;
+  const form = band.querySelector('form') as HTMLFormElement;
+  const status = band.querySelector('.newsletter-band__status') as HTMLElement;
+  const button = form.querySelector('button') as HTMLButtonElement;
+  const email = form.querySelector('#newsletter-email') as HTMLInputElement;
+  const honeypot = form.querySelector('#newsletter-website') as HTMLInputElement;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    (form as HTMLElement).hidden = true;
-    if (soon) soon.hidden = false;
+    button.disabled = true;
+    button.textContent = 'Signing up…';
+    status.hidden = true;
+
+    let state: SubscribeState = 'error';
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.value, website: honeypot.value }),
+      });
+      if (res.status === 404) {
+        state = 'not-configured'; // dev/preview: the function isn't deployed here
+      } else {
+        const payload = (await res.json().catch(() => null)) as { state?: string } | null;
+        const claimed = payload?.state ?? '';
+        state = (SUBSCRIBE_STATES as string[]).includes(claimed)
+          ? (claimed as SubscribeState)
+          : 'error';
+      }
+    } catch {
+      state = 'error';
+    }
+
+    status.textContent = subscribeMessage(state);
+    status.hidden = false;
+    if (state === 'confirm-sent' || state === 'already-subscribed') form.hidden = true;
+    button.disabled = false;
+    button.textContent = 'Sign up';
   });
 </script>

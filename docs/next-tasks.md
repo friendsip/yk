@@ -1,10 +1,50 @@
 # Next Tasks
 
-## Where We Are
+## Where We Are — status snapshot (15 July 2026)
 
-The core pipeline works end-to-end: Scanner → Triage → Planner → Writer → Publisher → Git push → Vercel rebuild. The site is live with 17 pieces of content across three content types and five topic categories. 43 tests pass. The engine is configured for weekly Sunday-morning publishing.
+A lot has shipped. This is the honest current picture; the numbered sections
+below hold the detail. The companion health-check is
+`docs/state-of-yourkids-2026-07-04.md` (with 5 & 7 July addenda).
 
-What follows is everything that still needs doing, roughly in priority order.
+**Live on yourkids.com** (everything up to the last push):
+- The "Warm & Playful" redesign; 20 published articles.
+- Baby & Toddler guides (`/baby`, `/toddler`) — weeks 1–12, months 3–12,
+  feeding, health, toddler stages + guides.
+- The Baby & Toddler **app** (`/app`) — installable PWA, on-device profiles.
+- Five tools + the **activity wheel** (`/tools`), all phone-app styled, behind
+  an "Our Free Apps" launcher.
+- Educational-games teaser (`/games`); Recommended / Deals / Trusted Sites.
+- SEO plumbing, a strict CSP + security headers, and a site test suite
+  (42 vitest + a Playwright smoke run).
+
+**Built but INERT until switched on** (see the numbered sections):
+- **Newsletter signup with double opt-in** — Buttondown chosen; needs the
+  account + `BUTTONDOWN_API_KEY` in Vercel, then sending-domain DNS (§6).
+- App Google sign-in gate — needs a Google OAuth client ID (§11, app follow-ups).
+- Unsplash article photos — needs an Unsplash API key (§12).
+- Amazon affiliate links — need Associates signup (§8).
+
+**Built but NOT deployed:**
+- The whole editorial **engine** is hardened and production-ready (130 tests,
+  alerting, deploy artefacts in `engine/deploy/`) but has **never run on the
+  VPS** — so nothing auto-scans, auto-publishes, or auto-reviews the tool data
+  yet. Deploying it (§2) is the highest-leverage outstanding action.
+
+**Not started (the strategically important gaps):**
+- **Weekly digest sending** (§6) — capture is built; the engine stage that
+  composes and sends the Sunday email via Buttondown is not.
+- **Free-registration gating + member backend** (§13) — the "free, but
+  subscribed" value exchange; the FastAPI backend that later owns the
+  subscriber list and carries the games gate.
+- **Games** proper, **admin dashboard**, and the remaining engine Phase-3
+  stubs (synthesis, trends, article decay, competitive intel, web discovery).
+
+**Top 3 next actions:** (1) commit + push the working tree so the built
+improvements go live; (2) create the Buttondown account, set
+`BUTTONDOWN_API_KEY` in Vercel and the sending-domain DNS — signups open (§6);
+(3) deploy the engine to the VPS.
+
+What follows is everything outstanding, by area.
 
 ---
 
@@ -127,14 +167,50 @@ Weekly email digest of new content, timed to the Sunday publish batch.
 revitalization plan): the list is the audience-building asset; revenue comes
 later from sponsorship, never from charging subscribers.
 
-**Tasks:**
+**Status (15 July 2026): signup capture is BUILT** — provider chosen
+(**Buttondown**, Mark's decision), double-opt-in flow wired end to end. It goes
+live the moment the Buttondown account exists and its API key is set. What
+runs today:
 
-- [ ] **Choose provider** — Buttondown (simple, developer-friendly) or Mailchimp (established, RSS-to-email).
-- [ ] **Subscribe form** — Add to the site footer or homepage. Just an email input.
-- [ ] **Weekly digest** — Auto-generate from the publish batch. Include titles, summaries, and links for the week's content.
-- [ ] **Unsubscribe and GDPR** — Handled by the provider; the privacy policy page is live (update its §5 to name the provider when chosen).
+- `site/api/subscribe.ts` — a Vercel serverless function (deployed from the
+  `api/` directory alongside the static build) that creates the subscriber via
+  the Buttondown API. Buttondown then sends the **confirmation email**; nobody
+  joins the list without clicking it (double opt-in is Buttondown's default).
+- The homepage band + footer link + header CTA all feed it. The form shows warm
+  per-outcome messages (confirmation sent / already subscribed / try again),
+  has a honeypot against bots, a same-origin check, and a no-JS fallback.
+  Without the key it degrades to the honest "signups open very soon" message —
+  so deploying this before the account exists is safe.
+- Logic is unit-tested in `src/lib/newsletter.ts` (+ a Playwright smoke test);
+  privacy policy §5 now names Buttondown and describes double opt-in.
 
-**Effort:** Small to medium. The content is already structured for this.
+**Mark's activation steps** (~30 min, no code):
+
+- [x] Create the Buttondown account/newsletter (buttondown.com). ✅ 16 July 2026.
+- [x] **Custom sending domain** — ✅ 16 July 2026: `news.yourkids.com`,
+  delegated to Buttondown's Managed DNS (NS records verified pointing at
+  ns1/ns2.onbuttondown.com). Emails will come from …@news.yourkids.com; pick
+  the exact from-address in Buttondown's settings.
+- [ ] Copy the API key (Settings → API) into a `BUTTONDOWN_API_KEY`
+  environment variable in the **Vercel project**.
+- [ ] **Commit + push the working tree** — `/api/subscribe` and the new
+  homepage form only exist locally until pushed (verified 404 in production,
+  16 July). Then test with a real signup: expect the confirmation email, and
+  the address showing in Buttondown as *unactivated* until confirmed.
+- [ ] Note: Buttondown's API allows ~100 signups/day at first (rises with
+  reputation) — plenty for launch; ask them to raise it if growth spikes.
+
+**Still to build (the sending side):**
+
+- [ ] **Weekly digest** — an engine `digest` stage that builds the email from
+  the Sunday publish batch (titles, summaries, links; later a "game night pick"
+  / tool highlight) and sends it via Buttondown's emails API using the same
+  key. Structured content already exists.
+- [ ] Later, the member backend (§13) takes ownership of the subscriber record
+  and syncs to Buttondown — capture doesn't wait on it any more.
+
+**Effort:** activation is Mark-only; the digest stage is small–medium engine
+work.
 
 ---
 
@@ -202,9 +278,35 @@ Lower-priority improvements to the site itself.
 - [x] **Favicon and social images** — Create a favicon and default OG image for social sharing.
 - [x] **404 page** — Custom not-found page.
 - [x] **Loading performance** — Move Google Fonts from CSS `@import` to preloaded `<link>` tags in `<head>` to avoid flash of unstyled text.
-- [ ] **Print styles** — Articles should print cleanly (hide nav, footer, tag chips).
+- [ ] **Print styles** — Articles should print cleanly (hide nav, footer, tag chips). (Checklists already print cleanly.)
 - [ ] **Accessibility audit** — Check colour contrast, keyboard navigation, screen reader experience.
 - [ ] **Dark mode** — Optional. The CSS variables make this straightforward to add.
+
+**Open findings from the 4 July health-check not yet actioned** (all
+low/medium — none block, but worth a cleanup pass):
+
+- [ ] **App wizard crash in private browsing (H2)** — `finishWizard()`
+  dereferences `activeChild()!` after a swallowed localStorage write; in
+  storage-blocked contexts it throws at the final step. Add a null-guard.
+- [ ] **App fetch error paths (M2)** — `getDaily()`/`getStage()` in
+  `src/pages/app/index.astro` have no `res.ok`/catch, so one failed first-visit
+  fetch leaves the Today screen blank. (The activity wheel was hardened; the app
+  wasn't.)
+- [ ] **Service worker caches error responses (M1)** — `public/app/sw.js`
+  `cache.put()`s every response; guard on `response.ok` so a transient 500
+  during a deploy isn't served offline afterwards.
+- [ ] **Checklist tick-state keyed by array position (M5)** — still
+  `${sectionIndex}-${itemIndex}`; editing `checklists.ts` shifts saved ticks
+  onto the wrong items. Give items stable IDs.
+- [ ] **App/tool screen-reader announcements (M8)** — no `aria-live` on spin
+  results, checklist progress, age results, or wizard errors; selection state
+  is class-only. Add `aria-live`/`aria-pressed`.
+- [ ] **Contrast (M8)** — `--app-ink-faint` and small coral kicker text fall
+  below WCAG AA; nudge the tints.
+- [ ] **Homepage app promo** — the app is only reachable via nav/footer; add a
+  homepage section introducing it.
+- [ ] **Self-hosted fonts + Search Console submission + commissioned artwork**
+  — carried over from the Phase 1 design work.
 
 ---
 
@@ -253,9 +355,9 @@ birth-date personalisation. Follow-ups:
   checklists mentioned in the Phase 6 funnel note.
 
 **The app** (`/app`, shipped July 2026): standalone installable PWA — wizard
-(name/birthdate/sex), daily Today screen (celebrations, hints, facts,
-affirmations, feeding/games), in-app guide, multi-child, all data on-device.
-App follow-ups:
+(first name + date of birth only, on-device), daily Today screen (celebrations,
+hints, facts, affirmations, feeding/games), in-app guide, multi-child, all data
+on-device. App follow-ups:
 
 - [ ] **Google sign-in setup (Mark)** — create an OAuth client ID (type: Web)
   in Google Cloud Console; authorised JavaScript origins:
@@ -310,19 +412,74 @@ App follow-ups:
 
 ---
 
-## Suggested Order
+## 13. Free-registration gating & the member backend
+
+*The "free, but subscribed" value exchange (revitalization plan, principle 2)
+and the foundation the newsletter (§6) and future games gate all sit on. Not
+started.*
+
+**Where it stands today.** There are two *lightweight, client-side* gates
+already, but no real accounts:
+
+- The **app** (`/app`) has an optional client-side Google sign-in that, once a
+  client ID is set, is *required* to open it — but this is a courtesy gate:
+  it stores only a display name on-device, there is no server record, and
+  signing out just locks that device. Children's data never leaves the device
+  (a deliberate GDPR choice — see the memory note and privacy §3a).
+- Everything else (guides, tools, wheel, games teaser) is fully open.
+
+**What "gating access until users register for free" actually requires** — a
+small backend, because a genuine free account has to persist server-side:
+
+- [ ] **Decide the mechanism.** Either (a) the roadmap's own **FastAPI member
+  backend** (Phase 2: `subscribers`, magic-link `auth_tokens`, `entitlements`
+  tables; endpoints `POST /subscribe`, `/auth/magic-link`, `/auth/verify`,
+  `/me/entitlements`), or (b) lean on a managed service (Supabase/Firebase
+  auth + a newsletter provider) to avoid running auth ourselves. The plan
+  assumes (a), co-located with the engine on the VPS.
+- [ ] **Passwordless magic-link auth** — suits a parent audience, no passwords
+  to store, and the same session later carries paid-tier entitlements.
+- [ ] **`isMember()` client helper** (`site/src/lib/member.ts`) — the gate is
+  a UX layer + entitlement check over statically-built pages, not DRM (fine
+  for free content).
+- [ ] **Decide WHAT gets gated.** Candidates: the games area, "save/sync my
+  child across devices", saved favourites, printables. Deliberately keep the
+  guides + core tools ungated (they're the SEO funnel). **Open question flagged
+  in the revitalization plan:** classroom/group games sit awkwardly behind a
+  per-parent gate — those may need to stay ungated or use a lighter code.
+- [ ] **GDPR before launch** — storing an email (and any synced child data)
+  server-side is a real step up from today's on-device-only posture: privacy
+  policy rework, consent + double opt-in, deletion/rights handling, ICO fee.
+  Bible §14 (protected) needs explicit sign-off. Contract, not consent, is the
+  cleaner lawful basis where a feature genuinely needs the data to work.
+
+**Relationship to the newsletter (§6):** newsletter *capture* now goes
+straight to Buttondown via `site/api/subscribe.ts`, so it no longer waits on
+this backend. When the backend arrives it takes ownership of the subscriber
+record (syncing to Buttondown) so one sign-in can carry newsletter +
+entitlements together. This remains the biggest single not-started build, and
+the strategic centre of the audience-building plan.
+
+**Effort:** Medium (the backend itself), then small per gated feature.
+
+---
+
+## Suggested Order (refreshed 15 July 2026)
+
+Done since the original list: SEO plumbing, Search (Pagefind), the engine
+hardening + monitoring/alerting + deploy artefacts, and the whole guides / app
+/ tools / activity-wheel surface.
 
 | Priority | Task | Reason |
 |----------|------|--------|
-| Now | SEO setup | No point publishing content nobody can find |
-| Now | Deploy engine to VPS | Pipeline needs to run unattended |
-| Soon | Monitoring and alerting | Need to know when things break |
-| Soon | Analytics | Need to know if anyone is reading |
-| Next | Trend analysis + decay checker | Highest-value Phase 3 features |
-| Next | Newsletter | Low-effort reader acquisition |
-| Next | Amazon affiliate (Phase 1) | Revenue with minimal work |
-| Later | Search | Nice-to-have, improves with more content |
-| Later | Editorial synthesis | Needs more content volume to be meaningful |
-| Later | Admin dashboard | Defer until manual intervention patterns are clear |
-| Later | Competitive intelligence | Lower priority than own content quality |
-| Later | Translation / multi-language | After games ship; needs i18n string layer + human review of translated health guidance |
+| **Now** | Commit + push the working tree | The built improvements (CSP, tests, tool fixes, Unsplash, engine hardening) aren't live until pushed |
+| **Now** | Deploy engine to VPS (§2) | Nothing auto-runs until this — no publishing, no data-maintenance review |
+| Now | Activate: Buttondown account + key (§6), Google OAuth key (§11), Unsplash key (§12), Amazon Associates (§8) | Four built features flip on with a key each — Buttondown opens newsletter signups |
+| Soon | Weekly digest engine stage + member backend (§6, §13) | The list is the asset; the backend also carries free-registration gating |
+| Soon | Analytics (§5) | Need to know if anyone is reading |
+| Soon | Health-check cleanup (§10 open findings) | Small; wizard null-guard, SW `.ok`, checklist stable IDs, a11y |
+| Next | Trend analysis + article-level decay (§4) | Highest-value remaining Phase 3 engine features |
+| Next | More free tools (§12/app-ideas) | Feed/sleep logger, first-foods lookup, growth tracker |
+| Later | Games proper + admin dashboard (§9) | Depend on the member backend |
+| Later | Editorial synthesis, competitive intel, web discovery | Engine Phase 3/4 stubs; need volume first |
+| Later | Translation / multi-language | After games ship; needs an i18n string layer + human review of translated health guidance |
