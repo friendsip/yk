@@ -146,6 +146,14 @@ function hrefForItem(item: { slug: string; data: { type: string } }): string {
   const email = form.querySelector('#newsletter-email') as HTMLInputElement;
   const honeypot = form.querySelector('#newsletter-website') as HTMLInputElement;
 
+  // Arriving at /#newsletter from another page, the browser scrolls before
+  // images and web fonts have settled, so the band ends up off-target (the
+  // sticky-header offset itself is handled by scroll-margin-top in the CSS).
+  // Re-land the anchor once the page has fully loaded.
+  if (location.hash === '#newsletter') {
+    addEventListener('load', () => band.scrollIntoView());
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     button.disabled = true;

@@ -34,6 +34,15 @@ test('vaccination planner: entering a DOB fills the timeline and enables the cal
   await expect(page.locator('#vax-ics')).toBeEnabled();
 });
 
+test('header CTA lands with the newsletter form in view', async ({ page }) => {
+  // Cross-page arrival at /#newsletter — regression test for the anchor
+  // landing under the sticky header / drifting with late image loads.
+  await page.goto('/topics/');
+  await page.getByRole('link', { name: 'Get the weekly email' }).click();
+  await page.waitForURL('**/#newsletter');
+  await expect(page.locator('#newsletter-email')).toBeInViewport();
+});
+
 test('newsletter band: signing up always gets an honest answer', async ({ page }) => {
   // Under `astro preview` the /api/subscribe function doesn't exist, so the
   // form should land on the friendly "signups open soon" fallback — the point

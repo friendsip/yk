@@ -2716,6 +2716,8 @@ select:focus-visible {
   align-items: center;
   gap: 40px;
   margin: 0 0 var(--space-xl);
+  /* keep anchor jumps (/#newsletter) clear of the 77px sticky header */
+  scroll-margin-top: 96px;
 }
 
 .newsletter-band__copy {

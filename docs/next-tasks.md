@@ -191,12 +191,25 @@ runs today:
   delegated to Buttondown's Managed DNS (NS records verified pointing at
   ns1/ns2.onbuttondown.com). Emails will come from …@news.yourkids.com; pick
   the exact from-address in Buttondown's settings.
-- [ ] Copy the API key (Settings → API) into a `BUTTONDOWN_API_KEY`
-  environment variable in the **Vercel project**.
-- [ ] **Commit + push the working tree** — `/api/subscribe` and the new
-  homepage form only exist locally until pushed (verified 404 in production,
-  16 July). Then test with a real signup: expect the confirmation email, and
-  the address showing in Buttondown as *unactivated* until confirmed.
+- [x] Copy the API key (Settings → API) into a `BUTTONDOWN_API_KEY`
+  environment variable in the **Vercel project**. ✅ 16 July 2026.
+- [x] Commit + push (`fab6464 newsletter`, 16 July 2026).
+- [ ] **Un-pin the domain and redeploy** (found 16 July): www.yourkids.com is
+  aliased to an old deployment (`yk-1ysi-quwgzsbti`) — new production builds
+  complete but the domain doesn't follow them (a leftover instant-rollback /
+  auto-assign pin). Also the API key was added ~20 min *after* the 18:01
+  build, so no existing deployment has it. Fix: push the pending scroll fix
+  (triggers a fresh build with the key), then in the Vercel dashboard →
+  project **yk-1ysi** → Deployments → newest → ⋯ → *Promote to Production*
+  (or undo the rollback banner if one shows). CLI equivalent from `site/`:
+  `vercel ls yk-1ysi --scope my-team89` then `vercel promote <newest-url>
+  --scope my-team89`.
+- [ ] **Tidy the duplicate project**: a second Vercel project (`yk`) also
+  builds every push of this repo but holds no domains and no env vars —
+  consider deleting or pausing it to avoid double builds and confusion.
+- [ ] **Test with a real signup** once the new deploy is serving: expect the
+  confirmation email from news.yourkids.com, and the address showing in
+  Buttondown as *unactivated* until confirmed.
 - [ ] Note: Buttondown's API allows ~100 signups/day at first (rises with
   reputation) — plenty for launch; ask them to raise it if growth spikes.
 
