@@ -134,6 +134,18 @@ const sources = kind === 'stage' ? stage!.sources : guide!.sources;
           <p class="stage-summary">{guide!.summary}</p>
         </header>
 
+        {guide!.image && (
+          <figure class="guide-photo">
+            <img
+              src={guide!.image.src}
+              alt={guide!.image.alt}
+              width={guide!.image.width}
+              height={guide!.image.height}
+            />
+            <figcaption>{guide!.image.credit}</figcaption>
+          </figure>
+        )}
+
         {guide!.sections.map((sec) => (
           <section class="stage-section">
             <h2>{sec.heading}</h2>

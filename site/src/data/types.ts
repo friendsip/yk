@@ -96,6 +96,14 @@ export interface GuideDoc {
   id: string; // 'positive-parenting', 'baby-and-toddler', 'easy-games', 'independent-play'
   title: string;
   summary: string;
+  /** Optional header photo, hosted in site/public/images/ (width/height stop layout shift) */
+  image?: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+    credit: string;
+  };
   sections: ContentSection[];
   sources: Source[];
 }

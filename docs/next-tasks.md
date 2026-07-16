@@ -213,6 +213,11 @@ runs today:
 - [ ] Note: Buttondown's API allows ~100 signups/day at first (rises with
   reputation) — plenty for launch; ask them to raise it if growth spikes.
 
+**Content plan:** the first four issues are outlined in
+`docs/newsletter-plan.md` (16 July 2026) — site intro + ideas ask, apps +
+activity-wheel deep dive, Baby & Toddler app deep dive, Educational Games
+intro.
+
 **Still to build (the sending side):**
 
 - [ ] **Weekly digest** — an engine `digest` stage that builds the email from

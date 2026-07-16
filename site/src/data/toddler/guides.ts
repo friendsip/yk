@@ -236,6 +236,13 @@ export const toddlerGuides: GuideDoc[] = [
     title: "Easy games for tired parents",
     summary:
       "Genuinely low-energy games for days when you're running on four hours' sleep — sorted by where you can play them, including a section where you mostly lie down. All of it still counts as quality time.",
+    image: {
+      src: "/images/toddler-easy-games.jpg",
+      alt: "A tired parent rests her chin in her hand at the table in front of a laptop while two children clamber over the sofa behind her",
+      width: 1600,
+      height: 1066,
+      credit: "Photo by Ketut Subiyanto",
+    },
     sections: [
       {
         heading: "The rules of tired-parent play",

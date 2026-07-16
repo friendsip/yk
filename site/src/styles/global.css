@@ -788,6 +788,25 @@ li {
   text-decoration: underline;
 }
 
+/* Guide header photo (baby/toddler guide pages) */
+.guide-photo {
+  margin: 0 0 var(--space-lg);
+}
+
+.guide-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-card);
+}
+
+.guide-photo figcaption {
+  margin-top: var(--space-xs);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  text-align: right;
+}
+
 .content-header__art :is(svg, img) {
   display: block;
   width: 160px;
