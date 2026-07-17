@@ -1,6 +1,6 @@
 ---
-title: "Online Safety Tools: A Parent's Guide to What Actually Helps"
-summary: "A friendly walk through online safety tools, parental controls, and monitoring approaches — what's worth using at different ages, wherever you live, plus a section of UK-specific tools and resources."
+title: Online Safety Tools
+summary: A friendly walk through online safety tools, parental controls, and monitoring approaches — what's worth using at different ages, wherever you live, plus a section of UK-specific tools and resources.
 type: evergreen
 section: parenting
 tags:
@@ -13,6 +13,9 @@ sources:
   - https://www.commonsensemedia.org
 first_published: 2026-03-05
 last_updated: 2026-06-13
+external_url: ''
+image_alt: ''
+image_credit_name: ''
 ---
 
 There are dozens of apps, services, and devices marketed to parents as the answer to children's online safety. Some are genuinely useful. Many are not — or at least, not in the ways they claim to be. And none of them, in our reading of the most helpful guidance we could find, replaces the thing that matters most over the long run: a child who knows they can talk to you when something goes wrong online.
