@@ -1,6 +1,6 @@
 ---
-title: "Understanding Therapeutic Parenting: A Gentle Foundation"
-summary: "A warm introduction to therapeutic parenting for children who have experienced trauma, attachment difficulties, or early adversity — wherever in the world you're parenting."
+title: Why Therapeutic Parenting
+summary: A warm introduction to therapeutic parenting for children who have experienced trauma, attachment difficulties, or early adversity — wherever in the world you're parenting.
 type: evergreen
 section: parenting
 tags:
@@ -11,6 +11,9 @@ sources:
   - https://www.childwelfare.gov
 first_published: 2026-02-08
 last_updated: 2026-06-13
+external_url: ''
+image_alt: ''
+image_credit_name: ''
 ---
 
 Therapeutic parenting is an approach for children who have experienced trauma, neglect, or disrupted attachment in their early years. Where traditional parenting often leans on behavioural consequences — time-outs, reward charts and the like — therapeutic parenting puts connection, understanding, and emotional regulation first. If you're new to it, please know this: it's a way of being with your child, not a test to pass.
