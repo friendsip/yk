@@ -1,6 +1,6 @@
 ---
-title: "We Need to Stop Treating Screen Time as a Moral Failing"
-summary: "Screen time has become a moral category for parents almost everywhere. The evidence is messier than the headlines — and the guilt isn't helping any of us think more clearly."
+title: Is "Screen Time" a Moral Failing?
+summary: Screen time has become a moral category for parents almost everywhere. The evidence is messier than the headlines — and the guilt isn't helping any of us think more clearly.
 type: editorial
 section: parenting
 tags:
@@ -8,6 +8,9 @@ tags:
   - family-life
 first_published: 2026-03-05
 last_updated: 2026-06-13
+external_url: ''
+image_alt: ''
+image_credit_name: ''
 ---
 
 Ask parents almost anywhere in the world how they feel about how much time their children spend on screens, and you'll get some version of guilt. Too much. I should be stricter. I know it's bad for them. The tone is confessional — the same register people use to admit they've been eating badly or skipping the gym.
