@@ -12,13 +12,17 @@
  * doesn't exist at all — the homepage form falls back to its honest
  * "signups open very soon" message.
  */
+// NOTE: the .js extension is load-bearing. This package is ESM
+// ("type": "module"), and Vercel runs the compiled function on native Node
+// ESM, where extensionless relative imports throw ERR_MODULE_NOT_FOUND at
+// runtime (the build succeeds — it only crashes when invoked).
 import {
   isPlausibleEmail,
   isAllowedOrigin,
   mapButtondownResponse,
   subscribeMessage,
-} from '../src/lib/newsletter';
-import type { SubscribeState } from '../src/lib/newsletter';
+} from '../src/lib/newsletter.js';
+import type { SubscribeState } from '../src/lib/newsletter.js';
 
 // Minimal structural types for Vercel's Node (req, res) handler, instead of
 // depending on @vercel/node. Vercel parses JSON and form bodies into

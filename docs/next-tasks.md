@@ -36,8 +36,10 @@ below hold the detail. The companion health-check is
 - **Free-registration gating + member backend** (§13) — the "free, but
   subscribed" value exchange; the FastAPI backend that later owns the
   subscriber list and carries the games gate.
-- **Games** proper, **admin dashboard**, and the remaining engine Phase-3
-  stubs (synthesis, trends, article decay, competitive intel, web discovery).
+- **More games** (first one — What the Word?! — is built and awaiting its
+  subdomain, see §11), the **admin dashboard**, and the remaining engine
+  Phase-3 stubs (synthesis, trends, article decay, competitive intel, web
+  discovery).
 
 **Top 3 next actions:** (1) commit + push the working tree so the built
 improvements go live; (2) create the Buttondown account, set
@@ -411,11 +413,22 @@ on-device. App follow-ups:
   update prompt. Updates stay human-gated. Add new tools to the register.
   Needs `gh` authenticated on the VPS for issue creation. This also
   supersedes the manual "quarterly re-verification cadence" item above.
-- [x] **Educational games section page (July 2026)** — `/games` live as a
-  coming-soon teaser (classroom/group framing, coral accent, in nav +
-  footer). Announced: circle-time games, quiz packs, co-operative mixed-age
-  games, printable game cards. The actual games are revitalization-plan
-  Phases 4–5; see the note there about classroom use vs the subscription gate.
+- [x] **Educational games section page (July 2026)** — `/games` live
+  (classroom/group framing, coral accent, in nav + footer). Still announced
+  as coming: circle-time games, quiz packs, co-operative mixed-age games,
+  printable game cards; see the revitalization-plan note about classroom use
+  vs the subscription gate.
+- [x] **First game: What the Word?! (16 July 2026)** — the standalone `wtw`
+  project (same Vercel team) reskinned to the YourKids design and made
+  classroom-safe: hand-vetted word packs (13 categories × 3 difficulties,
+  ~860 words) replaced live LLM word generation; party/politics categories
+  dropped; "your word list" mode kept for teachers; team-name nudge;
+  adaptive polling (halves Redis load); YourKids bar + exit link on every
+  screen. Featured on `/games` + launcher tile; privacy §3b covers it.
+  **Mark's steps:** add `games.yourkids.com` to the `wtw` Vercel project +
+  the CNAME (see wtw `DEPLOYMENT.md` Step 3), commit/push/deploy wtw, and
+  rotate/remove the now-unused `ANTHROPIC_API_KEY` (it leaked into a local
+  session log on 16 July — rotate at console.anthropic.com).
 - [x] **"What can we do today?" activity wheel (July 2026)** —
   `/tools/activities`: phone-app-style spinning wheel, 344 original
   activities across five age bands (1–3 to teens) and twelve categories,

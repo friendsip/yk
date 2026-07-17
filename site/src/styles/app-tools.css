@@ -417,6 +417,25 @@
   margin-bottom: 1rem;
 }
 
+/* Primary pill CTA for tool/game pages (e.g. "Play What the Word?!") */
+.tool-cta {
+  display: inline-block;
+  font-family: var(--app-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.65rem 1.5rem;
+  border-radius: 999px;
+  background: var(--app-coral);
+  color: #fff;
+  text-decoration: none;
+  min-height: 44px;
+  box-shadow: var(--app-shadow);
+}
+
+.tool-cta:hover {
+  filter: brightness(1.05);
+}
+
 .checklist-btn {
   font: inherit;
   font-family: var(--app-font-display);
