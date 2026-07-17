@@ -434,10 +434,11 @@ on-device. App follow-ups:
   dropped; "your word list" mode kept for teachers; team-name nudge;
   adaptive polling (halves Redis load); YourKids bar + exit link on every
   screen. Featured on `/games` + launcher tile; privacy §3b covers it.
-  **Mark's steps:** add `games.yourkids.com` to the `wtw` Vercel project +
-  the CNAME (see wtw `DEPLOYMENT.md` Step 3), commit/push/deploy wtw, and
+  ✅ **LIVE at games.yourkids.com (17 July 2026)** — Squarespace CNAME →
+  Vercel, cert issued, reskinned deploy serving. Still outstanding:
   rotate/remove the now-unused `ANTHROPIC_API_KEY` (it leaked into a local
-  session log on 16 July — rotate at console.anthropic.com).
+  session log on 16 July — rotate at console.anthropic.com), and consider
+  git-connecting the `wtw` Vercel project so pushes auto-deploy.
 - [x] **"What can we do today?" activity wheel (July 2026)** —
   `/tools/activities`: phone-app-style spinning wheel, 344 original
   activities across five age bands (1–3 to teens) and twelve categories,
