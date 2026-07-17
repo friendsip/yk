@@ -1,13 +1,8 @@
 ---
-title: "Cooking Together: What It's Really Good For"
-summary: "Getting children into the kitchen reliably builds skills, confidence, and involvement — and that's worth celebrating on its own terms, even if it won't automatically transform their diet. The honest case for cooking together."
+title: Cooking Together
+summary: Getting children into the kitchen reliably builds skills, confidence, and involvement — and that's worth celebrating on its own terms, even if it won't automatically transform their diet. The honest case for cooking together.
 type: evergreen
 section: parenting
-image: "/images/cooking-jimmy-dean.jpg"
-image_alt: "A couple cooking together at a kitchen counter"
-image_credit_name: "Jimmy Dean"
-image_credit_url: "https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&utm_medium=referral"
-image_source_url: "https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&utm_medium=referral"
 tags:
   - good-news
   - family-life
@@ -15,6 +10,12 @@ sources:
   - https://pubmed.ncbi.nlm.nih.gov/39320296/
 first_published: 2026-06-13
 last_updated: 2026-06-13
+external_url: ''
+image: /images/cooking-jimmy-dean.jpg
+image_alt: A couple cooking together at a kitchen counter
+image_credit_name: Jimmy Dean
+image_credit_url: https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&utm_medium=referral
+image_source_url: https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&utm_medium=referral
 featured: true
 ---
 
