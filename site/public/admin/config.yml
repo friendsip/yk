@@ -1,0 +1,100 @@
+# YourKids admin (Sveltia CMS) — edits content files in the GitHub repo and
+# commits as the signed-in user; Vercel rebuilds the site on push.
+#
+# Auth: the base_url + auth_endpoint point at our own serverless OAuth bridge
+# (site/api/auth.ts + api/callback.ts). Needs GITHUB_OAUTH_CLIENT_ID and
+# GITHUB_OAUTH_CLIENT_SECRET in the Vercel project env (see docs/next-tasks §9).
+#
+# Field definitions mirror site/src/content/config.ts — keep them in sync or
+# saves will fail the site's schema validation at build time.
+
+backend:
+  name: github
+  repo: friendsip/yk
+  branch: main
+  base_url: https://www.yourkids.com
+  auth_endpoint: api/auth
+
+site_url: https://www.yourkids.com
+media_folder: site/public/images
+public_folder: /images
+
+collections:
+  - name: content
+    label: Articles & links
+    label_singular: article
+    folder: site/src/content/content
+    format: frontmatter
+    extension: md
+    create: true
+    slug: '{{slug}}'
+    summary: '{{title}} — {{type}}'
+    sortable_fields: [first_published, title, type]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: summary, label: Summary, widget: text, hint: 'One or two honest sentences — this is what cards and search results show.' }
+      - name: type
+        label: Type
+        widget: select
+        options: [evergreen, curated, editorial]
+        default: evergreen
+      - { name: section, label: Section, widget: hidden, default: parenting }
+      - { name: tags, label: Tags, widget: list, default: [], required: false, hint: 'Kebab-case topics, e.g. family-life, health — these drive the card artwork.' }
+      - { name: sources, label: Sources, widget: list, required: false, hint: 'One URL per line — the sources cited at the foot of the article.' }
+      - { name: first_published, label: First published, widget: datetime, format: 'YYYY-MM-DD', time_format: false }
+      - { name: last_updated, label: Last updated, widget: datetime, format: 'YYYY-MM-DD', time_format: false, required: false, hint: 'Set this whenever you materially edit a published article.' }
+      - { name: external_url, label: External URL, widget: string, required: false, hint: 'Curated links only — where the card points.' }
+      - { name: image, label: Photo, widget: image, required: false, choose_url: true, hint: 'Optional — cards fall back to topic artwork. Unsplash photos must keep the credit fields below.' }
+      - { name: image_alt, label: Photo alt text, widget: string, required: false }
+      - { name: image_credit_name, label: 'Photo credit — name', widget: string, required: false }
+      - { name: image_credit_url, label: 'Photo credit — URL', widget: string, required: false }
+      - { name: image_source_url, label: 'Photo source URL', widget: string, required: false }
+      - { name: featured, label: 'Pin to homepage', widget: boolean, default: false, required: false }
+      - { name: body, label: Body, widget: markdown }
+
+  - name: recommendations
+    label: Recommendations
+    label_singular: recommendation
+    folder: site/src/content/recommendations
+    format: yaml
+    extension: yaml
+    create: true
+    slug: '{{slug}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: summary, label: 'Why we like it', widget: text }
+      - name: category
+        label: Category
+        widget: select
+        options: [book, toy, gear, app, finance]
+        default: toy
+      - { name: tags, label: Tags, widget: list, default: [], required: false }
+      - { name: age_range, label: Age range, widget: string, required: false }
+      - { name: affiliate_url, label: Affiliate URL, widget: string, required: false }
+      - { name: retailer, label: Retailer, widget: string, default: Amazon }
+      - { name: first_published, label: First published, widget: datetime, format: 'YYYY-MM-DD', time_format: false }
+      - { name: last_updated, label: Last updated, widget: datetime, format: 'YYYY-MM-DD', time_format: false, required: false }
+
+  - name: deals
+    label: Deals
+    label_singular: deal
+    folder: site/src/content/deals
+    format: yaml
+    extension: yaml
+    create: true
+    slug: '{{slug}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: summary, label: Summary, widget: text }
+      - name: category
+        label: Category
+        widget: select
+        options: [pushchair, car-seat, cot, monitor, other]
+        default: other
+      - { name: price, label: Price, widget: string, required: false, hint: 'Free text, e.g. £199' }
+      - { name: rrp, label: RRP, widget: string, required: false }
+      - { name: price_checked, label: Price checked on, widget: datetime, format: 'YYYY-MM-DD', time_format: false, hint: 'Required — deals without a checked date do not publish.' }
+      - { name: retailer, label: Retailer, widget: string, default: Amazon }
+      - { name: affiliate_url, label: Affiliate URL, widget: string, required: false }
+      - { name: first_published, label: First published, widget: datetime, format: 'YYYY-MM-DD', time_format: false }
+      - { name: expires, label: Expires, widget: datetime, format: 'YYYY-MM-DD', time_format: false, required: false, hint: 'Expired deals hide automatically.' }

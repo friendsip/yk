@@ -36,10 +36,11 @@ below hold the detail. The companion health-check is
 - **Free-registration gating + member backend** (§13) — the "free, but
   subscribed" value exchange; the FastAPI backend that later owns the
   subscriber list and carries the games gate.
-- The **admin dashboard**, and the remaining engine Phase-3 stubs (synthesis,
-  trends, article decay, competitive intel, web discovery). Games are no
-  longer a gap: four on-screen games shipped into `/games` on 17 July, and
-  What the Word?! awaits only its subdomain DNS (§11).
+- The **admin dashboard's engine-monitoring half** (content editing shipped:
+  `/admin` CMS, 17 July — see §9), and the remaining engine Phase-3 stubs
+  (synthesis, trends, article decay, competitive intel, web discovery).
+  Games are done: four on-screen games + What the Word?! live at
+  games.yourkids.com (17 July).
 
 **Top 3 next actions:** (1) commit + push the working tree so the built
 improvements go live; (2) create the Buttondown account, set
@@ -281,6 +282,27 @@ Currently the only way to manage the engine is via CLI and direct database queri
 
 **Tasks:**
 
+- [x] **Content editing at `/admin` (17 July 2026)** — Sveltia CMS (self-hosted
+  single script in `site/public/admin/`, v0.171.1) edits articles,
+  recommendations and deals straight in the GitHub repo; each save is a commit
+  as the signed-in user → Vercel rebuilds. Collections mirror
+  `site/src/content/config.ts` — **keep `admin/config.yml` in sync when the
+  schema changes.** Auth is a tiny OAuth bridge in `site/api/auth.ts` +
+  `api/callback.ts` (pure logic tested in `src/lib/adminAuth.ts`); the token
+  is handed to a static page via URL fragment so no inline scripts and no
+  tokens in logs. `/admin` has its own CSP block in `vercel.json`, is
+  `Disallow`ed in robots.txt and X-Robots-Tag noindexed.
+  **Three sign-in modes:**
+  1. *Local repository* — zero setup: open `/admin` (even on localhost),
+     "Work with Local Repository", pick the `yk` folder; edits land in the
+     working tree for a normal commit.
+  2. *Access token* — zero setup in prod: paste a GitHub fine-grained PAT
+     (repo `friendsip/yk`, Contents read/write).
+  3. *Sign in with GitHub* — nicest; needs Mark to create a **GitHub OAuth
+     App** (Settings → Developer settings → OAuth Apps: homepage
+     `https://www.yourkids.com`, callback `https://www.yourkids.com/api/callback`)
+     and set `GITHUB_OAUTH_CLIENT_ID` + `GITHUB_OAUTH_CLIENT_SECRET` in the
+     Vercel project env, then redeploy.
 - [ ] **API layer** — FastAPI app exposing read-only endpoints: content inventory, pipeline status, token usage, source health.
 - [ ] **Dashboard UI** — Simple web interface showing pipeline health, recent publishes, cost tracking, and source status.
 - [ ] **Content browser** — View and search all published content, with links to the live site.
