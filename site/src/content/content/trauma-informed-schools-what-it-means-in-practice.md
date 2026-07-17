@@ -1,6 +1,6 @@
 ---
-title: "What \"Trauma-Informed Schools\" Really Means in Practice"
-summary: "The phrase 'trauma-informed' appears everywhere in education these days. Here's what it actually means, what it doesn't, and how you might tell whether a school is genuinely living it."
+title: Trauma-Informed Schools
+summary: The phrase 'trauma-informed' appears everywhere in education these days. Here's what it actually means, what it doesn't, and how you might tell whether a school is genuinely living it.
 type: evergreen
 section: parenting
 tags:
@@ -13,6 +13,9 @@ sources:
   - https://childmind.org
 first_published: 2026-03-05
 last_updated: 2026-06-13
+external_url: ''
+image_alt: ''
+image_credit_name: ''
 ---
 
 "Trauma-informed" has become one of the most widely used phrases in education over the past decade, in schools across the English-speaking world. In the UK it appears in school improvement plans, Ofsted reports, and SENCO job descriptions; elsewhere it shows up in school mission statements and parenting content just as often. Like many terms that travel quickly, its meaning has become considerably stretched in transit.
