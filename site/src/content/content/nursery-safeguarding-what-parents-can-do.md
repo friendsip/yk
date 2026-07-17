@@ -1,6 +1,6 @@
 ---
-title: "Nursery and Childcare Safeguarding: What Parents Can Do — Lessons from the Vincent Chan Case"
-summary: "A former nursery worker in London has been jailed for serious abuse of children in his care. Here's what the case means, the questions worth asking of any childcare setting wherever you live, and where to turn if you have concerns."
+title: Nursery and Childcare Safeguarding
+summary: A former nursery worker in London has been jailed for serious abuse of children in his care. Here's what the case means, the questions worth asking of any childcare setting wherever you live, and where to turn if you have concerns.
 type: evergreen
 section: parenting
 tags:
@@ -12,6 +12,9 @@ sources:
   - https://www.nspcc.org.uk/keeping-children-safe/reporting-abuse/report/
 first_published: 2026-03-04
 last_updated: 2026-06-13
+external_url: ''
+image_alt: ''
+image_credit_name: ''
 ---
 
 This article deals with child abuse, and it may be distressing to read. If you're in the UK and have concerns about a child's safety, you can contact the NSPCC helpline at any time on **0808 800 5000** (free, 24/7). If you're elsewhere, your country will have its own child protection helpline — and if a child is in immediate danger anywhere, contact your local emergency services.
