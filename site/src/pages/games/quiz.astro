@@ -1,0 +1,20 @@
+---
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
+import '../../styles/games.css';
+---
+
+<ToolAppLayout
+  title="Quiz packs"
+  description="Ready-made quiz rounds for classrooms, after-school clubs and family quiz afternoons — animals, space, words, numbers and more. Free from yourkids.com."
+  heading="Quiz packs ❓"
+  sub="Ready-made question rounds. One person is quiz-master and reads aloud — everyone else answers."
+  backHref="/games"
+  backLabel="All games"
+>
+  <main id="screen" class="screen"></main>
+</ToolAppLayout>
+
+<script>
+  import { initQuiz } from '../../lib/games/quiz';
+  initQuiz();
+</script>

@@ -35,10 +35,12 @@ per Site Bible §2 — warm, friendly, humble; never "the best", always honest.*
 
 ## Issue 4 — Educational games
 
-- **Introduction to Educational Games** (`/games`) — what's coming
-  (circle-time games, quiz packs, co-operative mixed-age games, printable
-  cards), honest that it's early; invite teachers/group leaders to reply with
-  what they'd use.
+- **Introduction to Educational Games** (`/games`) — now live, so this is a
+  launch announcement: circle-time games (Buzz!, Odd One Out, Chain Reaction,
+  Make the Number), quiz packs, co-operative games for mixed ages, printable
+  cards, and What the Word?! for team play across phones. Worth showing the
+  classroom angle (projector scoreboard, spelling-list mode) and inviting
+  teachers/group leaders to reply with what they'd use next.
 - **Summary of key articles.**
 
 ## Production notes

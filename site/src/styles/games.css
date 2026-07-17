@@ -1,0 +1,177 @@
+/* ============================================================
+   Educational games (/games/*) — game-specific classes on top of
+   app.css + app-tools.css (ToolAppLayout). Shared layout classes
+   (.stage-card, .play-head, .wizard-choice, .screen…) come from
+   those files; only what the games add lives here.
+   Ported from the ykgames prototype (July 2026).
+   ============================================================ */
+
+/* ---- buttons & action rows ---- */
+.app-btn--teal { background: var(--app-teal); box-shadow: 0 4px 14px #35b8a466; }
+.app-btn--lavender { background: var(--app-lavender); box-shadow: 0 4px 14px #9d7bd866; }
+.game-actions { display: flex; flex-direction: column; gap: .7rem; margin-top: 1rem; }
+.game-actions--row { flex-direction: row; flex-wrap: wrap; }
+.game-actions--row .app-btn { flex: 1; width: auto; min-width: 140px; }
+
+/* ---- pills / kickers (base .stage-kicker is in app-tools.css) ---- */
+.stage-kicker--coral { background: #ff7a5924; color: var(--app-coral); }
+.stage-kicker--teal { background: #35b8a424; color: var(--app-teal); }
+.stage-kicker--rose { background: #f26d9d24; color: var(--app-rose); }
+.free-pill {
+  display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; padding: .15rem .6rem; border-radius: 999px;
+  background: linear-gradient(135deg, var(--app-sunshine), var(--app-rose));
+  color: #fff; vertical-align: middle;
+}
+
+/* ---- stage-card extensions: games render cards as <button> and with an
+   emoji + "Play →" line the base class doesn't have ---- */
+button.stage-card {
+  border-left: none; border-right: none; border-bottom: none;
+  font: inherit; cursor: pointer; text-align: left; width: 100%;
+}
+.stage-card__emoji { font-size: 1.9rem; line-height: 1; }
+.stage-card__go {
+  font-family: var(--app-font-display); font-weight: 700; font-size: .9rem;
+  color: var(--card-accent, var(--app-coral)); margin-top: .2rem;
+}
+
+/* ---- game HUD ---- */
+.hud { display: flex; flex-wrap: wrap; gap: .45rem; justify-content: center; margin-bottom: .8rem; }
+.hud-chip {
+  background: #ffffffbf; border-radius: 999px; padding: .2rem .8rem;
+  font-family: var(--app-font-display); font-weight: 700; font-size: .88rem; color: var(--app-ink-soft);
+}
+.hud-chip strong { color: var(--app-ink); }
+
+/* ---- the big play card ---- */
+.bigcard {
+  background: var(--app-card); border-radius: var(--app-radius); box-shadow: var(--app-shadow);
+  border-top: 5px solid var(--card-accent, var(--app-coral));
+  padding: 1.6rem 1.3rem; text-align: center; margin-bottom: 1rem;
+  min-height: 240px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem;
+}
+.bigcard--tap { cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
+.bigcard--tap:active { transform: scale(.99); }
+.bigcard__kicker {
+  font-size: .75rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
+  color: var(--card-accent, var(--app-coral));
+}
+.bigcard__emoji { font-size: 4rem; line-height: 1.15; }
+.bigcard__word { font-family: var(--app-font-display); font-weight: 800; font-size: clamp(2rem, 9vw, 3rem); line-height: 1.1; }
+.bigcard__giant { font-family: var(--app-font-display); font-weight: 800; font-size: clamp(3.4rem, 18vw, 5.5rem); line-height: 1; }
+.bigcard__sub { color: var(--app-ink-soft); font-size: .95rem; max-width: 34ch; }
+.bigcard__hint { color: var(--app-ink-faint); font-size: .82rem; }
+.bigcard--buzz { background: linear-gradient(135deg, #fff3df, #ffe9f1); border-top-color: var(--app-sunshine); }
+.bigcard--win { background: linear-gradient(135deg, #fff7ec, #eef8f4); border-top-color: var(--app-teal); }
+.bigcard--story { min-height: 280px; }
+
+/* ---- odd-one-out choice grid ---- */
+.choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin-bottom: 1rem; }
+.choice-tile {
+  background: var(--app-card); border-radius: var(--app-radius); box-shadow: var(--app-shadow);
+  border: 3px solid transparent; padding: 1rem .6rem; text-align: center;
+  display: flex; flex-direction: column; gap: .2rem; align-items: center;
+  transition: opacity .25s ease, border-color .25s ease;
+}
+.choice-tile__big { font-size: 2.6rem; line-height: 1.15; font-family: var(--app-font-display); font-weight: 800; }
+.choice-tile__word { font-family: var(--app-font-display); font-weight: 700; font-size: 1rem; }
+.choice-tile.is-dim { opacity: .4; }
+.choice-tile.is-odd { border-color: var(--app-teal); box-shadow: 0 0 0 4px #35b8a433, var(--app-shadow); }
+
+/* ---- answer / reveal panel ---- */
+.answer-panel {
+  background: linear-gradient(135deg, #fff7ec, #eef8f4);
+  border-radius: var(--app-radius); box-shadow: var(--app-shadow);
+  border-top: 5px solid var(--app-teal); padding: 1.1rem 1.3rem; margin-bottom: 1rem; text-align: center;
+}
+.answer-panel__big { font-family: var(--app-font-display); font-size: 1.6rem; font-weight: 800; }
+.answer-panel__sub { color: var(--app-ink-soft); font-size: .92rem; margin-top: .2rem; }
+
+/* ---- timer ---- */
+.timer { margin: 0 0 1rem; }
+.timer__track { height: 18px; background: #ffffffbf; border-radius: 999px; overflow: hidden; }
+.timer__fill {
+  height: 100%; width: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--app-teal), var(--app-sky));
+  transition: width .2s linear;
+}
+.timer.is-low .timer__fill { background: linear-gradient(90deg, var(--app-coral), var(--app-rose)); }
+.timer__num {
+  text-align: center; font-family: var(--app-font-display); font-weight: 800;
+  font-size: 1.2rem; color: var(--app-ink-soft); margin-top: .2rem;
+}
+
+/* ---- star meter (co-op) ---- */
+.star-meter { display: flex; flex-wrap: wrap; gap: .25rem; justify-content: center; font-size: 1.6rem; margin-bottom: .6rem; filter: drop-shadow(0 2px 4px rgba(88,69,128,.15)); }
+.star-meter span.is-empty { opacity: .3; filter: grayscale(1); }
+
+/* ---- quiz teams ---- */
+.team-row { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-bottom: .9rem; }
+.team-chip {
+  border: none; cursor: pointer; border-radius: 999px; padding: .4rem 1rem;
+  font-family: var(--app-font-display); font-weight: 700; font-size: .95rem;
+  background: #ffffffbf; color: var(--app-ink); box-shadow: var(--app-shadow);
+  border-bottom: 4px solid var(--team, var(--app-coral)); transition: transform .12s ease;
+}
+.team-chip:active { transform: scale(.94); }
+.team-chip__score { display: inline-block; min-width: 1.4em; margin-left: .35em; background: var(--team, var(--app-coral)); color: #fff; border-radius: 999px; padding: 0 .4em; font-size: .9em; }
+.team-chip[disabled] { cursor: default; }
+
+/* ---- misc rows ---- */
+.chip-row { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-bottom: .8rem; }
+.story-strip {
+  display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center;
+  background: #ffffffbf; border-radius: 16px; padding: .5rem .7rem; margin-bottom: 1rem;
+  font-size: 1.4rem; min-height: 2.6rem;
+}
+.story-strip .is-now { outline: 3px solid var(--app-sunshine); border-radius: 8px; }
+
+/* ---- confetti (self-contained; fixed so it rains over the viewport) ---- */
+.game-confetti { pointer-events: none; position: fixed; inset: 0; overflow: hidden; z-index: 60; }
+.game-confetti span {
+  position: absolute; top: -12px; width: 10px; height: 14px; border-radius: 3px;
+  opacity: .9; animation: game-confetti-fall 2.8s ease-in forwards;
+}
+@keyframes game-confetti-fall { to { transform: translateY(105dvh) rotate(540deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .game-confetti { display: none; } }
+
+/* ============================================================
+   Printable cards
+   ============================================================ */
+.print-sheet { margin-bottom: 1.4rem; }
+.print-sheet h2 { font-size: 1.2rem; margin: 0 0 .1rem; }
+.print-sheet__sub { font-size: .85rem; color: var(--app-ink-soft); margin-bottom: .7rem; }
+.print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .6rem; }
+@media (min-width: 460px) { .print-grid { grid-template-columns: repeat(3, 1fr); } }
+.print-card {
+  background: #fff; border: 1.5px dashed #b9b2cf; border-radius: 14px;
+  padding: .7rem .6rem .5rem; text-align: center; display: flex; flex-direction: column; gap: .15rem;
+  break-inside: avoid; page-break-inside: avoid; min-height: 108px; justify-content: center;
+}
+.print-card__set { font-size: .6rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--app-ink-faint); }
+.print-card__big { font-size: 1.7rem; line-height: 1.2; font-family: var(--app-font-display); font-weight: 800; }
+.print-card__word { font-family: var(--app-font-display); font-weight: 700; font-size: .95rem; line-height: 1.25; }
+.print-card__sub { font-size: .72rem; color: var(--app-ink-soft); line-height: 1.35; }
+.print-card__answer { font-size: .68rem; color: var(--app-ink-soft); transform: rotate(180deg); margin-top: .45rem; line-height: 1.3; }
+.print-card--howto { border-style: solid; border-color: var(--app-ink-faint); background: #f6f3fb; justify-content: flex-start; text-align: left; }
+.print-card--howto .print-card__sub { text-align: left; }
+.print-list { background: #fff; border: 1.5px solid #b9b2cf; border-radius: 14px; padding: .8rem 1rem; font-size: .85rem; break-inside: avoid; page-break-inside: avoid; }
+.print-list h3 { font-size: 1rem; margin-bottom: .3rem; }
+.print-list ol { padding-left: 1.3rem; color: var(--app-ink-soft); }
+.print-list li { margin-bottom: .15rem; }
+.print-duo { display: grid; grid-template-columns: 1fr; gap: .6rem; margin-bottom: .6rem; }
+@media (min-width: 460px), print { .print-duo { grid-template-columns: 1fr 1fr; } }
+.print-controls { position: sticky; top: 8px; z-index: 10; background: #ffffffeb; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: var(--app-radius); box-shadow: var(--app-shadow); padding: .9rem 1rem; margin-bottom: 1.2rem; }
+
+@media print {
+  .app-body { background: #fff !important; }
+  #app { max-width: none; padding: 0; }
+  .play-head, .play-foot, .print-controls, .no-print { display: none !important; }
+  .print-sheet { margin: 0 0 1rem; }
+  .print-sheet h2 { font-size: 1.05rem; }
+  .print-grid { grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+  .print-card { border-color: #999; border-radius: 10px; }
+  .print-card--howto { background: #f2f2f2; }
+  .print-sheet--break { page-break-before: always; }
+}

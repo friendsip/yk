@@ -1,0 +1,28 @@
+---
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
+import '../../styles/games.css';
+---
+
+<ToolAppLayout
+  title="Printable game cards"
+  description="Print-and-play versions of our educational games — Odd One Out, Buzz!, Chain Reaction, quiz sheets, treasure-hunt and story cards. Free from yourkids.com."
+  heading="Printable game cards 🖨️"
+  sub="The same games, on paper — for settings where screens are the wrong tool. Print, cut along the dashed lines, play."
+  backHref="/games"
+  backLabel="All games"
+>
+  <div class="print-controls no-print">
+    <div class="chip-row" id="set-chips" style="margin-bottom:.6rem"></div>
+    <button class="app-btn js-primary" id="print-btn">Print these cards 🖨️</button>
+    <p class="tool-note" style="text-align:center;margin-top:.4rem">
+      Untick anything you don't need. Each set starts on a fresh page.
+    </p>
+  </div>
+
+  <main id="sheets"></main>
+</ToolAppLayout>
+
+<script>
+  import { initPrint } from '../../lib/games/print';
+  initPrint();
+</script>

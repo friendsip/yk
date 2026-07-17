@@ -36,10 +36,10 @@ below hold the detail. The companion health-check is
 - **Free-registration gating + member backend** (§13) — the "free, but
   subscribed" value exchange; the FastAPI backend that later owns the
   subscriber list and carries the games gate.
-- **More games** (first one — What the Word?! — is built and awaiting its
-  subdomain, see §11), the **admin dashboard**, and the remaining engine
-  Phase-3 stubs (synthesis, trends, article decay, competitive intel, web
-  discovery).
+- The **admin dashboard**, and the remaining engine Phase-3 stubs (synthesis,
+  trends, article decay, competitive intel, web discovery). Games are no
+  longer a gap: four on-screen games shipped into `/games` on 17 July, and
+  What the Word?! awaits only its subdomain DNS (§11).
 
 **Top 3 next actions:** (1) commit + push the working tree so the built
 improvements go live; (2) create the Buttondown account, set
@@ -414,10 +414,19 @@ on-device. App follow-ups:
   Needs `gh` authenticated on the VPS for issue creation. This also
   supersedes the manual "quarterly re-verification cadence" item above.
 - [x] **Educational games section page (July 2026)** — `/games` live
-  (classroom/group framing, coral accent, in nav + footer). Still announced
-  as coming: circle-time games, quiz packs, co-operative mixed-age games,
-  printable game cards; see the revitalization-plan note about classroom use
-  vs the subscription gate.
+  (classroom/group framing, coral accent, in nav + footer).
+- [x] **Four on-screen games shipped (17 July 2026)** — Mark's ykgames
+  prototype ported into the site proper: `/games/circle-time` (Buzz!, Odd One
+  Out, Chain Reaction, Make the Number), `/games/quiz` (6 packs × 10
+  questions), `/games/coop` (Find It Together, Story Circle, Copy Cat Crew),
+  `/games/print` (print-and-play cards for all of them). Engines live in
+  `site/src/lib/games/` (data + common helpers + per-game modules, all
+  client-side; best scores via `lib/storage`), styling in `games.css` on top
+  of the app skin, pages on ToolAppLayout (indexable, JSON-LD). 6 data tests
+  (incl. a makeIdeas arithmetic sweep) + a quiz e2e flow. Privacy §3a covers
+  best scores. **Maintenance:** quiz facts are slow-moving general knowledge —
+  not in the decay register (no authoritative URLs to diff); give the packs a
+  human skim ~annually when refreshing content.
 - [x] **First game: What the Word?! (16 July 2026)** — the standalone `wtw`
   project (same Vercel team) reskinned to the YourKids design and made
   classroom-safe: hand-vetted word packs (13 categories × 3 difficulties,

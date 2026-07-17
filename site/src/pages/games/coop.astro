@@ -1,0 +1,20 @@
+---
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
+import '../../styles/games.css';
+---
+
+<ToolAppLayout
+  title="Co-operative games for mixed ages"
+  description="Games where everyone plays on the same team — a treasure hunt, a storytelling circle and a memory chain, designed so little ones and bigger kids genuinely play together. Free from yourkids.com."
+  heading="Co-operative games 🤝"
+  sub="Everyone on the same team — designed so a four-year-old and a seven-year-old can genuinely play together."
+  backHref="/games"
+  backLabel="All games"
+>
+  <main id="screen" class="screen"></main>
+</ToolAppLayout>
+
+<script>
+  import { initCoop } from '../../lib/games/coop';
+  initCoop();
+</script>

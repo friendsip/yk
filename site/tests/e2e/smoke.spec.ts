@@ -55,6 +55,16 @@ test('newsletter band: signing up always gets an honest answer', async ({ page }
   await expect(status).not.toBeEmpty();
 });
 
+test('quiz packs: pick a pack, reveal an answer, score a point', async ({ page }) => {
+  await page.goto('/games/quiz/');
+  await page.getByRole('button', { name: /Amazing Animals/ }).click();
+  await page.getByRole('button', { name: /Two teams/ }).click();
+  await page.getByRole('button', { name: 'Show the answer' }).click();
+  await expect(page.locator('.answer-panel__big')).toBeVisible();
+  await page.locator('.team-chip[data-team="0"]:not([disabled])').click();
+  await expect(page.locator('.hud')).toContainText('Question 2');
+});
+
 test('baby age tool: corrected age shows for a premature baby', async ({ page }) => {
   await page.goto('/tools/baby-age/');
   await page.fill('#age-dob', '2026-05-01');

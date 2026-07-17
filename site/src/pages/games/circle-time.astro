@@ -1,0 +1,20 @@
+---
+import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
+import '../../styles/games.css';
+---
+
+<ToolAppLayout
+  title="Circle-time word and number games"
+  description="Quick, no-prep circle-time games for classrooms and playgroups — Buzz!, Odd One Out, Chain Reaction and Make the Number. Free from yourkids.com."
+  heading="Circle-time games 🟡"
+  sub="Quick, no-prep games a whole group can play together. One person holds the screen and taps; everyone else answers out loud."
+  backHref="/games"
+  backLabel="All games"
+>
+  <main id="screen" class="screen"></main>
+</ToolAppLayout>
+
+<script>
+  import { initCircleTime } from '../../lib/games/circle-time';
+  initCircleTime();
+</script>

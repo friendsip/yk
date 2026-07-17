@@ -1,48 +1,88 @@
 ---
 import ToolAppLayout from '../../layouts/ToolAppLayout.astro';
+import '../../styles/games.css';
 
-const planned = [
+const games = [
   {
-    title: 'Circle-time word and number games',
-    blurb: 'Quick, no-prep games a whole group can play together — nothing needed but a screen (or a printout) and some children.',
+    href: '/games/circle-time',
+    emoji: '🟡',
+    accent: 'var(--app-coral)',
+    label: 'Circle-time word and number games',
+    blurb:
+      'Quick, no-prep games a whole group can play together — nothing needed but a screen (or a printout) and some children.',
+    go: 'Play →',
   },
   {
-    title: 'Quiz packs',
-    blurb: 'Ready-made question rounds for classrooms, after-school clubs and family quiz afternoons, refreshed regularly.',
+    href: '/games/quiz',
+    emoji: '❓',
+    accent: 'var(--app-lavender)',
+    label: 'Quiz packs',
+    blurb:
+      'Ready-made question rounds for classrooms, after-school clubs and family quiz afternoons.',
+    go: 'Play →',
   },
   {
-    title: 'Co-operative games for mixed ages',
-    blurb: "Games where everyone plays on the same team — designed so a four-year-old and a seven-year-old can genuinely play together.",
+    href: '/games/coop',
+    emoji: '🤝',
+    accent: 'var(--app-teal)',
+    label: 'Co-operative games for mixed ages',
+    blurb:
+      'Games where everyone plays on the same team — designed so a four-year-old and a seven-year-old can genuinely play together.',
+    go: 'Play →',
   },
   {
-    title: 'Printable game cards',
-    blurb: 'Print-and-play versions for settings where screens are the wrong tool — the same games, on paper.',
+    href: '/games/print',
+    emoji: '🖨️',
+    accent: 'var(--app-rose)',
+    label: 'Printable game cards',
+    blurb:
+      'Print-and-play versions for settings where screens are the wrong tool — the same games, on paper.',
+    go: 'Print →',
   },
 ];
 ---
 
 <ToolAppLayout
   title="Educational games"
-  description="Free educational games for classrooms, playgroups and family gatherings from yourkids.com — starting with What the Word?!, a team word-guessing game."
+  description="Free educational games for classrooms, playgroups and family gatherings — circle-time games, quiz packs, co-operative games, printable cards and the What the Word?! team game."
   heading="Educational games 🎲"
   sub="Original games for classrooms, playgroups and rainy-day gatherings — designed for groups, genuinely educational, free to play."
 >
   <section class="guide-section">
-    <h2>Play now: What the Word?!</h2>
+    <h2>Play on this screen <span class="free-pill">Free to play</span></h2>
     <p class="guide-section__lede">
-      Our first game is live. <strong>What the Word?!</strong> is a fast,
-      happy team word-guessing game: in pairs, one of you describes the word
-      on screen without saying it, your partner guesses, and the points pile
-      up. Set it up on one screen, teams join on their phones with a QR code,
-      and there's a scoreboard view made for the classroom projector.
+      Every game is five to fifteen minutes long, easy to explain, with natural
+      stopping points — and quietly educational rather than flashy. A grown-up
+      (or a confident bigger kid) holds the screen and reads things out;
+      everyone else just plays. No ads, no accounts, ever.
+    </p>
+    <div class="stage-grid">
+      {games.map((g) => (
+        <a class="stage-card" href={g.href} style={`--card-accent: ${g.accent}`}>
+          <span class="stage-card__emoji">{g.emoji}</span>
+          <span class="stage-card__label">{g.label}</span>
+          <span class="stage-card__title">{g.blurb}</span>
+          <span class="stage-card__go">{g.go}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>Play across phones: What the Word?!</h2>
+    <p class="guide-section__lede">
+      Our multiplayer game. <strong>What the Word?!</strong> is a fast, happy
+      team word-guessing game: in pairs, one of you describes the word on
+      screen without saying it, your partner guesses, and the points pile up.
+      Set it up on one screen, teams join on their phones with a QR code, and
+      there's a scoreboard view made for the classroom projector.
     </p>
     <p>
-      Every category — animals, science, space, history, Shakespeare and
-      more — uses word lists we've written and checked ourselves, with three
-      difficulty levels from age-six-friendly to challenge-the-grown-ups. Or
-      paste in your own words: this week's spelling list makes a brilliant
-      game. No accounts, no ads, and games tidy themselves away an hour after
-      you finish.
+      Every category — animals, science, space, history, Shakespeare and more —
+      uses word lists we've written and checked ourselves, with three
+      difficulty levels. Or paste in your own words: this week's spelling list
+      makes a brilliant game. Games tidy themselves away an hour after you
+      finish.
     </p>
     <p style="margin-top: 1rem;">
       <a class="tool-cta" href="https://games.yourkids.com">Play What the Word?! &rarr;</a>
@@ -50,37 +90,13 @@ const planned = [
   </section>
 
   <section class="guide-section">
-    <h2>What's coming <span class="coming-soon-pill">Coming soon</span></h2>
-    <p class="guide-section__lede">
-      We're building a small collection of original games with teachers, group
-      leaders and tired parents in mind: five to fifteen minutes long, easy to
-      explain, with natural stopping points — and quietly educational rather
-      than flashy. No ads, no in-app purchases, ever.
-    </p>
-    <div class="stage-grid">
-      {planned.map((p) => (
-        <div class="stage-card">
-          <span class="stage-card__label">{p.title}</span>
-          <span class="stage-card__title">{p.blurb}</span>
-        </div>
-      ))}
-    </div>
-    <p class="tool-note" style="margin-top: 1rem;">
-      We'd rather ship a few genuinely good games than many mediocre ones, so
-      we're taking our time. The weekly digest will announce them when
-      they're ready.
-    </p>
-  </section>
-
-  <section class="guide-section">
-    <h2>In the meantime</h2>
+    <h2>And for the littlest ones</h2>
     <p>
-      If you're after games to play with little ones today, our
+      If you're after games to play with ones-to-threes today, our
       <a href="/toddler/easy-games">easy games for tired parents</a> guide has
-      a compendium of low-effort games for ones-to-threes, and every
+      a compendium of low-effort games, and every
       <a href="/toddler">toddler stage guide</a> includes games matched to that
-      age. For older children, our <a href="/topics">topic guides</a> cover
-      learning through play.
+      age. More games are on the way — the weekly email announces them first.
     </p>
   </section>
 </ToolAppLayout>

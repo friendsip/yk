@@ -20,6 +20,9 @@ export const APP_PARENT_KEY = 'yk-app-parent';
 export const APP_CHILDREN_KEY = 'yk-app-children';
 export const APP_ACTIVE_KEY = 'yk-app-active';
 
+/** Best scores in the /games pages, one key per game (e.g. yk-games:chain) */
+export const gamesBestKey = (game: string) => `yk-games:${game}`;
+
 export function saveStored(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
