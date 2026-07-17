@@ -1,6 +1,6 @@
 ---
 title: Cooking Together
-summary: Getting children into the kitchen reliably builds skills, confidence, and involvement — and that's worth celebrating on its own terms, even if it won't automatically transform their diet. The honest case for cooking together.
+summary: Cooking builds kids skills, confidence, and promotes an interest in healthy food.
 type: evergreen
 section: parenting
 tags:
@@ -19,23 +19,22 @@ image_source_url: https://unsplash.com/photos/my1mDMraGf0?utm_source=yourkids&ut
 featured: true
 ---
 
-Cooking with children is one of those activities that gets marketed as a solution to almost everything: fussy eating, poor nutrition, underdeveloped practical skills, family disconnection. The evidence is warmer and more honest than that list suggests — but only if you know which claims to believe.
+A 2024 study, published in the _Journal of Nutrition Education and Behavior_, found that cooking programmes for children improved knowledge, confidence, and enthusiasm.
 
-A 2024 systematic review of 23 randomised controlled trials, published in the *Journal of Nutrition Education and Behavior*, found something worth sitting with: cooking programmes for children reliably improved cooking knowledge, confidence, and involvement. Children who cooked learned to cook. They felt more capable in the kitchen. They were more interested in food preparation.
-
-What cooking programmes did *not* reliably achieve was a significant improvement in children's actual dietary intake. Most studies found that getting children cooking didn't automatically translate into them eating more vegetables or improving their overall diet quality. That's the honest picture — and it doesn't make cooking together any less worth doing.
+Most studies found that getting children cooking didn't mean they started eating better. This is counter to our experience at home, where our oldest two daughters definitely started eating better when they learned started to cook themselves. 
 
 ## Key takeaways
 
-- Cooking programmes consistently improve children's cooking knowledge, confidence, and involvement. These are genuine, measurable benefits.
-- Improvements in actual dietary intake — eating more vegetables, better diet quality — are much harder to achieve and rarely found in studies, except in longer programmes (over six hours of cumulative cooking) or measured two years post-intervention.
+- Cooking with your kids improves their knowledge, confidence, and involvement. These are measurable benefits.
+- Improvements in actual dietary intake — eating more vegetables, better diet quality — are much harder to achieve and rarely found in studies, except in longer programmes (over six hours of cumulative cooking) or measured two years post-intervention. This would accord with our experience. 
 - The benefits for skills and confidence are real and worth having for their own sake, not just as a route to better eating.
 - Cooking together provides natural opportunities for conversation, maths, science, and practical independence — context that the dietary studies don't measure.
-- Children vary enormously in how they engage with cooking; pressure and performance don't help.
+- Children vary enormously in how they engage with cooking
+- Another key takeaway: pressure and performance metrics don't help, it should be done for fun. 
 
----
+***
 
-## What the research actually found
+## More about the research
 
 The 2024 systematic review, which looked at 23 randomised controlled trials spanning 1998 to 2022, is the most rigorous recent synthesis of the evidence. The headline finding is consistent enough to be useful:
 
@@ -44,33 +43,19 @@ The 2024 systematic review, which looked at 23 randomised controlled trials span
 **What doesn't work reliably:** improvements in fruit and vegetable intake, overall diet quality, or food preferences. The review found "improvements in dietary intake were rarely achieved despite focus on food acceptance and dietary behaviour."
 
 There are two caveats that push slightly in a more hopeful direction:
+
 - A separate 2024 review found small vegetable intake improvements, but only for programmes that exceeded six hours of cumulative cooking time.
 - A longer-term study found that fruit and vegetable gains did appear — but not until two years after the intervention, suggesting that the habit-building may take time to show up in what children eat.
 
-So the honest picture is: cooking together probably builds the foundations of a better relationship with food, but it works slowly and indirectly. Expecting a six-year-old's vegetable refusals to reverse after one session making ratatouille is setting yourself up for disappointment.
+What the study did show as that cooking together probably builds the foundations of a better relationship with food, but it works slowly and indirectly. Expecting a six-year-old's vegetable refusals to reverse after one session making ratatouille is setting yourself up for disappointment.
 
----
-
-## Why the skills are worth celebrating anyway
-
-Here's where the framing matters. The question "does cooking together improve children's diets?" is a reasonable research question, but it may not be the most important question for families.
-
-Cooking knowledge and confidence are practical skills with lifelong value. A child who grows up comfortable in the kitchen — who can chop, stir, and improvise — has a genuine advantage. Food insecurity and poor diet quality in adulthood are strongly linked to cooking skills (or their absence), and those skills have to be learned somewhere.
-
-The evidence base largely measures short-term dietary outcomes. It doesn't measure:
-- Whether a child who cooks with a parent at eight is more likely to cook for themselves at eighteen
-- Whether the kitchen is a place where conversation happens, problems get discussed, and relationships are built
-- Whether the maths of doubling a recipe or the science of why bread rises leaves any trace
-
-None of those outcomes have been through a randomised controlled trial. That doesn't mean they're absent — it means they're harder to study.
-
----
+***
 
 ## What helps in practice
 
 Based on what the evidence does support, a few things seem to matter:
 
-**Making it genuinely participatory.** Children who cook alongside adults — stirring, tasting, making small decisions — develop more ownership than children who watch or who have prescribed tasks. This is less about giving a child a role on a cooking show and more about making the kitchen a shared space.
+**Making it participatory.** Children who cook alongside adults — stirring, tasting, making small decisions — develop more ownership. Make it a fun game you are doing together rather than a set of prescribed tasks. This is less about giving a child a role on a cooking show and more about making the kitchen a shared space.
 
 **Sustaining it over time.** The studies that did find dietary improvements used programmes lasting well over six hours total. This points to cooking as a habit rather than a one-off activity. Ten minutes of making a simple sauce together on a Thursday is worth more, cumulatively, than an elaborate cooking project once a term.
 
@@ -78,17 +63,15 @@ Based on what the evidence does support, a few things seem to matter:
 
 **Matching to age and interest.** Toddlers can wash vegetables and tear herbs. Four-year-olds can mix, pour, and roll. Eight-year-olds can learn knife skills with supervision. Teenagers can cook whole meals independently if they're interested. Forcing the wrong activity at the wrong age makes it feel like a chore.
 
----
+***
 
 ## A note on fussy eating
 
 Cooking together is often suggested as a way to get children to eat foods they currently refuse. The evidence for this is mixed at best. Children's food preferences are influenced by repeated exposure, not just preparation. A child who has made a meal containing courgettes has been exposed to courgettes — that might count — but there's no guarantee they'll eat them.
 
-The most helpful finding is that longer involvement and repeated experience seem to matter. Cooking together once is unlikely to convert a vegetable refuser; cooking together regularly over months or years might nudge preferences gradually. That's a realistic expectation, not a miracle cure.
+For UK parents navigating significant fussy eating: the [Children's Food Trust](https://www.childrensfoodtrust.org.uk/) and the NHS both have guidance on picky eating that acknowledges the evidence.
 
-For UK parents navigating significant fussy eating: the [Children's Food Trust](https://www.childrensfoodtrust.org.uk/) and the NHS both have guidance on picky eating that acknowledges the evidence honestly.
-
----
+***
 
 ## Getting started
 
@@ -99,3 +82,19 @@ If you've never cooked with children before, the simplest route in is often the 
 - **Something they chose** — asking what they'd like to make next week costs nothing and builds investment
 
 The goal is a kitchen that feels like a shared space, not a classroom. If the biscuits are slightly burnt and some flour ended up on the ceiling, that's fine.
+
+Here's one idea to get started: 
+
+[![DIY Taco Bar. Source: I'm The Chef Too / Healthy Taco Recipes Kids Can Make: Fun & Easy Meals](/images/taco.png)](https://www.imthecheftoo.com/blogs/cooking-with-kids/fun-easy-taco-recipes-for-kids-your-familys-new-favorite-night)
+
+### The "Build-Your-Own" Taco Bar
+
+Giving kids a choice reduces dinner-table battles. Set everything out in small bowls and let them assemble.
+
+- **The Base:** Lean ground beef or turkey seasoned with mild taco seasoning (go easy on the chili powder), or shredded rotisserie chicken.
+- **The Shells:** Offer both crunchy corn shells and soft flour tortillas.
+- **The Spread:** Shredded cheddar, mild salsa, sweet corn kernels, black beans, diced tomatoes, shredded lettuce, and sour cream or plain Greek yogurt.
+
+More research? Check out:
+
+[https://www.imthecheftoo.com/](https://www.imthecheftoo.com/)
