@@ -1,35 +1,50 @@
 ---
 import { getCollection } from 'astro:content';
 import ContentLayout from '../../layouts/ContentLayout.astro';
+import RedirectStub from '../../components/RedirectStub.astro';
+import { aliasRoutes } from '../../lib/redirects';
 
 export async function getStaticPaths() {
   const content = await getCollection('content');
-  return content
+  const live = content
     .filter(c => c.data.type === 'evergreen')
     .map((item) => ({
       params: { slug: item.slug },
-      props: { item },
+      props: { item, redirectTo: null },
     }));
+  // Old slugs from renamed entries (any section) get a redirect stub here
+  const aliases = aliasRoutes(
+    content.map(c => ({ slug: c.slug, type: c.data.type, redirect_from: c.data.redirect_from })),
+    new Set(live.map(p => p.params.slug))
+  ).map(({ slug, redirectTo }) => ({
+    params: { slug },
+    props: { item: null, redirectTo },
+  }));
+  return [...live, ...aliases];
 }
 
-const { item } = Astro.props;
-const { Content } = await item.render();
+const { item, redirectTo } = Astro.props;
+const Content = item ? (await item.render()).Content : null;
 ---
 
-<ContentLayout
-  title={item.data.title}
-  summary={item.data.summary}
-  type={item.data.type}
-  tags={item.data.tags}
-  sources={item.data.sources}
-  first_published={item.data.first_published}
-  last_updated={item.data.last_updated}
-  image={item.data.image}
-  imageAlt={item.data.image_alt}
-  imageCreditName={item.data.image_credit_name}
-  imageCreditUrl={item.data.image_credit_url}
-  imageSourceUrl={item.data.image_source_url}
-  body={item.body}
->
-  <Content />
-</ContentLayout>
+{redirectTo ? (
+  <RedirectStub redirectTo={redirectTo} />
+) : (
+  <ContentLayout
+    title={item.data.title}
+    summary={item.data.summary}
+    type={item.data.type}
+    tags={item.data.tags}
+    sources={item.data.sources}
+    first_published={item.data.first_published}
+    last_updated={item.data.last_updated}
+    image={item.data.image}
+    imageAlt={item.data.image_alt}
+    imageCreditName={item.data.image_credit_name}
+    imageCreditUrl={item.data.image_credit_url}
+    imageSourceUrl={item.data.image_source_url}
+    body={item.body}
+  >
+    <Content />
+  </ContentLayout>
+)}

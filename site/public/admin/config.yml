@@ -19,6 +19,11 @@ site_url: https://www.yourkids.com
 media_folder: site/public/images
 public_folder: /images
 
+# Write cleaner files: leave blank optional fields out entirely instead of
+# writing empty strings (the site schema also tolerates '' as a fallback).
+output:
+  omit_empty_optional_fields: true
+
 collections:
   - name: content
     label: Articles & links
@@ -50,6 +55,7 @@ collections:
       - { name: image_credit_url, label: 'Photo credit — URL', widget: string, required: false }
       - { name: image_source_url, label: 'Photo source URL', widget: string, required: false }
       - { name: featured, label: 'Pin to homepage', widget: boolean, default: false, required: false }
+      - { name: redirect_from, label: 'Redirect from (old slugs)', widget: list, required: false, hint: "If this entry is ever renamed (new filename), add the OLD slug here — the old URL then redirects instead of breaking. Don't edit otherwise." }
       - { name: body, label: Body, widget: markdown }
 
   - name: recommendations

@@ -1,0 +1,30 @@
+---
+/**
+ * A tiny page left at an entry's OLD slug after a rename (see
+ * lib/redirects.ts). Meta-refresh 0 acts as a permanent-style redirect that
+ * works on a fully static host; canonical + noindex tell search engines the
+ * real home; the visible link is the no-refresh fallback.
+ */
+interface Props {
+  redirectTo: string;
+}
+const { redirectTo } = Astro.props;
+const target = new URL(redirectTo, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content={`0; url=${redirectTo}`} />
+    <link rel="canonical" href={target} />
+    <meta name="robots" content="noindex" />
+    <title>Moved | YourKids</title>
+  </head>
+  <body>
+    <p style="font-family: system-ui, sans-serif; margin: 3rem auto; max-width: 28rem; text-align: center;">
+      This page has moved — <a href={redirectTo}>continue to the article</a>.
+    </p>
+  </body>
+</html>
