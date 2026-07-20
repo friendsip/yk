@@ -1,5 +1,9 @@
 # Next Tasks
 
+> **Start here: [`next-steps.md`](next-steps.md)** — the distilled, dated
+> action list (blockers → activation switches → development queue). This file
+> holds the full detail behind it.
+
 ## Where We Are — status snapshot (15 July 2026)
 
 A lot has shipped. This is the honest current picture; the numbered sections

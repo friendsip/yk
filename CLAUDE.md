@@ -104,6 +104,8 @@ Site pages (`site/src/pages/`) filter the collection by `type` for the `/article
 
 Articles may include a `## Key takeaways` section after the opening paragraph (3–5 bullets); the site styles it as a highlighted box via the heading's slugified id, and the engine writer prompt instructs the LLM to produce it for evergreen articles.
 
+**Slugs are the filenames and should be treated as permanent** — the title can change freely without touching the URL. When a file genuinely must be renamed, add the old slug to the entry's `redirect_from:` list (schema field, July 2026): each section route emits a tiny meta-refresh + canonical + noindex stub at every old slug via `src/lib/redirects.ts` (`aliasRoutes`, vitest-covered), so old links keep working — including across section moves if `type` changes. The /admin CMS exposes the field.
+
 ## Baby & Toddler Guides (interactive web app)
 
 Free, mobile-first guides at `/baby` and `/toddler` — static Astro pages rendered from hand-maintained TypeScript data modules in `site/src/data/` (`types.ts` defines the schema; `baby/weeks.ts` weeks 1–12, `baby/months.ts` 3–12 months, `baby/feeding.ts` four judgement-free feeding guides, `baby/health.ts` health topics, `toddler/stages.ts` five stages, `toddler/guides.ts` four cross-cutting guides). All ages are **completed weeks**. Interactivity is client-side enhancement only (`site/src/lib/childAge.ts`): birth dates and the feeding-mode preference live in localStorage (`yk-baby-birthdate`, `yk-toddler-birthdate`, `yk-feeding-mode`) and are never sent anywhere (privacy policy §3a). Content is engine-independent, was verified against NHS/AAP/WHO/Lullaby Trust/CDC guidance in July 2026, and needs periodic human re-verification — vaccination schedules especially.
