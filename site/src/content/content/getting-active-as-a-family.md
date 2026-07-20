@@ -1,6 +1,6 @@
 ---
 title: Getting Active as a Family
-summary: Moving together as a family genuinely helps children be more active — though the effects are more modest than headlines often suggest. Here's what the evidence actually says, and some practical ideas for making it work.
+summary: Moving together as a family keeps kids active. Here are some ideas to make it work.
 type: evergreen
 section: parenting
 tags:
