@@ -1,13 +1,8 @@
 ---
-title: "Outdoor Play: What the Evidence Actually Says"
-summary: "Enriched outdoor play spaces — natural elements, loose parts, varied terrain — appear to support children's physical activity and wellbeing. The research is more mixed than enthusiasts sometimes claim, but the direction is encouraging, and the case for getting children outside doesn't rest on any single study."
+title: Outdoor Play
+summary: Enriched outdoor play spaces — natural elements, loose parts, varied terrain — supports kid's physical activity and wellbeing.
 type: evergreen
 section: parenting
-image: "/images/outdoor-play-aedrian-salazar.jpg"
-image_alt: "A child playing on a red metal playground climbing frame"
-image_credit_name: "Aedrian Salazar"
-image_credit_url: "https://unsplash.com/photos/EZcffLueI28?utm_source=yourkids&utm_medium=referral"
-image_source_url: "https://unsplash.com/photos/EZcffLueI28?utm_source=yourkids&utm_medium=referral"
 tags:
   - good-news
   - health
@@ -17,6 +12,12 @@ sources:
   - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12287494/
 first_published: 2026-06-13
 last_updated: 2026-06-13
+external_url: ''
+image: /images/outdoor-play-aedrian-salazar.jpg
+image_alt: A child playing on a red metal playground climbing frame
+image_credit_name: Aedrian Salazar
+image_credit_url: https://unsplash.com/photos/EZcffLueI28?utm_source=yourkids&utm_medium=referral
+image_source_url: https://unsplash.com/photos/EZcffLueI28?utm_source=yourkids&utm_medium=referral
 featured: true
 ---
 
