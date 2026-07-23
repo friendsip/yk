@@ -465,6 +465,16 @@ on-device. App follow-ups:
   rotate/remove the now-unused `ANTHROPIC_API_KEY` (it leaked into a local
   session log on 16 July — rotate at console.anthropic.com), and consider
   git-connecting the `wtw` Vercel project so pushes auto-deploy.
+- [x] **Working at the Farm added to the site (23 July 2026)** — Mark's
+  standalone `~/kidstractor` project (Vite + Three.js 3D tractor/digger/dump
+  truck game for toddlers, live at ezefarm.vercel.app; keyboard/gamepad only,
+  all state in localStorage). Linked as its own section on `/games`, a
+  launcher tile on `/tools`, covered in privacy §3a (stars, optional first
+  name, play-time limit — all on-device), plus an editorial tour of all the
+  games (`free-games-on-yourkids.md`). Fully client-side, so no decay-register
+  entry. ✅ **LIVE at farm.yourkids.com (23 July 2026)** — Squarespace
+  `A farm 76.76.21.21` → the `farmer` Vercel project, cert issued, all site
+  links point there (ezefarm.vercel.app still works too).
 - [x] **"What can we do today?" activity wheel (July 2026)** —
   `/tools/activities`: phone-app-style spinning wheel, 344 original
   activities across five age bands (1–3 to teens) and twelve categories,
